@@ -86,13 +86,16 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/projects - List all projects with optional filters
+ * Supports: status, ministry_id, ministry (name), search (title/ministry)
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const ministry_id = searchParams.get('ministry_id');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const ministry = searchParams.get('ministry'); // Filter by ministry name
+    const search = searchParams.get('search'); // Search in title or ministry name
+    const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
 
     // Build query dynamically based on filters
@@ -117,6 +120,16 @@ export async function GET(request: NextRequest) {
       params.push(ministry_id);
     }
 
+    if (ministry) {
+      conditions.push(`p.recipient_name ILIKE $${params.length + 1}`);
+      params.push(`%${ministry}%`);
+    }
+
+    if (search) {
+      conditions.push(`(p.title ILIKE $${params.length + 1} OR p.recipient_name ILIKE $${params.length + 1})`);
+      params.push(`%${search}%`);
+    }
+
     if (conditions.length > 0) {
       queryText += ` WHERE ` + conditions.join(' AND ');
     }
@@ -131,6 +144,7 @@ export async function GET(request: NextRequest) {
 
     const result = await query(queryText, params);
 
+    // Return flat array for public API (simpler for public homepage)
     const projects = result.rows.map((row: any) => ({
       id: row.id,
       ministry_id: row.ministry_id,
@@ -139,9 +153,10 @@ export async function GET(request: NextRequest) {
       recipient_name: row.recipient_name,
       recipient_type: row.recipient_type,
       total_amount: row.total_amount,
-      total_allocated: row.total_allocated || 0,
-      total_released: row.total_released || 0,
+      total_allocated: row.total_allocated || '0',
+      total_released: row.total_released || '0',
       status: row.status,
+      blockchain_id: row.blockchain_id,
       solana_account: row.solana_account,
       creation_tx: row.creation_tx,
       created_at: row.created_at,
@@ -149,14 +164,8 @@ export async function GET(request: NextRequest) {
       milestone_count: parseInt(row.milestone_count_actual) || 0,
     }));
 
-    return NextResponse.json({
-      projects,
-      pagination: {
-        limit,
-        offset,
-        total: projects.length,
-      },
-    });
+    // Return simple array for public consumption
+    return NextResponse.json(projects);
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json(
