@@ -57,24 +57,44 @@ docs/IMPLEMENTATION-PLAN.md    # Full technical spec (reference this!)
   - POST /api/projects - Create draft project
   - GET /api/projects - List projects with filters
   - GET /api/projects/[id] - Project details with milestones
-  - POST /api/projects/[id]/publish - Publish to blockchain (placeholder)
+  - POST /api/projects/[id]/publish - Publish to blockchain (real wallet signing)
   - POST /api/milestones - Create milestone with budget validation
   - GET /api/milestones - List milestones
-  - POST /api/milestones/[id]/release - Release funds (placeholder)
+  - POST /api/milestones/[id]/release - Release funds (real wallet signing)
 - ✅ **Budget Validation:** Prevents over-allocation and double-release
 - ✅ **Solana Utilities:** PDA helpers (getPlatformPda, getProjectPda, getMilestonePda), explorer links
 - ✅ **Connection Pool:** Configured with transactions and error handling
-- ⚠️ **Placeholders:** Publish & release use placeholder txs (wallet integration in Epic 3)
+
+**EPIC 3 COMPLETE - Admin Ministry Dashboard:**
+- ✅ **NextAuth 4.24.5:** Google OAuth with session management (JWT, 30-day expiry)
+- ✅ **Wallet Adapter:** Phantom & Solflare support with auto-connect
+- ✅ **Admin UI Components:**
+  - AdminLayout with protected routing
+  - AdminHeader with user info, wallet button, sign-out
+  - AdminSidebar with navigation and wallet status
+  - Responsive Tailwind CSS design
+- ✅ **Admin Pages:**
+  - Dashboard with wallet status and quick actions
+  - Projects list with status filters
+  - Project detail with blockchain verification
+  - New project form with validation
+- ✅ **Real Blockchain Integration:**
+  - Publish projects with wallet-signed initializeProject
+  - Add milestones with wallet-signed addMilestone
+  - Release funds with wallet-signed releaseFunds
+  - On-chain verification via Solana Explorer
+- ✅ **Protected Routes:** Middleware securing all /admin/* paths
+- ✅ **Build:** TypeScript strict mode passing, 11/11 pages compiled
 
 **Remaining Work:**
-- ❌ Epic 3: Admin dashboard (NextAuth + Wallet adapter)
-- ❌ Epic 4: Public dashboard
+- ❌ Epic 4: Public citizen dashboard (view-only interface)
 - ❌ Epic 5: VPS deployment + demo video
 
-**Timeline:** 2.5 days remaining to MVP
+**Timeline:** 2 days remaining to MVP
 1. ~~Day 1: Solana program + Database + API~~ ✅ COMPLETE (Epic 1 & 2)
-2. Day 2: Admin & Public dashboards (Epic 3-4)
-3. Day 3-4: Deploy to rectorspace.com + demo video (Epic 5)
+2. ~~Day 2 Morning: Admin dashboard~~ ✅ COMPLETE (Epic 3)
+3. Day 2 Afternoon: Public dashboard (Epic 4)
+4. Day 3-4: Deploy to rectorspace.com + demo video (Epic 5)
 
 ## Data Flows
 
@@ -154,6 +174,8 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 - `EPIC1-COMPLETION-REPORT.md` - Epic 1 achievements and retrospective
 - `docs/execution/EXECUTION-Epic1-Blockchain-Infrastructure.md` - Epic 1 implementation details
 - `docs/execution/EXECUTION-Epic2-Database-API-Integration.md` - Epic 2 implementation details
+- `docs/execution/EXECUTION-Epic3-Admin-Ministry-Dashboard.md` - Epic 3 implementation details
+- `docs/guides/GOOGLE-OAUTH-SETUP.md` - Google OAuth setup guide
 
 ## Database
 
@@ -251,27 +273,30 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 ---
 
-## Next Steps (Epic 3)
+## Next Steps (Epic 4)
 
-**Epic 3: Admin Ministry Dashboard** - Estimated 7 hours
+**Epic 4: Public Citizen Dashboard** - Estimated 4 hours
 
 **Deliverables:**
-1. NextAuth Google OAuth integration
-2. Solana wallet adapter (Phantom/Solflare)
-3. Admin UI for:
-   - Project creation and management
-   - Publishing projects to blockchain (real wallet signing)
-   - Milestone creation and release (real wallet signing)
-4. Protected routes with authentication
-5. Wallet connection UI components
+1. Public homepage with project showcase
+2. Project listing page with search and filters
+3. Project detail page with milestone timeline
+4. Blockchain verification interface
+5. Responsive design for mobile citizens
 
 **Prerequisites:**
 - ✅ Epic 1: Solana program deployed and tested
 - ✅ Epic 2: Database & API routes functional
-- ⏳ Google OAuth credentials configured
-- ⏳ Wallet adapter components installed
+- ✅ Epic 3: Admin dashboard with real blockchain integration
 
-**Reference:** `docs/planning/PRD-Epic3-Admin-Ministry-Dashboard.md`
+**Key Features:**
+- Read-only interface (no authentication required)
+- Real-time project browsing
+- Milestone tracking with completion status
+- Direct links to Solana Explorer for verification
+- Mobile-first responsive design
+
+**Reference:** `docs/planning/PRD-Epic4-Public-Citizen-Dashboard.md`
 
 ---
 
