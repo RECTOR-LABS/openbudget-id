@@ -79,8 +79,8 @@ export function getExplorerUrl(
  * Requires a wallet adapter to be connected
  * @param provider - Anchor provider with wallet
  */
-export function getProgram(provider: AnchorProvider): Program<Openbudget> {
-  return new Program<Openbudget>(IDL as Openbudget, provider);
+export function getProgram(provider: AnchorProvider): Program {
+  return new Program(IDL as any, PROGRAM_ID, provider);
 }
 
 /**

@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
 
     const result = await query(queryText, params);
 
-    const milestones = result.rows.map(row => ({
+    const milestones = result.rows.map((row: any) => ({
       id: row.id,
       project_id: row.project_id,
       index: row.index,

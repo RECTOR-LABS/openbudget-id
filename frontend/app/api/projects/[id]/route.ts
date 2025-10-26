@@ -41,7 +41,7 @@ export async function GET(
       [id]
     );
 
-    const milestones = milestonesResult.rows.map(row => ({
+    const milestones = milestonesResult.rows.map((row: any) => ({
       id: row.id,
       project_id: row.project_id,
       index: row.index,

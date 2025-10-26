@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
 
     const result = await query(queryText, params);
 
-    const projects = result.rows.map(row => ({
+    const projects = result.rows.map((row: any) => ({
       id: row.id,
       ministry_id: row.ministry_id,
       title: row.title,
