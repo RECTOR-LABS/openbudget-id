@@ -16,11 +16,14 @@ CREATE TABLE IF NOT EXISTS ministry_accounts (
 CREATE TABLE IF NOT EXISTS projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     ministry_id UUID REFERENCES ministry_accounts(id) ON DELETE CASCADE,
+    blockchain_id VARCHAR(32) UNIQUE,  -- Short ID used on blockchain (e.g., "PROJ-2025-ABC123")
     title VARCHAR(255) NOT NULL,
     description TEXT,
     recipient_name VARCHAR(255) NOT NULL,
     recipient_type VARCHAR(50),
     total_amount BIGINT NOT NULL,
+    total_allocated BIGINT DEFAULT 0,  -- Tracks total milestone budget commitments (aligned with on-chain)
+    total_released BIGINT DEFAULT 0,   -- Tracks total funds actually released (aligned with on-chain)
     status VARCHAR(20) DEFAULT 'draft',
     solana_account VARCHAR(88),  -- On-chain PDA address
     creation_tx VARCHAR(88),      -- Transaction signature
