@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import ProjectCard from '@/components/ProjectCard';
 
@@ -23,11 +23,7 @@ export default function HomePage() {
   const [filters, setFilters] = useState({ ministry: '', search: '' });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [filters]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (filters.ministry) params.append('ministry', filters.ministry);
@@ -40,7 +36,11 @@ export default function HomePage() {
       setProjects(data);
     }
     setLoading(false);
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   return (
     <div className="min-h-screen bg-gray-50">

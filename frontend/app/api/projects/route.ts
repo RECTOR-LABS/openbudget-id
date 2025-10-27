@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { nanoid } from 'nanoid';
 import { query } from '@/lib/db';
+
+interface ProjectRow {
+  id: string;
+  ministry_id: string;
+  title: string;
+  description: string | null;
+  recipient_name: string;
+  recipient_type: string | null;
+  total_amount: string;
+  total_allocated: string;
+  total_released: string;
+  status: string;
+  blockchain_id: string | null;
+  solana_account: string | null;
+  creation_tx: string | null;
+  created_at: Date;
+  updated_at: Date;
+  milestone_count_actual: string;
+}
 
 /**
  * POST /api/projects - Create a new draft project
@@ -38,9 +56,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Generate short, readable ID for project (e.g., "KEMENKES-2025-abc123")
-    const shortId = nanoid(10);
 
     // Insert project into database
     const result = await query(
@@ -107,7 +122,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN milestones m ON p.id = m.project_id
     `;
 
-    const params: any[] = [];
+    const params: (string | number)[] = [];
     const conditions: string[] = [];
 
     if (status) {
@@ -142,10 +157,10 @@ export async function GET(request: NextRequest) {
 
     params.push(limit, offset);
 
-    const result = await query(queryText, params);
+    const result = await query<ProjectRow>(queryText, params);
 
     // Return flat array for public API (simpler for public homepage)
-    const projects = result.rows.map((row: any) => ({
+    const projects = result.rows.map((row) => ({
       id: row.id,
       ministry_id: row.ministry_id,
       title: row.title,

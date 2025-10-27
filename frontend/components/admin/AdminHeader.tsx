@@ -1,12 +1,11 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import Image from 'next/image';
 
 export default function AdminHeader() {
   const { data: session } = useSession();
-  const { publicKey } = useWallet();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -30,10 +29,12 @@ export default function AdminHeader() {
           {session?.user && (
             <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
               {session.user.image && (
-                <img
+                <Image
                   src={session.user.image}
                   alt={session.user.name || 'User'}
-                  className="w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
                 />
               )}
               <div className="flex flex-col">

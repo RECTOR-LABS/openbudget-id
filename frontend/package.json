@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true && rm -rf .next && echo 'Port 3000 freed and .next cache cleared'",
+    "typecheck": "tsc --noEmit",
+    "typecheck:strict": "tsc --noEmit --strict && next lint --max-warnings 0"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",

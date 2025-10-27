@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 
+interface MilestoneRow {
+  id: string;
+  project_id: string;
+  index: number;
+  description: string;
+  amount: string;
+  is_released: boolean;
+  release_tx: string | null;
+  proof_url: string | null;
+  released_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
 /**
  * GET /api/projects/[id] - Get project details with nested milestones
  */
@@ -36,12 +50,12 @@ export async function GET(
     const project = projectResult.rows[0];
 
     // Fetch associated milestones
-    const milestonesResult = await query(
+    const milestonesResult = await query<MilestoneRow>(
       `SELECT * FROM milestones WHERE project_id = $1 ORDER BY index ASC`,
       [id]
     );
 
-    const milestones = milestonesResult.rows.map((row: any) => ({
+    const milestones = milestonesResult.rows.map((row) => ({
       id: row.id,
       project_id: row.project_id,
       index: row.index,

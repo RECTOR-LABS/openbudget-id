@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { getExplorerUrl } from '@/lib/solana';
@@ -41,11 +41,7 @@ export default function ProjectDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchProject();
-  }, []);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const res = await fetch(`/api/projects/${params.id}`);
       if (res.ok) {
@@ -54,12 +50,16 @@ export default function ProjectDetailPage() {
       } else {
         setError('Proyek tidak ditemukan');
       }
-    } catch (err) {
+    } catch {
       setError('Gagal memuat proyek');
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   if (loading) {
     return (
@@ -250,7 +250,7 @@ export default function ProjectDetailPage() {
 
           {project.milestones && project.milestones.length > 0 ? (
             <div className="space-y-4">
-              {project.milestones.map((milestone, index) => {
+              {project.milestones.map((milestone) => {
                 const milestoneAmount = BigInt(milestone.amount);
                 const amountInMillions = Number(milestoneAmount) / 1_000_000;
 

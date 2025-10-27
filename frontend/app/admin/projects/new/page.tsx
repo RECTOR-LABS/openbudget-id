@@ -283,7 +283,7 @@ export default function NewProjectPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> This will create a draft project in the
-              database. You'll need to connect your wallet and publish it to
+              database. You&apos;ll need to connect your wallet and publish it to
               the blockchain before adding milestones.
             </p>
           </div>

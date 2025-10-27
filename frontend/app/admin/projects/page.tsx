@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getExplorerUrl } from '@/lib/solana';
@@ -21,16 +20,11 @@ interface Project {
 }
 
 export default function ProjectsPage() {
-  const { data: session } = useSession();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published'>('all');
 
-  useEffect(() => {
-    fetchProjects();
-  }, [statusFilter]);
-
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -51,7 +45,11 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   const formatAmount = (amount: string) => {
     const num = BigInt(amount);
@@ -107,10 +105,10 @@ export default function ProjectsPage() {
               Status:
             </label>
             <div className="flex gap-2">
-              {['all', 'draft', 'published'].map((status) => (
+              {(['all', 'draft', 'published'] as const).map((status) => (
                 <button
                   key={status}
-                  onClick={() => setStatusFilter(status as any)}
+                  onClick={() => setStatusFilter(status)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     statusFilter === status
                       ? 'bg-blue-100 text-blue-700'

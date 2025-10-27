@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
+import { useAnchorWallet } from '@solana/wallet-adapter-react';
+import { Program, AnchorProvider, Idl, web3 } from '@coral-xyz/anchor';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getExplorerUrl, PROGRAM_ID, getPlatformPda, getProjectPda, getMilestonePda } from '@/lib/solana';
 import IDL from '@/idl/openbudget';
-import type { Openbudget } from '@/idl/openbudget';
 
 interface Project {
   id: string;
@@ -38,8 +38,8 @@ interface Milestone {
 
 export default function ProjectDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { publicKey, signTransaction } = useWallet();
+  const { publicKey } = useWallet();
+  const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -48,11 +48,7 @@ export default function ProjectDetailPage() {
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchProject();
-  }, [params.id]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/projects/${params.id}`);
@@ -69,10 +65,14 @@ export default function ProjectDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id]);
+
+  useEffect(() => {
+    fetchProject();
+  }, [fetchProject]);
 
   const handlePublish = async () => {
-    if (!publicKey || !signTransaction) {
+    if (!anchorWallet) {
       alert('Please connect your wallet first');
       return;
     }
@@ -86,10 +86,10 @@ export default function ProjectDetailPage() {
       // Create provider and program
       const provider = new AnchorProvider(
         connection,
-        { publicKey, signTransaction, signAllTransactions: async (txs: web3.Transaction[]) => txs } as any,
+        anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as any, PROGRAM_ID, provider);
+      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
 
       // Generate blockchain ID if not exists
       const blockchainId = project.blockchain_id ||
@@ -113,7 +113,7 @@ export default function ProjectDetailPage() {
         .accounts({
           platform: platformPda,
           project: projectPda,
-          authority: publicKey,
+          authority: anchorWallet.publicKey,
           systemProgram: web3.SystemProgram.programId,
         })
         .rpc();
@@ -137,9 +137,9 @@ export default function ProjectDetailPage() {
         const data = await response.json();
         throw new Error(data.error || 'Failed to update database');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error publishing project:', error);
-      setError(error.message || 'Failed to publish project');
+      setError(error instanceof Error ? error.message : 'Failed to publish project');
     } finally {
       setPublishing(false);
     }
@@ -387,7 +387,7 @@ function MilestoneForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const { publicKey, signTransaction } = useWallet();
+  const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -400,7 +400,7 @@ function MilestoneForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!publicKey || !signTransaction) {
+    if (!anchorWallet) {
       setError('Please connect your wallet');
       return;
     }
@@ -419,10 +419,10 @@ function MilestoneForm({
       // Create provider and program
       const provider = new AnchorProvider(
         connection,
-        { publicKey, signTransaction, signAllTransactions: async (txs: web3.Transaction[]) => txs } as any,
+        anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as any, PROGRAM_ID, provider);
+      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
 
       // Get PDAs
       const [projectPda] = getProjectPda(blockchainId);
@@ -438,7 +438,7 @@ function MilestoneForm({
         .accounts({
           project: projectPda,
           milestone: milestonePda,
-          authority: publicKey,
+          authority: anchorWallet.publicKey,
           systemProgram: web3.SystemProgram.programId,
         })
         .rpc();
@@ -463,9 +463,9 @@ function MilestoneForm({
         const data = await response.json();
         throw new Error(data.error || 'Failed to save milestone');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding milestone:', error);
-      setError(error.message || 'Failed to add milestone');
+      setError(error instanceof Error ? error.message : 'Failed to add milestone');
     } finally {
       setLoading(false);
     }
@@ -551,7 +551,7 @@ function MilestoneCard({
   blockchainId: string;
   onRelease: () => void;
 }) {
-  const { publicKey, signTransaction } = useWallet();
+  const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
   const [releasing, setReleasing] = useState(false);
   const [showReleaseForm, setShowReleaseForm] = useState(false);
@@ -559,7 +559,7 @@ function MilestoneCard({
   const [error, setError] = useState('');
 
   const handleRelease = async () => {
-    if (!publicKey || !signTransaction) {
+    if (!anchorWallet) {
       alert('Please connect your wallet');
       return;
     }
@@ -575,10 +575,10 @@ function MilestoneCard({
 
       const provider = new AnchorProvider(
         connection,
-        { publicKey, signTransaction, signAllTransactions: async (txs: web3.Transaction[]) => txs } as any,
+        anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as any, PROGRAM_ID, provider);
+      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
 
       const [projectPda] = getProjectPda(blockchainId);
       const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
@@ -588,7 +588,7 @@ function MilestoneCard({
         .accounts({
           project: projectPda,
           milestone: milestonePda,
-          authority: publicKey,
+          authority: anchorWallet.publicKey,
         })
         .rpc();
 
@@ -610,9 +610,9 @@ function MilestoneCard({
         const data = await response.json();
         throw new Error(data.error || 'Failed to update database');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error releasing funds:', error);
-      setError(error.message || 'Failed to release funds');
+      setError(error instanceof Error ? error.message : 'Failed to release funds');
     } finally {
       setReleasing(false);
     }

@@ -1,6 +1,5 @@
 import { PublicKey, Connection } from '@solana/web3.js';
-import { Program, AnchorProvider } from '@coral-xyz/anchor';
-import type { Openbudget } from '../idl/openbudget';
+import { Program, AnchorProvider, Idl } from '@coral-xyz/anchor';
 import IDL from '../idl/openbudget';
 
 /**
@@ -79,8 +78,8 @@ export function getExplorerUrl(
  * Requires a wallet adapter to be connected
  * @param provider - Anchor provider with wallet
  */
-export function getProgram(provider: AnchorProvider): Program {
-  return new Program(IDL as any, PROGRAM_ID, provider);
+export function getProgram(provider: AnchorProvider): Program<Idl> {
+  return new Program(IDL as Idl, PROGRAM_ID, provider);
 }
 
 /**
@@ -155,18 +154,3 @@ export async function verifyTransaction(signature: string): Promise<boolean> {
     return false;
   }
 }
-
-export default {
-  PROGRAM_ID,
-  SOLANA_NETWORK,
-  SOLANA_RPC_URL,
-  getConnection,
-  getPlatformPda,
-  getProjectPda,
-  getMilestonePda,
-  getExplorerUrl,
-  getProgram,
-  fetchProjectOnChain,
-  fetchMilestoneOnChain,
-  verifyTransaction,
-};

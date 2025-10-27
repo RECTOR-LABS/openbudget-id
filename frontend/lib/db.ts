@@ -1,4 +1,4 @@
-import { Pool, QueryResult, QueryResultRow } from 'pg';
+import { Pool, QueryResult, QueryResultRow, PoolClient } from 'pg';
 
 // Create a singleton connection pool
 let pool: Pool | null = null;
@@ -28,9 +28,9 @@ function getPool(): Pool {
  * @param params Query parameters
  * @returns Query result
  */
-export async function query<T extends QueryResultRow = any>(
+export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
-  params?: any[]
+  params?: (string | number | boolean | null | bigint)[]
 ): Promise<QueryResult<T>> {
   const start = Date.now();
   const pool = getPool();
@@ -65,7 +65,7 @@ export async function query<T extends QueryResultRow = any>(
  * @returns Result of the callback
  */
 export async function transaction<T>(
-  callback: (client: any) => Promise<T>
+  callback: (client: PoolClient) => Promise<T>
 ): Promise<T> {
   const pool = getPool();
   const client = await pool.connect();
@@ -94,9 +94,3 @@ export async function closePool(): Promise<void> {
     pool = null;
   }
 }
-
-export default {
-  query,
-  transaction,
-  closePool,
-};

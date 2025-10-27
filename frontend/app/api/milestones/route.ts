@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, transaction } from '@/lib/db';
 
+interface MilestoneRow {
+  id: string;
+  project_id: string;
+  index: number;
+  description: string;
+  amount: string;
+  is_released: boolean;
+  release_tx: string | null;
+  proof_url: string | null;
+  released_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
 /**
  * POST /api/milestones - Create a new milestone
  * Validates that project exists, is published, and budget is not exceeded
@@ -157,7 +171,7 @@ export async function GET(request: NextRequest) {
     const is_released = searchParams.get('is_released');
 
     let queryText = `SELECT * FROM milestones`;
-    const params: any[] = [];
+    const params: (string | boolean)[] = [];
     const conditions: string[] = [];
 
     if (project_id) {
@@ -176,9 +190,9 @@ export async function GET(request: NextRequest) {
 
     queryText += ` ORDER BY project_id, index ASC`;
 
-    const result = await query(queryText, params);
+    const result = await query<MilestoneRow>(queryText, params);
 
-    const milestones = result.rows.map((row: any) => ({
+    const milestones = result.rows.map((row) => ({
       id: row.id,
       project_id: row.project_id,
       index: row.index,
