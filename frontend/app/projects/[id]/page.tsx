@@ -46,7 +46,7 @@ export default function ProjectDetailPage() {
       const res = await fetch(`/api/projects/${params.id}`);
       if (res.ok) {
         const data = await res.json();
-        setProject(data);
+        setProject(data.project);
       } else {
         setError('Proyek tidak ditemukan');
       }
@@ -104,9 +104,16 @@ export default function ProjectDetailPage() {
 
   const totalBudget = BigInt(project.total_amount);
   const totalReleased = BigInt(project.total_released);
-  const budgetInBillions = Number(totalBudget) / 1_000_000_000;
-  const releasedInBillions = Number(totalReleased) / 1_000_000_000;
-  const progress = totalBudget > 0n ? Number((totalReleased * 100n) / totalBudget) : 0;
+
+  // Format with Indonesian thousand separators (dots)
+  const formatRupiah = (amount: bigint) => {
+    return Number(amount).toLocaleString('id-ID');
+  };
+
+  // Calculate progress with decimal precision (convert to Number for accurate division)
+  const progress = totalBudget > 0n
+    ? (Number(totalReleased) / Number(totalBudget)) * 100
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,14 +185,14 @@ export default function ProjectDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-600 mb-1">Total Anggaran</h3>
-              <p className="text-3xl font-bold text-blue-900">
-                Rp {budgetInBillions.toFixed(2)}B
+              <p className="text-2xl font-bold text-blue-900">
+                Rp {formatRupiah(totalBudget)}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-green-600 mb-1">Telah Direalisasikan</h3>
-              <p className="text-3xl font-bold text-green-900">
-                Rp {releasedInBillions.toFixed(2)}B
+              <p className="text-2xl font-bold text-green-900">
+                Rp {formatRupiah(totalReleased)}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
@@ -219,7 +226,7 @@ export default function ProjectDetailPage() {
                   </p>
                 </div>
                 <a
-                  href={getExplorerUrl(project.creation_tx)}
+                  href={getExplorerUrl(project.creation_tx, 'tx')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
@@ -306,7 +313,7 @@ export default function ProjectDetailPage() {
                     <div className="flex gap-3 mt-3">
                       {milestone.release_tx && (
                         <a
-                          href={getExplorerUrl(milestone.release_tx)}
+                          href={getExplorerUrl(milestone.release_tx, 'tx')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition"

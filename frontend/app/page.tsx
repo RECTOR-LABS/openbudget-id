@@ -73,19 +73,19 @@ export default function HomePage() {
               placeholder="Cari proyek atau kementerian..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 bg-white"
             />
             <select
               value={filters.ministry}
               onChange={(e) => setFilters({ ...filters, ministry: e.target.value })}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:w-64"
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:w-64 text-gray-900 bg-white"
             >
-              <option value="">Semua Kementerian</option>
-              <option value="Kementerian Kesehatan">Kementerian Kesehatan</option>
-              <option value="Kementerian Pendidikan">Kementerian Pendidikan</option>
-              <option value="Kementerian Perhubungan">Kementerian Perhubungan</option>
-              <option value="Kementerian Pekerjaan Umum">Kementerian Pekerjaan Umum</option>
-              <option value="Kementerian Pertanian">Kementerian Pertanian</option>
+              <option value="" className="text-gray-500">Semua Kementerian</option>
+              <option value="Kementerian Kesehatan" className="text-gray-900">Kementerian Kesehatan</option>
+              <option value="Kementerian Pendidikan" className="text-gray-900">Kementerian Pendidikan</option>
+              <option value="Kementerian Perhubungan" className="text-gray-900">Kementerian Perhubungan</option>
+              <option value="Kementerian Pekerjaan Umum" className="text-gray-900">Kementerian Pekerjaan Umum</option>
+              <option value="Kementerian Pertanian" className="text-gray-900">Kementerian Pertanian</option>
             </select>
           </div>
         </div>

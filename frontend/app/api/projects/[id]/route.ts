@@ -58,7 +58,7 @@ export async function GET(
     const milestones = milestonesResult.rows.map((row) => ({
       id: row.id,
       project_id: row.project_id,
-      index: row.index,
+      milestone_index: row.index,
       description: row.description,
       amount: row.amount,
       is_released: row.is_released,
@@ -73,6 +73,7 @@ export async function GET(
       project: {
         id: project.id,
         ministry_id: project.ministry_id,
+        blockchain_id: project.blockchain_id,
         title: project.title,
         description: project.description,
         recipient_name: project.recipient_name,

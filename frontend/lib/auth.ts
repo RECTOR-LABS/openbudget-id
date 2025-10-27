@@ -25,9 +25,9 @@ export const authOptions: NextAuthOptions = {
         if (existingUser.rows.length === 0) {
           // Create new ministry account
           await query(
-            `INSERT INTO ministry_accounts (email, name, ministry_name, created_at)
+            `INSERT INTO ministry_accounts (google_id, email, ministry_name, created_at)
              VALUES ($1, $2, $3, CURRENT_TIMESTAMP)`,
-            [user.email, user.name || '', 'Unassigned']
+            [user.id, user.email, 'Unassigned']
           );
         } else {
           // Update last login
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
         // Fetch user details from database
         try {
           const result = await query(
-            'SELECT id, email, name, ministry_name, wallet_address FROM ministry_accounts WHERE email = $1',
+            'SELECT id, email, ministry_name, wallet_address FROM ministry_accounts WHERE email = $1',
             [session.user.email]
           );
 

@@ -344,7 +344,7 @@ CREATE TABLE milestones (
 - Node.js 18+ and npm
 - Rust and Cargo (for Solana program)
 - Solana CLI (for deployment)
-- Anchor CLI 0.29+
+- Anchor CLI 0.32+
 - PostgreSQL (local or Supabase)
 
 ### Installation

@@ -5,9 +5,8 @@ import { getProjectPda, getExplorerUrl } from '@/lib/solana';
 /**
  * POST /api/projects/[id]/publish - Publish project to blockchain
  *
- * NOTE: This is a placeholder implementation for Epic 2.
- * Actual blockchain interaction with wallet will be implemented in Epic 3.
- * For now, it derives the PDA and stores it in the database.
+ * Accepts real blockchain transaction data from frontend wallet integration.
+ * Updates database with blockchain_id, solana_account, and transaction signature.
  */
 export async function POST(
   request: NextRequest,
@@ -21,6 +20,17 @@ export async function POST(
     if (!uuidRegex.test(id)) {
       return NextResponse.json(
         { error: 'Invalid project ID format' },
+        { status: 400 }
+      );
+    }
+
+    // Parse request body for real blockchain data
+    const body = await request.json();
+    const { blockchain_id, transaction_signature } = body;
+
+    if (!blockchain_id || !transaction_signature) {
+      return NextResponse.json(
+        { error: 'Missing blockchain_id or transaction_signature' },
         { status: 400 }
       );
     }
@@ -48,20 +58,11 @@ export async function POST(
       );
     }
 
-    // Generate short blockchain ID if not exists (max 32 chars for PDA seed)
-    // Format: PROJ-{timestamp}-{random} (e.g., "PROJ-20251026-A7B9C2")
-    const blockchainProjectId = project.blockchain_id ||
-      `PROJ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-    // Derive Project PDA
-    const [projectPda] = getProjectPda(blockchainProjectId);
+    // Derive Project PDA from blockchain_id
+    const [projectPda] = getProjectPda(blockchain_id);
     const solanaAccount = projectPda.toBase58();
 
-    // PLACEHOLDER: In Epic 3, this will call the actual blockchain transaction
-    // For now, we simulate a successful transaction with a placeholder signature
-    const placeholderTxSignature = `PLACEHOLDER_TX_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    // Update project in database
+    // Update project in database with REAL transaction data
     const updateResult = await transaction(async (client) => {
       const result = await client.query(
         `UPDATE projects
@@ -72,17 +73,17 @@ export async function POST(
              updated_at = CURRENT_TIMESTAMP
          WHERE id = $5
          RETURNING *`,
-        [blockchainProjectId, solanaAccount, placeholderTxSignature, 'published', id]
+        [blockchain_id, solanaAccount, transaction_signature, 'published', id]
       );
 
       return result.rows[0];
     });
 
     const explorerUrl = getExplorerUrl(solanaAccount, 'address');
-    const txExplorerUrl = getExplorerUrl(placeholderTxSignature, 'tx');
+    const txExplorerUrl = getExplorerUrl(transaction_signature, 'tx');
 
     return NextResponse.json({
-      message: 'Project published successfully (placeholder)',
+      message: 'Project published successfully to Solana blockchain',
       project: {
         id: updateResult.id,
         blockchain_id: updateResult.blockchain_id,
@@ -93,7 +94,6 @@ export async function POST(
         explorer_url: explorerUrl,
         tx_explorer_url: txExplorerUrl,
       },
-      note: 'This is a placeholder implementation. Actual blockchain transaction will be implemented in Epic 3 with wallet integration.',
     });
   } catch (error) {
     console.error('Error publishing project:', error);

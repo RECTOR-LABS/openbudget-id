@@ -36,7 +36,8 @@ export default function ProjectsPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setProjects(data.projects || []);
+        // API returns array directly, not { projects: [...] }
+        setProjects(Array.isArray(data) ? data : []);
       } else {
         console.error('Error fetching projects:', data.error);
       }
@@ -53,7 +54,8 @@ export default function ProjectsPage() {
 
   const formatAmount = (amount: string) => {
     const num = BigInt(amount);
-    return `Rp ${(Number(num) / 1_000_000_000).toLocaleString('id-ID')}`;
+    // Always show full number with thousand separators (Indonesian format)
+    return `Rp ${Number(num).toLocaleString('id-ID')}`;
   };
 
   const formatDate = (dateString: string) => {
@@ -225,16 +227,17 @@ export default function ProjectsPage() {
                   <div className="pt-4 border-t border-gray-200">
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-gray-500">On-chain:</span>
-                      <a
-                        href={getExplorerUrl(project.solana_account, 'address')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-blue-600 hover:text-blue-700 font-mono"
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(getExplorerUrl(project.solana_account!, 'address'), '_blank');
+                        }}
+                        className="text-blue-600 hover:text-blue-700 font-mono underline"
                       >
                         {project.solana_account.slice(0, 8)}...
                         {project.solana_account.slice(-8)}
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}

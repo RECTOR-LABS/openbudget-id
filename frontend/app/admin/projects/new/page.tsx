@@ -16,7 +16,22 @@ export default function NewProjectPage() {
     recipient_type: '',
     total_amount: '',
   });
+  const [displayAmount, setDisplayAmount] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Format number with thousand separators
+  const formatNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const numericValue = value.replace(/\D/g, '');
+    if (!numericValue) return '';
+    // Add thousand separators
+    return Number(numericValue).toLocaleString('id-ID');
+  };
+
+  // Parse formatted number back to raw number
+  const parseFormattedNumber = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -54,9 +69,9 @@ export default function NewProjectPage() {
     try {
       setLoading(true);
 
-      // Convert amount to lamports (smallest unit, 9 decimals for SOL equivalent)
-      const amountInLamports = BigInt(
-        Math.floor(parseFloat(formData.total_amount) * 1_000_000_000)
+      // Convert amount to string (store as-is in Rupiah)
+      const amountInRupiah = BigInt(
+        Math.floor(parseFloat(formData.total_amount))
       ).toString();
 
       const response = await fetch('/api/projects', {
@@ -66,7 +81,7 @@ export default function NewProjectPage() {
         },
         body: JSON.stringify({
           ...formData,
-          total_amount: amountInLamports,
+          total_amount: amountInRupiah,
           ministry_id: session?.user?.id,
         }),
       });
@@ -92,7 +107,16 @@ export default function NewProjectPage() {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Special handling for amount field
+    if (name === 'total_amount') {
+      const rawValue = parseFormattedNumber(value);
+      setFormData((prev) => ({ ...prev, [name]: rawValue }));
+      setDisplayAmount(formatNumber(value));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+
     // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => {
@@ -132,7 +156,7 @@ export default function NewProjectPage() {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 ${
                   errors.title ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="e.g., Road Infrastructure Development 2025"
@@ -156,7 +180,7 @@ export default function NewProjectPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400"
                 placeholder="Provide details about the project objectives, scope, and expected outcomes..."
               />
             </div>
@@ -167,24 +191,81 @@ export default function NewProjectPage() {
                 htmlFor="recipient_name"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Recipient Name *
+                Recipient / Implementing Entity *
               </label>
-              <input
-                type="text"
+              <select
                 id="recipient_name"
                 name="recipient_name"
                 value={formData.recipient_name}
                 onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 ${
                   errors.recipient_name ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="e.g., Ministry of Public Works"
-              />
+              >
+                <option value="">Select recipient...</option>
+
+                <optgroup label="Kementerian (Ministries)">
+                  <option value="Kementerian Keuangan">Kementerian Keuangan</option>
+                  <option value="Kementerian Dalam Negeri">Kementerian Dalam Negeri</option>
+                  <option value="Kementerian Luar Negeri">Kementerian Luar Negeri</option>
+                  <option value="Kementerian Pertahanan">Kementerian Pertahanan</option>
+                  <option value="Kementerian Hukum dan HAM">Kementerian Hukum dan HAM</option>
+                  <option value="Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi">Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi</option>
+                  <option value="Kementerian Kesehatan">Kementerian Kesehatan</option>
+                  <option value="Kementerian Agama">Kementerian Agama</option>
+                  <option value="Kementerian Sosial">Kementerian Sosial</option>
+                  <option value="Kementerian Ketenagakerjaan">Kementerian Ketenagakerjaan</option>
+                  <option value="Kementerian Perindustrian">Kementerian Perindustrian</option>
+                  <option value="Kementerian Perdagangan">Kementerian Perdagangan</option>
+                  <option value="Kementerian Energi dan Sumber Daya Mineral">Kementerian Energi dan Sumber Daya Mineral</option>
+                  <option value="Kementerian Pekerjaan Umum dan Perumahan Rakyat">Kementerian Pekerjaan Umum dan Perumahan Rakyat</option>
+                  <option value="Kementerian Perhubungan">Kementerian Perhubungan</option>
+                  <option value="Kementerian Pertanian">Kementerian Pertanian</option>
+                  <option value="Kementerian Lingkungan Hidup dan Kehutanan">Kementerian Lingkungan Hidup dan Kehutanan</option>
+                  <option value="Kementerian Kelautan dan Perikanan">Kementerian Kelautan dan Perikanan</option>
+                  <option value="Kementerian Pariwisata dan Ekonomi Kreatif">Kementerian Pariwisata dan Ekonomi Kreatif</option>
+                  <option value="Kementerian Komunikasi dan Informatika">Kementerian Komunikasi dan Informatika</option>
+                  <option value="Kementerian BUMN">Kementerian BUMN</option>
+                  <option value="Kementerian Investasi/BKPM">Kementerian Investasi/BKPM</option>
+                </optgroup>
+
+                <optgroup label="Lembaga (Agencies)">
+                  <option value="BPKP (Badan Pengawasan Keuangan dan Pembangunan)">BPKP</option>
+                  <option value="BPS (Badan Pusat Statistik)">BPS</option>
+                  <option value="BPOM (Badan Pengawas Obat dan Makanan)">BPOM</option>
+                  <option value="BNPB (Badan Nasional Penanggulangan Bencana)">BNPB</option>
+                  <option value="BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)">BMKG</option>
+                  <option value="BATAN (Badan Tenaga Nuklir Nasional)">BATAN</option>
+                  <option value="LAPAN (Lembaga Penerbangan dan Antariksa Nasional)">LAPAN</option>
+                  <option value="BRIN (Badan Riset dan Inovasi Nasional)">BRIN</option>
+                </optgroup>
+
+                <optgroup label="Universitas Negeri">
+                  <option value="Universitas Indonesia">Universitas Indonesia</option>
+                  <option value="Universitas Gadjah Mada">Universitas Gadjah Mada</option>
+                  <option value="Institut Teknologi Bandung">Institut Teknologi Bandung</option>
+                  <option value="Institut Pertanian Bogor">Institut Pertanian Bogor</option>
+                  <option value="Universitas Airlangga">Universitas Airlangga</option>
+                  <option value="Universitas Diponegoro">Universitas Diponegoro</option>
+                  <option value="Universitas Padjadjaran">Universitas Padjadjaran</option>
+                </optgroup>
+
+                <optgroup label="Rumah Sakit">
+                  <option value="RSUP Dr. Cipto Mangunkusumo">RSUP Dr. Cipto Mangunkusumo</option>
+                  <option value="RSUP Dr. Sardjito">RSUP Dr. Sardjito</option>
+                  <option value="RSUP Dr. Hasan Sadikin">RSUP Dr. Hasan Sadikin</option>
+                  <option value="RSUP Dr. Kariadi">RSUP Dr. Kariadi</option>
+                  <option value="RSUP Sanglah">RSUP Sanglah</option>
+                </optgroup>
+              </select>
               {errors.recipient_name && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.recipient_name}
                 </p>
               )}
+              <p className="text-xs text-gray-500 mt-1">
+                Select the entity that will implement or receive this budget allocation
+              </p>
             </div>
 
             {/* Recipient Type */}
@@ -200,9 +281,9 @@ export default function NewProjectPage() {
                 name="recipient_type"
                 value={formData.recipient_type}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
-                <option value="">Select type...</option>
+                <option value="" className="text-gray-400">Select type...</option>
                 <option value="ministry">Ministry</option>
                 <option value="department">Department</option>
                 <option value="agency">Government Agency</option>
@@ -217,24 +298,23 @@ export default function NewProjectPage() {
                 htmlFor="total_amount"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Total Budget (Billion Rupiah) *
+                Total Budget (Rupiah) *
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-2 text-gray-500">
                   Rp
                 </span>
                 <input
-                  type="number"
+                  type="text"
                   id="total_amount"
                   name="total_amount"
-                  value={formData.total_amount}
+                  value={displayAmount}
                   onChange={handleChange}
-                  step="0.001"
-                  min="0"
-                  className={`w-full pl-12 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full pl-12 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 ${
                     errors.total_amount ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="0.000"
+                  placeholder="1,000,000"
+                  inputMode="numeric"
                 />
               </div>
               {errors.total_amount && (
@@ -243,7 +323,7 @@ export default function NewProjectPage() {
                 </p>
               )}
               <p className="mt-1 text-sm text-gray-500">
-                Enter amount in billion rupiah (e.g., 5.5 for Rp 5.5 billion)
+                Type amount and it will format automatically (e.g., 1,000,000 or 5,500,000,000)
               </p>
             </div>
           </div>

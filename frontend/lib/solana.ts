@@ -79,7 +79,8 @@ export function getExplorerUrl(
  * @param provider - Anchor provider with wallet
  */
 export function getProgram(provider: AnchorProvider): Program<Idl> {
-  return new Program(IDL as Idl, PROGRAM_ID, provider);
+  // Anchor 0.30+ reads programId from IDL's address field
+  return new Program(IDL as Idl, provider);
 }
 
 /**

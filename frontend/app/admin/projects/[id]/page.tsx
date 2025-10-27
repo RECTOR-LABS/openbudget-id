@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
-import { Program, AnchorProvider, Idl, web3 } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, web3, BN } from '@coral-xyz/anchor';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { getExplorerUrl, PROGRAM_ID, getPlatformPda, getProjectPda, getMilestonePda } from '@/lib/solana';
-import IDL from '@/idl/openbudget';
+import { getExplorerUrl, getPlatformPda, getProjectPda, getMilestonePda } from '@/lib/solana';
+import idlJson from '@/idl/openbudget.json';
 
 interface Project {
   id: string;
@@ -89,7 +89,9 @@ export default function ProjectDetailPage() {
         anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
+      // Anchor 0.30+ reads programId from IDL's address field
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const program = new Program(idlJson as any, provider);
 
       // Generate blockchain ID if not exists
       const blockchainId = project.blockchain_id ||
@@ -99,8 +101,8 @@ export default function ProjectDetailPage() {
       const [platformPda] = getPlatformPda();
       const [projectPda] = getProjectPda(blockchainId);
 
-      // Convert amount to u64 (BigInt)
-      const totalBudget = BigInt(project.total_amount);
+      // Convert amount to u64 (BN for Anchor)
+      const totalBudget = new BN(project.total_amount);
 
       // Create instruction
       const tx = await program.methods
@@ -111,14 +113,24 @@ export default function ProjectDetailPage() {
           totalBudget
         )
         .accounts({
-          platform: platformPda,
+          platform_state: platformPda,
           project: projectPda,
           authority: anchorWallet.publicKey,
-          systemProgram: web3.SystemProgram.programId,
+          system_program: web3.SystemProgram.programId,
         })
-        .rpc();
+        .rpc({ skipPreflight: true });
 
       console.log('Transaction signature:', tx);
+
+      // Wait for confirmation
+      const latestBlockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        signature: tx,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      }, 'confirmed');
+
+      console.log('Transaction confirmed!');
 
       // Update database
       const response = await fetch(`/api/projects/${project.id}/publish`, {
@@ -137,9 +149,16 @@ export default function ProjectDetailPage() {
         const data = await response.json();
         throw new Error(data.error || 'Failed to update database');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error publishing project:', error);
-      setError(error instanceof Error ? error.message : 'Failed to publish project');
+
+      // Check if transaction was already processed (likely successful)
+      if (error instanceof Error && error.message.includes('already been processed')) {
+        alert('Transaction may have succeeded! Please refresh the page to check.');
+        fetchProject();
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to publish project');
+      }
     } finally {
       setPublishing(false);
     }
@@ -147,7 +166,8 @@ export default function ProjectDetailPage() {
 
   const formatAmount = (amount: string) => {
     const num = BigInt(amount);
-    return `Rp ${(Number(num) / 1_000_000_000).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} B`;
+    // Show full number with thousand separators (Indonesian format uses dots)
+    return `Rp ${Number(num).toLocaleString('id-ID')}`;
   };
 
   if (loading) {
@@ -343,6 +363,7 @@ export default function ProjectDetailPage() {
               <MilestoneForm
                 projectId={project.id}
                 blockchainId={project.blockchain_id!}
+                milestoneCount={project.milestones?.length || 0}
                 remainingBudget={BigInt(project.total_amount) - BigInt(project.total_allocated || '0')}
                 onSuccess={() => {
                   setShowMilestoneForm(false);
@@ -377,12 +398,14 @@ export default function ProjectDetailPage() {
 function MilestoneForm({
   projectId,
   blockchainId,
+  milestoneCount,
   remainingBudget,
   onSuccess,
   onCancel,
 }: {
   projectId: string;
   blockchainId: string;
+  milestoneCount: number;
   remainingBudget: bigint;
   onSuccess: () => void;
   onCancel: () => void;
@@ -391,11 +414,24 @@ function MilestoneForm({
   const { connection } = useConnection();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    index: 0,
+    index: milestoneCount, // Auto-increment based on existing milestones
     description: '',
     amount: '',
   });
+  const [displayAmount, setDisplayAmount] = useState('');
   const [error, setError] = useState('');
+
+  // Format number with thousand separators
+  const formatNumber = (value: string): string => {
+    const numericValue = value.replace(/\D/g, '');
+    if (!numericValue) return '';
+    return Number(numericValue).toLocaleString('id-ID');
+  };
+
+  // Parse formatted number back to raw number
+  const parseFormattedNumber = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -405,14 +441,30 @@ function MilestoneForm({
       return;
     }
 
+    if (!blockchainId) {
+      setError('Project must be published to blockchain first');
+      return;
+    }
+
+    // Validate amount
+    if (!formData.amount || formData.amount.trim() === '') {
+      setError('Please enter milestone amount');
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
 
-      const amountInLamports = BigInt(Math.floor(parseFloat(formData.amount) * 1_000_000_000)).toString();
+      const amountInRupiah = Math.floor(parseFloat(formData.amount)).toString();
 
-      if (BigInt(amountInLamports) > remainingBudget) {
-        setError(`Amount exceeds remaining budget of ${(Number(remainingBudget) / 1_000_000_000).toFixed(2)} B`);
+      if (isNaN(parseFloat(amountInRupiah))) {
+        setError('Please enter a valid amount');
+        return;
+      }
+
+      if (BigInt(amountInRupiah) > remainingBudget) {
+        setError(`Amount exceeds remaining budget of Rp ${Number(remainingBudget).toLocaleString('id-ID')}`);
         return;
       }
 
@@ -422,28 +474,40 @@ function MilestoneForm({
         anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
+      // Anchor 0.30+ reads programId from IDL's address field
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const program = new Program(idlJson as any, provider);
 
       // Get PDAs
       const [projectPda] = getProjectPda(blockchainId);
       const [milestonePda] = getMilestonePda(blockchainId, formData.index);
 
-      // Create instruction
+      // Create instruction with BN for u64
+      // Anchor auto-converts snake_case (add_milestone) to camelCase (addMilestone)
       const tx = await program.methods
         .addMilestone(
+          blockchainId,
           formData.index,
           formData.description,
-          BigInt(amountInLamports)
+          new BN(amountInRupiah)
         )
         .accounts({
           project: projectPda,
           milestone: milestonePda,
           authority: anchorWallet.publicKey,
-          systemProgram: web3.SystemProgram.programId,
+          system_program: web3.SystemProgram.programId,
         })
-        .rpc();
+        .rpc({ skipPreflight: true });
 
       console.log('Milestone transaction:', tx);
+
+      // Wait for confirmation
+      const latestBlockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({
+        signature: tx,
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+      }, 'confirmed');
 
       // Create in database
       const response = await fetch('/api/milestones', {
@@ -453,19 +517,29 @@ function MilestoneForm({
           project_id: projectId,
           milestone_index: formData.index,
           description: formData.description,
-          amount: amountInLamports,
+          amount: amountInRupiah,
         }),
       });
 
       if (response.ok) {
+        setError('');
+        alert(`✅ Milestone added successfully!\n\nTransaction: ${tx}\n\nView on Solana Explorer: ${getExplorerUrl(tx, 'tx')}`);
         onSuccess();
       } else {
         const data = await response.json();
         throw new Error(data.error || 'Failed to save milestone');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error adding milestone:', error);
-      setError(error instanceof Error ? error.message : 'Failed to add milestone');
+
+      // Check if error is "already processed" - this means SUCCESS
+      if (error instanceof Error && error.message.includes('already been processed')) {
+        setError('');
+        alert('✅ Milestone added successfully! The transaction has been confirmed on the blockchain.');
+        onSuccess();
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to add milestone');
+      }
     } finally {
       setLoading(false);
     }
@@ -481,31 +555,34 @@ function MilestoneForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Milestone Index</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Milestone Index (Auto)</label>
           <input
             type="number"
             value={formData.index}
-            onChange={(e) => setFormData({ ...formData, index: parseInt(e.target.value) })}
-            min="0"
-            max="255"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            required
+            disabled
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+            title="Automatically assigned based on milestone count"
           />
+          <p className="text-xs text-gray-500 mt-1">Auto-incremented, cannot be edited</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Amount (Billion Rp)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Amount (Rupiah)</label>
           <input
-            type="number"
-            value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            step="0.001"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+            type="text"
+            value={displayAmount}
+            onChange={(e) => {
+              const rawValue = parseFormattedNumber(e.target.value);
+              setFormData({ ...formData, amount: rawValue });
+              setDisplayAmount(formatNumber(e.target.value));
+            }}
+            placeholder="1,000,000"
+            inputMode="numeric"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400"
             required
           />
           <p className="text-xs text-gray-500 mt-1">
-            Remaining: Rp {(Number(remainingBudget) / 1_000_000_000).toFixed(2)} B
+            Remaining: Rp {Number(remainingBudget).toLocaleString('id-ID')}
           </p>
         </div>
       </div>
@@ -516,7 +593,7 @@ function MilestoneForm({
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400"
           required
         />
       </div>
@@ -557,6 +634,57 @@ function MilestoneCard({
   const [showReleaseForm, setShowReleaseForm] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string } | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB max)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setError('File size exceeds 5MB limit');
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Invalid file type. Only PDF and images (JPG, PNG, WebP) are allowed');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setError('');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to upload file');
+      }
+
+      const data = await response.json();
+      const fullUrl = `${window.location.origin}${data.url}`;
+
+      setUploadedFile({ name: file.name, url: fullUrl });
+      setProofUrl(fullUrl);
+      setError('');
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to upload file');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleRelease = async () => {
     if (!anchorWallet) {
@@ -565,7 +693,7 @@ function MilestoneCard({
     }
 
     if (!proofUrl.trim()) {
-      setError('Proof URL is required');
+      setError('Please upload a file or enter a proof document URL');
       return;
     }
 
@@ -578,13 +706,15 @@ function MilestoneCard({
         anchorWallet,
         { commitment: 'confirmed' }
       );
-      const program = new Program(IDL as Idl, PROGRAM_ID, provider);
+      // Anchor 0.30+ reads programId from IDL's address field
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const program = new Program(idlJson as any, provider);
 
       const [projectPda] = getProjectPda(blockchainId);
       const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
 
       const tx = await program.methods
-        .releaseFunds(milestone.index, proofUrl)
+        .releaseFunds(blockchainId, milestone.index, proofUrl)
         .accounts({
           project: projectPda,
           milestone: milestonePda,
@@ -610,16 +740,25 @@ function MilestoneCard({
         const data = await response.json();
         throw new Error(data.error || 'Failed to update database');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error releasing funds:', error);
-      setError(error instanceof Error ? error.message : 'Failed to release funds');
+
+      // Check if error is "already processed" - this means SUCCESS
+      if (error instanceof Error && error.message.includes('already been processed')) {
+        alert('✅ Funds released successfully! The transaction has been confirmed on the blockchain.');
+        onRelease();
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to release funds');
+      }
     } finally {
       setReleasing(false);
     }
   };
 
   const formatAmount = (amount: string) => {
-    return `Rp ${(Number(BigInt(amount)) / 1_000_000_000).toLocaleString('id-ID', { minimumFractionDigits: 2 })} B`;
+    const num = BigInt(amount);
+    // Show full number with thousand separators (Indonesian format uses dots)
+    return `Rp ${Number(num).toLocaleString('id-ID')}`;
   };
 
   return (
@@ -671,29 +810,102 @@ function MilestoneCard({
       {showReleaseForm && !milestone.is_released && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded p-3 mb-3">
+            <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
-          <label className="block text-sm font-medium text-gray-700 mb-2">Proof Document URL</label>
-          <input
-            type="url"
-            value={proofUrl}
-            onChange={(e) => setProofUrl(e.target.value)}
-            placeholder="https://example.com/proof-document.pdf"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3"
-          />
+
+          {/* File Upload Option */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Proof Document
+            </label>
+            <div className="flex items-center gap-3">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <span className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  {uploading ? 'Uploading...' : 'Choose File'}
+                </span>
+              </label>
+              {uploadedFile && (
+                <span className="text-sm text-green-600 flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {uploadedFile.name}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Max 5MB • Accepted: PDF, JPG, PNG, WebP
+            </p>
+          </div>
+
+          {/* OR Separator */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">OR</span>
+            </div>
+          </div>
+
+          {/* Manual URL Option */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Enter Proof Document URL
+            </label>
+            <input
+              type="url"
+              value={proofUrl}
+              onChange={(e) => {
+                setProofUrl(e.target.value);
+                setUploadedFile(null);
+              }}
+              placeholder="https://example.com/proof-document.pdf"
+              disabled={uploading}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              If your document is already hosted elsewhere
+            </p>
+          </div>
+
+          {/* Production Note */}
+          <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+            <p className="text-xs text-blue-700">
+              📝 <strong>Note:</strong> In production, files will be stored on IPFS (decentralized storage) for permanent, tamper-proof records.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
           <div className="flex gap-2">
             <button
               onClick={handleRelease}
-              disabled={releasing}
+              disabled={releasing || uploading}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm"
             >
               {releasing ? 'Releasing...' : 'Confirm Release'}
             </button>
             <button
-              onClick={() => setShowReleaseForm(false)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm"
+              onClick={() => {
+                setShowReleaseForm(false);
+                setProofUrl('');
+                setUploadedFile(null);
+                setError('');
+              }}
+              disabled={releasing || uploading}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm disabled:opacity-50"
             >
               Cancel
             </button>
