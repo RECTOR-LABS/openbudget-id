@@ -8,7 +8,7 @@ import IDL from '../idl/openbudget';
 export const SOLANA_NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
 export const SOLANA_RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
 export const PROGRAM_ID = new PublicKey(
-  process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID || '3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ'
+  process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID || 'RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY'
 );
 
 /**

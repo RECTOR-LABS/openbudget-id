@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/openbudget.json`.
  */
 export type Openbudget = {
-  "address": "3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ",
+  "address": "RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY",
   "metadata": {
     "name": "openbudget",
     "version": "0.1.0",
@@ -466,7 +466,7 @@ export type Openbudget = {
 };
 
 export const IDL = {
-  "address": "3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ",
+  "address": "RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY",
   "metadata": {
     "name": "openbudget",
     "version": "0.1.0",

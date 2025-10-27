@@ -24,7 +24,7 @@
 
 | Prerequisite | Required From | Status | Notes |
 |-------------|---------------|--------|-------|
-| Solana Program Deployed | EPIC-01 | ✅ | Program ID: 3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ |
+| Solana Program Deployed | EPIC-01 | ✅ | Program ID: RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY |
 | Program ID Documented | EPIC-01 | ✅ | Synced to .env.local |
 | Anchor IDL Generated | EPIC-01 | ✅ | Copied to frontend/idl/openbudget.ts |
 | PostgreSQL Installed | - | ✅ | PostgreSQL 17.6 (Homebrew) |

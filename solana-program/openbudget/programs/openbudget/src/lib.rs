@@ -5,7 +5,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ");
+declare_id!("RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY");
 
 #[program]
 pub mod openbudget {

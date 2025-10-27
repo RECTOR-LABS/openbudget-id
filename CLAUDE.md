@@ -44,7 +44,7 @@ docs/IMPLEMENTATION-PLAN.md    # Full technical spec (reference this!)
 
 **EPIC 1 COMPLETE - Blockchain Infrastructure (37.5% faster):**
 - ✅ **Tooling:** Solana Agave 3.0.7, Anchor 0.32.1, Rust 1.90.0
-- ✅ Solana program deployed: `3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`
+- ✅ Solana program deployed: `RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`
 - ✅ 14/14 tests passing on devnet
 - ✅ 4 instructions: initialize_platform, initialize_project, add_milestone, release_funds
 - ✅ Full validation and error handling
@@ -144,11 +144,11 @@ docs/IMPLEMENTATION-PLAN.md    # Full technical spec (reference this!)
 ## Critical Configuration
 
 **Program ID Synchronization (✅ SYNCED IN ALL 3 PLACES):**
-1. `solana-program/openbudget/Anchor.toml` → `[programs.devnet]` = `3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`
-2. `solana-program/openbudget/programs/openbudget/src/lib.rs` → `declare_id!("3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ")`
-3. `frontend/.env.local` → `NEXT_PUBLIC_SOLANA_PROGRAM_ID=3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`
+1. `solana-program/openbudget/Anchor.toml` → `[programs.devnet]` = `RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`
+2. `solana-program/openbudget/programs/openbudget/src/lib.rs` → `declare_id!("RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY")`
+3. `frontend/.env.local` → `NEXT_PUBLIC_SOLANA_PROGRAM_ID=RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`
 
-**Explorer Link:** https://explorer.solana.com/address/3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ?cluster=devnet
+**Explorer Link:** https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet
 
 **PDA Seeds Must Match:**
 ```rust
@@ -165,7 +165,7 @@ docs/IMPLEMENTATION-PLAN.md    # Full technical spec (reference this!)
 DATABASE_URL=postgresql://rz@localhost:5432/openbudget
 
 # Solana (✅ Configured)
-NEXT_PUBLIC_SOLANA_PROGRAM_ID=3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ
+NEXT_PUBLIC_SOLANA_PROGRAM_ID=RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY
 NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
 NEXT_PUBLIC_SOLANA_NETWORK=devnet
 

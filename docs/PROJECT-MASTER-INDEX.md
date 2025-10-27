@@ -139,8 +139,8 @@ Epic 1 (Blockchain) → Epic 2 (Database/API) → Epic 3 (Admin UI) → Epic 4 (
 - ✅ Epic 1: Blockchain Infrastructure (**COMPLETE**)
 - Deliverable: Solana program deployed, Program ID synced
 - **Status:** 15/15 tasks completed, 14/14 tests passing
-- **Program ID:** 3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ
-- **Devnet Explorer:** https://explorer.solana.com/address/3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ?cluster=devnet
+- **Program ID:** RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY
+- **Devnet Explorer:** https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet
 
 **Afternoon (1.5h):**
 - ✅ Epic 2: Database & API Integration (**COMPLETE** - 77% faster than estimated!)
@@ -250,8 +250,8 @@ Epic 1 (Blockchain) → Epic 2 (Database/API) → Epic 3 (Admin UI) → Epic 4 (
 - 15/15 tasks completed
 - 5/5 stories completed
 - 14/14 tests passing on devnet
-- Program ID: `3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`
-- Deployed to: https://explorer.solana.com/address/3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ?cluster=devnet
+- Program ID: `RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`
+- Deployed to: https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet
 
 **Implemented Instructions:**
 1. `initialize_platform` - Platform setup

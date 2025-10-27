@@ -34,6 +34,8 @@ Task-by-task execution plans with status tracking:
 How-to guides and reference documentation:
 - **[QUICK-START.md](./guides/QUICK-START.md)** - Fast setup instructions
 - **[IMPLEMENTATION-PLAN.md](./guides/IMPLEMENTATION-PLAN.md)** - Detailed technical implementation guide
+- **[GOOGLE-OAUTH-SETUP.md](./guides/GOOGLE-OAUTH-SETUP.md)** - Step-by-step Google OAuth configuration
+- **[TESTING-GUIDE.md](./guides/TESTING-GUIDE.md)** - Comprehensive manual testing guide
 - **[TIMELINE.md](./guides/TIMELINE.md)** - Project timeline and milestones
 - **[SUBMISSION-CHECKLIST.md](./guides/SUBMISSION-CHECKLIST.md)** - Hackathon submission requirements
 

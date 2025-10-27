@@ -3,8 +3,8 @@
 **Date Completed:** October 26, 2025  
 **Epic Owner:** RECTOR  
 **Status:** ✅ COMPLETE  
-**Program ID:** `3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`  
-**Devnet Explorer:** https://explorer.solana.com/address/3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ?cluster=devnet
+**Program ID:** `RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`  
+**Devnet Explorer:** https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet
 
 ---
 
@@ -24,7 +24,7 @@ Epic 1 successfully delivered a fully functional Solana blockchain program for O
 ## Deliverables
 
 ### 1. Solana Program Deployed
-- **Program ID:** `3UuSu7oTs2Z6YuPnSuYcvr65nkV3PqDzF1qzxeiZVnjJ`
+- **Program ID:** `RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY`
 - **Network:** Solana Devnet
 - **Size:** 269,360 bytes
 - **Authority:** RECdpxmc8SbnwEbf8iET5Jve6JEfkqMWdrEpkms3P1b
