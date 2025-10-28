@@ -90,12 +90,29 @@ docker run -d \
 
 ---
 
-## 🔧 Manual Deployment Method
+## 🔧 Local Deployment Method
 
-The current deployment uses **manual Docker commands** instead of Kamal due to port 80/443 conflicts with existing nginx on the VPS.
+The current deployment uses **local deployment script** (`deploy.sh`) that builds on VPS from GitHub.
+
+**One-Command Deployment:**
+```bash
+./deploy.sh
+```
+
+**Deployment Workflow:**
+1. ✅ Local commits pushed to GitHub
+2. ✅ VPS pulls latest code
+3. ✅ Docker builds image on VPS (with caching)
+4. ✅ Container restarted with new code
 
 **Deployment Architecture:**
 ```
+Developer Machine (./deploy.sh)
+        ↓
+GitHub (code repository)
+        ↓
+VPS Git Pull + Docker Build
+        ↓
 DNS (openbudget.rectorspace.com)
         ↓
 Nginx (port 80/443) → SSL (Let's Encrypt)
@@ -109,11 +126,23 @@ PostgreSQL (172.18.0.1:5432)
 Solana Devnet (Helius RPC)
 ```
 
+**Deployment Speed:**
+- First deployment: ~5-7 minutes (full build)
+- Subsequent deployments: ~1-2 minutes (cached layers)
+- Zero downtime with proper container restart
+
+**Benefits:**
+- ✅ No Docker Hub dependency
+- ✅ Simple one-command deployment
+- ✅ Build happens on production architecture
+- ✅ Secrets managed via gitignored .kamal/secrets
+- ✅ Full control over deployment timing
+
 **Future Improvements:**
-- Implement GitHub Actions CI/CD for auto-deploy
-- Configure Kamal to work alongside existing nginx
 - Add monitoring and alerting (Sentry, Datadog, etc.)
 - Implement container health checks
+- Add automated rollback on failure
+- Consider blue-green deployment for zero-downtime
 
 ---
 
@@ -209,14 +238,22 @@ sudo certbot renew --dry-run
 
 ### Deployment Updates
 ```bash
-# Pull latest image
-docker pull rz1989/openbudget:latest
+# From local machine (preferred method):
+./deploy.sh
 
-# Stop old container
+# This automatically:
+# 1. Commits and pushes local changes
+# 2. Pulls latest code on VPS
+# 3. Builds Docker image
+# 4. Restarts container
+
+# Manual deployment (if needed):
+ssh openbudget@176.222.53.185
+cd /home/openbudget/openbudget-garuda-spark
+git pull origin dev
+cd frontend && docker build -t openbudget:latest .
 docker stop openbudget-web && docker rm openbudget-web
-
-# Run new container (use script from section 3)
-[Run docker run command with all env vars]
+# Then run container with env vars from .kamal/secrets
 ```
 
 ---
