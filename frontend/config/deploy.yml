@@ -14,9 +14,10 @@ servers:
       publish:
         - "3100:3000"  # Map host port 3100 to container port 3000
 
-# Proxy disabled - using existing nginx on VPS
+# Explicitly disable Kamal proxy - using existing nginx on VPS
 # Nginx will proxy openbudget.rectorspace.com to localhost:3100
-# (No proxy section = Kamal won't install kamal-proxy)
+proxy:
+  host: none  # Disable Kamal's built-in proxy
 
 # Credentials for your image host (Docker Hub).
 registry:
