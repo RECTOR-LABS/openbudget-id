@@ -6,31 +6,16 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 const INDONESIAN_MINISTRIES = [
-  'Kementerian Dalam Negeri',
-  'Kementerian Luar Negeri',
-  'Kementerian Pertahanan',
-  'Kementerian Hukum dan HAM',
   'Kementerian Keuangan',
-  'Kementerian Pertanian',
-  'Kementerian Perindustrian',
-  'Kementerian Energi dan Sumber Daya Mineral',
-  'Kementerian Perhubungan',
   'Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi',
   'Kementerian Kesehatan',
-  'Kementerian Agama',
-  'Kementerian Ketenagakerjaan',
-  'Kementerian Sosial',
-  'Kementerian Lingkungan Hidup dan Kehutanan',
-  'Kementerian Kelautan dan Perikanan',
+  'Kementerian Perhubungan',
   'Kementerian Pekerjaan Umum dan Perumahan Rakyat',
-  'Kementerian Pemberdayaan Perempuan dan Perlindungan Anak',
-  'Kementerian Komunikasi dan Informatika',
-  'Kementerian Koperasi dan UKM',
-  'Kementerian Pariwisata dan Ekonomi Kreatif',
-  'Kementerian Desa, Pembangunan Daerah Tertinggal, dan Transmigrasi',
-  'Kementerian Badan Usaha Milik Negara',
-  'Kementerian Investasi/BKPM',
-  'Unassigned',
+  'Kementerian Pertanian',
+  'Kementerian Energi dan Sumber Daya Mineral',
+  'Kementerian Dalam Negeri',
+  'Kementerian Sosial',
+  'Kementerian Ketenagakerjaan',
 ];
 
 export default function SettingsPage() {

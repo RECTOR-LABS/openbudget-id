@@ -58,7 +58,7 @@ export async function GET(
     const milestones = milestonesResult.rows.map((row) => ({
       id: row.id,
       project_id: row.project_id,
-      milestone_index: row.index,
+      index: row.index, // Changed from milestone_index to index for consistency
       description: row.description,
       amount: row.amount,
       is_released: row.is_released,

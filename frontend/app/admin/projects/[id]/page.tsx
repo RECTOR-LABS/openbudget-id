@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
@@ -70,6 +70,24 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     fetchProject();
   }, [fetchProject]);
+
+  // Display debug logs from previous release attempt (survives page reload)
+  useEffect(() => {
+    const logs = localStorage.getItem('release_debug_logs');
+    if (logs) {
+      try {
+        const parsedLogs = JSON.parse(logs);
+        if (parsedLogs.length > 0) {
+          console.log('📋 Debug logs from previous release attempt:');
+          parsedLogs.forEach((log: { time: string; message: string }) => {
+            console.log(`  [${log.time}] ${log.message}`);
+          });
+        }
+      } catch (e) {
+        console.error('Failed to parse debug logs:', e);
+      }
+    }
+  }, []);
 
   const handlePublish = async () => {
     if (!anchorWallet) {
@@ -636,6 +654,29 @@ function MilestoneCard({
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{ name: string; url: string } | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'synced' | 'out-of-sync' | null>(null);
+
+  // Re-entry lock to prevent duplicate executions
+  const isProcessingRef = useRef(false);
+
+  // Warn user before leaving during critical operation
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (releasing) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    // Prevent Next.js Fast Refresh during critical operation
+    if (releasing && typeof window !== 'undefined') {
+      console.warn('🚫 Transaction in progress, Fast Refresh may cause issues');
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [releasing]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -687,31 +728,72 @@ function MilestoneCard({
   };
 
   const handleRelease = async () => {
+    // Persistent logging that survives page reload
+    const logToStorage = (message: string) => {
+      try {
+        const logs = JSON.parse(localStorage.getItem('release_debug_logs') || '[]');
+        logs.push({ time: new Date().toISOString(), message });
+        localStorage.setItem('release_debug_logs', JSON.stringify(logs));
+        console.log(message);
+      } catch (e) {
+        console.error('Failed to log to storage:', e);
+      }
+    };
+
+    // Clear old logs on start
+    localStorage.setItem('release_debug_logs', JSON.stringify([]));
+    logToStorage('🚀 handleRelease called');
+
+    // Check re-entry lock to prevent duplicate executions
+    if (isProcessingRef.current) {
+      logToStorage('⚠️ Already processing, ignoring duplicate call');
+      console.warn('⚠️ Release already in progress, ignoring duplicate call');
+      return;
+    }
+
+    // Set lock immediately
+    isProcessingRef.current = true;
+    logToStorage('🔒 Lock acquired');
+
     if (!anchorWallet) {
+      logToStorage('❌ No wallet connected');
       alert('Please connect your wallet');
+      isProcessingRef.current = false; // Release lock
       return;
     }
 
     if (!proofUrl.trim()) {
+      logToStorage('❌ No proof URL');
       setError('Please upload a file or enter a proof document URL');
+      isProcessingRef.current = false; // Release lock
       return;
     }
+
+    logToStorage('✅ Validation passed, initializing program');
+
+    // Initialize program BEFORE try block so it's accessible in catch block for recovery
+    const provider = new AnchorProvider(
+      connection,
+      anchorWallet,
+      { commitment: 'confirmed' }
+    );
+    // Anchor 0.30+ reads programId from IDL's address field
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const program = new Program(idlJson as any, provider);
 
     try {
       setReleasing(true);
       setError('');
 
-      const provider = new AnchorProvider(
-        connection,
-        anchorWallet,
-        { commitment: 'confirmed' }
-      );
-      // Anchor 0.30+ reads programId from IDL's address field
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const program = new Program(idlJson as any, provider);
+      logToStorage('🔧 Setting releasing state');
 
       const [projectPda] = getProjectPda(blockchainId);
       const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
+
+      logToStorage('📍 PDAs derived, about to send blockchain transaction');
+      console.log('🔄 Sending blockchain transaction...');
+
+      logToStorage('⏰ Calling .rpc() - Phantom popup should appear now');
 
       const tx = await program.methods
         .releaseFunds(blockchainId, milestone.index, proofUrl)
@@ -722,36 +804,332 @@ function MilestoneCard({
         })
         .rpc();
 
-      console.log('Release transaction:', tx);
+      logToStorage(`✅ Blockchain transaction successful: ${tx}`);
+      console.log('✅ Blockchain transaction successful:', tx);
+      console.log('⏳ About to start database update...');
+      logToStorage('⏳ About to start database update');
 
-      const response = await fetch(`/api/milestones/${milestone.id}/release`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          proof_url: proofUrl,
-          transaction_signature: tx,
-        }),
-      });
+      // CRITICAL: Update database with aggressive retry logic
+      // This MUST succeed to keep database in sync with blockchain
+      let dbUpdateSuccess = false;
+      let retryCount = 0;
+      const maxRetries = 5; // Increased from 3 to 5
+      let lastError: Error | null = null;
 
-      if (response.ok) {
-        alert('Funds released successfully!');
-        onRelease();
-      } else {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to update database');
+      while (!dbUpdateSuccess && retryCount < maxRetries) {
+        try {
+          console.log(`Updating database... (attempt ${retryCount + 1}/${maxRetries})`);
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+          const response = await fetch(`/api/milestones/${milestone.id}/release`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              proof_url: proofUrl,
+              transaction_signature: tx,
+            }),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            dbUpdateSuccess = true;
+            console.log('✅ Database updated successfully');
+            alert('✅ Success! Funds released on blockchain and database updated.');
+            onRelease();
+            return; // Exit early on success
+          } else {
+            const data = await response.json();
+            lastError = new Error(data.error || 'Failed to update database');
+            throw lastError;
+          }
+        } catch (apiError) {
+          retryCount++;
+          lastError = apiError instanceof Error ? apiError : new Error('Unknown error');
+
+          // Don't retry on abort errors beyond max retries
+          if (lastError.name === 'AbortError') {
+            console.warn(`API timeout on attempt ${retryCount}`);
+          }
+
+          if (retryCount < maxRetries) {
+            const waitTime = Math.min(1000 * retryCount, 5000); // Progressive backoff: 1s, 2s, 3s, 4s, 5s
+            console.warn(`Database update failed, retrying in ${waitTime}ms... (${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+          }
+        }
+      }
+
+      // If we get here, all retries failed
+      // But blockchain succeeded, so we MUST inform the user clearly
+      if (!dbUpdateSuccess) {
+        const errorMsg = `⚠️ IMPORTANT: The funds were successfully released on the blockchain (Transaction: ${tx.slice(0, 8)}...)\n\nHowever, the database could not be updated after ${maxRetries} attempts.\n\nPlease manually refresh the page to see the updated status.\n\nTransaction ID: ${tx}`;
+        console.error('Database sync failed:', lastError);
+        setError(errorMsg);
+        alert(errorMsg);
+
+        // Don't auto-refresh - let user manually refresh to avoid killing JavaScript execution
+        console.log('Please manually refresh the page (Cmd+R or F5)');
       }
     } catch (error: unknown) {
+      logToStorage(`❌ ERROR CAUGHT: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
       console.error('Error releasing funds:', error);
 
       // Check if error is "already processed" - this means SUCCESS
       if (error instanceof Error && error.message.includes('already been processed')) {
         alert('✅ Funds released successfully! The transaction has been confirmed on the blockchain.');
         onRelease();
-      } else {
-        setError(error instanceof Error ? error.message : 'Failed to release funds');
+      }
+      // Check if milestone already released on blockchain
+      else if (error instanceof Error && error.message.includes('MilestoneAlreadyReleased')) {
+        // Self-healing: Query blockchain to get the actual transaction signature and sync database
+        console.log('🔄 Self-healing: Milestone already released on blockchain, syncing database...');
+        logToStorage('🔄 Self-healing: Querying blockchain for transaction signature');
+
+        try {
+          // Get milestone PDA
+          const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
+
+          // Query recent transactions for this milestone account
+          const signatures = await connection.getSignaturesForAddress(milestonePda, { limit: 10 });
+
+          if (signatures.length === 0) {
+            throw new Error('No transactions found for milestone account');
+          }
+
+          // Find the ReleaseFunds transaction (most recent one should be it)
+          let releaseTxSignature: string | null = null;
+
+          for (const sig of signatures) {
+            const tx = await connection.getTransaction(sig.signature, {
+              maxSupportedTransactionVersion: 0
+            });
+
+            if (tx && tx.meta && tx.meta.logMessages) {
+              const hasReleaseFunds = tx.meta.logMessages.some(log =>
+                log.includes('Instruction: ReleaseFunds') ||
+                log.includes('Funds released for milestone')
+              );
+
+              if (hasReleaseFunds) {
+                releaseTxSignature = sig.signature;
+                break;
+              }
+            }
+          }
+
+          if (!releaseTxSignature) {
+            throw new Error('Could not find ReleaseFunds transaction');
+          }
+
+          console.log('✅ Found release transaction:', releaseTxSignature);
+          logToStorage(`✅ Found release transaction: ${releaseTxSignature}`);
+
+          // Update database with the actual transaction signature
+          const response = await fetch(`/api/milestones/${milestone.id}/release`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              proof_url: proofUrl || 'Recovered from blockchain',
+              transaction_signature: releaseTxSignature,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update database');
+          }
+
+          console.log('✅ Database synced successfully!');
+          logToStorage('✅ Database synced successfully');
+
+          alert('✅ Funds released successfully!\n\nThe transaction was already confirmed on the blockchain.\nDatabase has been synced automatically.');
+
+          // Refresh project data
+          onRelease();
+
+        } catch (healingError) {
+          console.error('❌ Self-healing failed:', healingError);
+          logToStorage(`❌ Self-healing failed: ${healingError instanceof Error ? healingError.message : 'Unknown error'}`);
+
+          const errorMessage = `⚠️ This milestone was already released on the blockchain.\n\nAutomatic database sync failed: ${healingError instanceof Error ? healingError.message : 'Unknown error'}\n\nPlease manually refresh the page (Cmd+R or F5).`;
+          setError(errorMessage);
+          alert(errorMessage);
+        }
+      }
+      else {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to release funds';
+        setError(errorMessage);
+
+        // Show alert for critical errors to ensure user sees it
+        if (errorMessage.includes('Blockchain transaction succeeded')) {
+          alert(`⚠️ CRITICAL: ${errorMessage}`);
+        }
       }
     } finally {
       setReleasing(false);
+      // Release lock
+      isProcessingRef.current = false;
+      console.log('🔓 Lock released');
+    }
+  };
+
+  const handleVerifyOnBlockchain = async () => {
+    if (!connection) return;
+
+    setVerifying(true);
+    setVerificationStatus(null);
+    setError('');
+
+    try {
+      console.log('🔍 Verifying milestone against blockchain...');
+
+      // Get milestone PDA
+      const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
+
+      // Fetch account data from blockchain
+      const accountInfo = await connection.getAccountInfo(milestonePda);
+
+      if (!accountInfo) {
+        setError('Milestone account not found on blockchain');
+        setVerificationStatus('out-of-sync');
+        return;
+      }
+
+      // Parse milestone account data
+      const data = accountInfo.data;
+      let offset = 8; // discriminator
+
+      // Skip project_id
+      const projectIdLen = data.readUInt32LE(offset);
+      offset += 4 + projectIdLen;
+
+      // Skip index
+      offset += 1;
+
+      // Skip description
+      const descLen = data.readUInt32LE(offset);
+      offset += 4 + descLen;
+
+      // Skip amount
+      offset += 8;
+
+      // Read is_released
+      const blockchainIsReleased = data[offset] === 1;
+
+      // Compare with database
+      const dbIsReleased = milestone.is_released;
+
+      if (blockchainIsReleased === dbIsReleased) {
+        setVerificationStatus('synced');
+        console.log('✅ Verification passed: Database matches blockchain');
+      } else {
+        setVerificationStatus('out-of-sync');
+        console.log('⚠️ Verification failed: Database out of sync with blockchain');
+        setError(`Database shows ${dbIsReleased ? 'released' : 'not released'}, but blockchain shows ${blockchainIsReleased ? 'released' : 'not released'}`);
+      }
+    } catch (error) {
+      console.error('Error verifying milestone:', error);
+      setError(error instanceof Error ? error.message : 'Failed to verify');
+      setVerificationStatus('out-of-sync');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleSyncFromBlockchain = async () => {
+    if (!connection) return;
+
+    setVerifying(true);
+    setError('');
+
+    try {
+      console.log('🔄 Syncing milestone from blockchain...');
+
+      // Get milestone PDA
+      const [milestonePda] = getMilestonePda(blockchainId, milestone.index);
+
+      // Fetch account data
+      const accountInfo = await connection.getAccountInfo(milestonePda);
+
+      if (!accountInfo) {
+        throw new Error('Milestone account not found on blockchain');
+      }
+
+      // Parse is_released status
+      const data = accountInfo.data;
+      let offset = 8;
+      const projectIdLen = data.readUInt32LE(offset);
+      offset += 4 + projectIdLen + 1;
+      const descLen = data.readUInt32LE(offset);
+      offset += 4 + descLen + 8;
+      const blockchainIsReleased = data[offset] === 1;
+
+      // If blockchain shows released but database doesn't, trigger self-healing
+      if (blockchainIsReleased && !milestone.is_released) {
+        console.log('🔄 Database out of sync, triggering self-healing...');
+
+        // Query transactions to find release signature
+        const signatures = await connection.getSignaturesForAddress(milestonePda, { limit: 10 });
+
+        let releaseTxSignature: string | null = null;
+
+        for (const sig of signatures) {
+          const tx = await connection.getTransaction(sig.signature, {
+            maxSupportedTransactionVersion: 0
+          });
+
+          if (tx && tx.meta && tx.meta.logMessages) {
+            const hasReleaseFunds = tx.meta.logMessages.some(log =>
+              log.includes('Instruction: ReleaseFunds') ||
+              log.includes('Funds released for milestone')
+            );
+
+            if (hasReleaseFunds) {
+              releaseTxSignature = sig.signature;
+              break;
+            }
+          }
+        }
+
+        if (!releaseTxSignature) {
+          throw new Error('Could not find release transaction on blockchain');
+        }
+
+        // Update database
+        const response = await fetch(`/api/milestones/${milestone.id}/release`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            proof_url: milestone.proof_url || 'Synced from blockchain',
+            transaction_signature: releaseTxSignature,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update database');
+        }
+
+        alert('✅ Database synced successfully from blockchain!');
+        setVerificationStatus('synced');
+        onRelease(); // Refresh project data
+      } else if (!blockchainIsReleased && milestone.is_released) {
+        alert('⚠️ Warning: Database shows released but blockchain shows not released.\n\nThis should not happen. Database may have incorrect data.');
+        setVerificationStatus('out-of-sync');
+      } else {
+        alert('✅ Database already in sync with blockchain!');
+        setVerificationStatus('synced');
+      }
+    } catch (error) {
+      console.error('Error syncing from blockchain:', error);
+      setError(error instanceof Error ? error.message : 'Failed to sync');
+      alert(`❌ Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -767,7 +1145,7 @@ function MilestoneCard({
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded">
-              Milestone #{milestone.index}
+              Milestone #{milestone.index + 1}
             </span>
             {milestone.is_released && (
               <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded flex items-center gap-1">
@@ -797,18 +1175,72 @@ function MilestoneCard({
           )}
         </div>
 
-        {!milestone.is_released && (
+        <div className="flex gap-2">
+          {!milestone.is_released && (
+            <button
+              type="button"
+              onClick={() => setShowReleaseForm(!showReleaseForm)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+            >
+              Release Funds
+            </button>
+          )}
+
           <button
-            onClick={() => setShowReleaseForm(!showReleaseForm)}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+            type="button"
+            onClick={handleVerifyOnBlockchain}
+            disabled={verifying}
+            className={`px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${
+              verificationStatus === 'synced'
+                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                : verificationStatus === 'out-of-sync'
+                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+            } disabled:opacity-50`}
           >
-            Release Funds
+            {verifying ? (
+              '⏳ Verifying...'
+            ) : verificationStatus === 'synced' ? (
+              <>✓ Synced</>
+            ) : verificationStatus === 'out-of-sync' ? (
+              <>⚠ Out of Sync</>
+            ) : (
+              <>🔍 Verify</>
+            )}
           </button>
-        )}
+
+          {verificationStatus === 'out-of-sync' && (
+            <button
+              type="button"
+              onClick={handleSyncFromBlockchain}
+              disabled={verifying}
+              className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm disabled:opacity-50"
+            >
+              {verifying ? '⏳ Syncing...' : '🔄 Sync'}
+            </button>
+          )}
+        </div>
       </div>
 
       {showReleaseForm && !milestone.is_released && (
         <div className="mt-4 pt-4 border-t border-gray-200">
+          {/* Critical Operation Warning */}
+          {releasing && (
+            <div className="bg-yellow-50 border border-yellow-300 rounded p-3 mb-4">
+              <div className="flex items-start gap-2">
+                <svg className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <p className="text-sm font-semibold text-yellow-800">Transaction in Progress</p>
+                  <p className="text-xs text-yellow-700 mt-1">
+                    Do not close this page or navigate away. The blockchain transaction is being confirmed and database is being updated.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
               <p className="text-sm text-red-700">{error}</p>
@@ -891,6 +1323,7 @@ function MilestoneCard({
           {/* Action Buttons */}
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={handleRelease}
               disabled={releasing || uploading}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm"
@@ -898,6 +1331,7 @@ function MilestoneCard({
               {releasing ? 'Releasing...' : 'Confirm Release'}
             </button>
             <button
+              type="button"
               onClick={() => {
                 setShowReleaseForm(false);
                 setProofUrl('');

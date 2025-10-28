@@ -5,9 +5,8 @@ import { getMilestonePda, getExplorerUrl } from '@/lib/solana';
 /**
  * POST /api/milestones/[id]/release - Release milestone funds
  *
- * NOTE: This is a placeholder implementation for Epic 2.
- * Actual blockchain interaction with wallet will be implemented in Epic 3.
- * For now, it derives the PDA and stores release data in the database.
+ * Accepts a real blockchain transaction signature from the client
+ * and stores the release data in the database.
  */
 export async function POST(
   request: NextRequest,
@@ -16,7 +15,7 @@ export async function POST(
   try {
     const { id } = params;
     const body = await request.json();
-    const { proof_url } = body;
+    const { proof_url, transaction_signature } = body;
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,6 +30,14 @@ export async function POST(
     if (!proof_url || proof_url.trim().length === 0) {
       return NextResponse.json(
         { error: 'Proof URL is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate transaction signature
+    if (!transaction_signature || transaction_signature.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Transaction signature is required' },
         { status: 400 }
       );
     }
@@ -67,11 +74,7 @@ export async function POST(
       const [milestonePda] = getMilestonePda(milestone.blockchain_id, milestone.index);
       const solanaAccount = milestonePda.toBase58();
 
-      // PLACEHOLDER: In Epic 3, this will call the actual blockchain transaction
-      // For now, we simulate a successful transaction with a placeholder signature
-      const placeholderTxSignature = `PLACEHOLDER_RELEASE_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-      // Update milestone
+      // Update milestone with real transaction signature
       const updateMilestoneResult = await client.query(
         `UPDATE milestones
          SET is_released = TRUE,
@@ -81,7 +84,7 @@ export async function POST(
              updated_at = CURRENT_TIMESTAMP
          WHERE id = $3
          RETURNING *`,
-        [placeholderTxSignature, proof_url, id]
+        [transaction_signature, proof_url, id]
       );
 
       // Update project's total_released
@@ -103,7 +106,7 @@ export async function POST(
     const txExplorerUrl = getExplorerUrl(result.milestone.release_tx, 'tx');
 
     return NextResponse.json({
-      message: 'Milestone funds released successfully (placeholder)',
+      message: 'Milestone funds released successfully',
       milestone: {
         id: result.milestone.id,
         project_id: result.milestone.project_id,
@@ -118,7 +121,6 @@ export async function POST(
         explorer_url: explorerUrl,
         tx_explorer_url: txExplorerUrl,
       },
-      note: 'This is a placeholder implementation. Actual blockchain transaction will be implemented in Epic 3 with wallet integration.',
     });
   } catch (error) {
     console.error('Error releasing milestone funds:', error);

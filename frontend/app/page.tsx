@@ -7,6 +7,7 @@ import ProjectCard from '@/components/ProjectCard';
 interface Project {
   id: string;
   title: string;
+  ministry: string;
   recipient_name: string;
   total_amount: string;
   total_allocated: string;
@@ -20,8 +21,24 @@ interface Project {
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [ministries, setMinistries] = useState<string[]>([]);
   const [filters, setFilters] = useState({ ministry: '', search: '' });
   const [loading, setLoading] = useState(true);
+
+  // Fetch available ministries (from published projects)
+  useEffect(() => {
+    const fetchMinistries = async () => {
+      const res = await fetch('/api/projects?status=published');
+      if (res.ok) {
+        const data = await res.json();
+        const uniqueMinistries = Array.from(
+          new Set(data.map((p: Project) => p.ministry).filter(Boolean))
+        ).sort();
+        setMinistries(uniqueMinistries as string[]);
+      }
+    };
+    fetchMinistries();
+  }, []);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -81,11 +98,11 @@ export default function HomePage() {
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent md:w-64 text-gray-900 bg-white"
             >
               <option value="" className="text-gray-500">Semua Kementerian</option>
-              <option value="Kementerian Kesehatan" className="text-gray-900">Kementerian Kesehatan</option>
-              <option value="Kementerian Pendidikan" className="text-gray-900">Kementerian Pendidikan</option>
-              <option value="Kementerian Perhubungan" className="text-gray-900">Kementerian Perhubungan</option>
-              <option value="Kementerian Pekerjaan Umum" className="text-gray-900">Kementerian Pekerjaan Umum</option>
-              <option value="Kementerian Pertanian" className="text-gray-900">Kementerian Pertanian</option>
+              {ministries.map((ministry) => (
+                <option key={ministry} value={ministry} className="text-gray-900">
+                  {ministry}
+                </option>
+              ))}
             </select>
           </div>
         </div>

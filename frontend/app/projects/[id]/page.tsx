@@ -8,7 +8,7 @@ import { getExplorerUrl } from '@/lib/solana';
 interface Milestone {
   id: string;
   project_id: string;
-  milestone_index: number;
+  index: number; // Changed from milestone_index to index for consistency
   description: string;
   amount: string;
   is_released: boolean;
@@ -279,7 +279,7 @@ export default function ProjectDetailPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-medium text-gray-500">
-                            Milestone #{milestone.milestone_index}
+                            Milestone #{milestone.index + 1}
                           </span>
                           {milestone.is_released ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

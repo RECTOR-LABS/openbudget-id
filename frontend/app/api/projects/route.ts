@@ -4,6 +4,7 @@ import { query } from '@/lib/db';
 interface ProjectRow {
   id: string;
   ministry_id: string;
+  ministry_name: string;
   title: string;
   description: string | null;
   recipient_name: string;
@@ -117,8 +118,10 @@ export async function GET(request: NextRequest) {
     let queryText = `
       SELECT
         p.*,
+        ma.ministry_name,
         COUNT(m.id) as milestone_count_actual
       FROM projects p
+      LEFT JOIN ministry_accounts ma ON p.ministry_id = ma.id
       LEFT JOIN milestones m ON p.id = m.project_id
     `;
 
@@ -136,12 +139,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (ministry) {
-      conditions.push(`p.recipient_name ILIKE $${params.length + 1}`);
+      conditions.push(`ma.ministry_name ILIKE $${params.length + 1}`);
       params.push(`%${ministry}%`);
     }
 
     if (search) {
-      conditions.push(`(p.title ILIKE $${params.length + 1} OR p.recipient_name ILIKE $${params.length + 1})`);
+      conditions.push(`(p.title ILIKE $${params.length + 1} OR ma.ministry_name ILIKE $${params.length + 1})`);
       params.push(`%${search}%`);
     }
 
@@ -150,7 +153,7 @@ export async function GET(request: NextRequest) {
     }
 
     queryText += `
-      GROUP BY p.id
+      GROUP BY p.id, ma.ministry_name
       ORDER BY p.created_at DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `;
@@ -163,6 +166,7 @@ export async function GET(request: NextRequest) {
     const projects = result.rows.map((row) => ({
       id: row.id,
       ministry_id: row.ministry_id,
+      ministry: row.ministry_name,
       title: row.title,
       description: row.description,
       recipient_name: row.recipient_name,
