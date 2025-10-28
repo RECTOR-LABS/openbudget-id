@@ -96,7 +96,7 @@ The current deployment uses **local deployment script** (`deploy.sh`) that build
 
 **One-Command Deployment:**
 ```bash
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 **Deployment Workflow:**
@@ -107,7 +107,7 @@ The current deployment uses **local deployment script** (`deploy.sh`) that build
 
 **Deployment Architecture:**
 ```
-Developer Machine (./deploy.sh)
+Developer Machine (./scripts/deploy.sh)
         ↓
 GitHub (code repository)
         ↓
@@ -239,7 +239,7 @@ sudo certbot renew --dry-run
 ### Deployment Updates
 ```bash
 # From local machine (preferred method):
-./deploy.sh
+./scripts/deploy.sh
 
 # This automatically:
 # 1. Commits and pushes local changes

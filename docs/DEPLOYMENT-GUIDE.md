@@ -28,7 +28,7 @@ Local Machine → Git Push → GitHub → VPS Git Pull → Build on VPS → Depl
 
 ```bash
 # From project root
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 **What happens:**
@@ -274,7 +274,7 @@ sudo systemctl status postgresql
 
 | Aspect | GitHub Actions + Kamal | Local Deployment |
 |--------|------------------------|------------------|
-| **Trigger** | Automatic on git push | Manual: `./deploy.sh` |
+| **Trigger** | Automatic on git push | Manual: `./scripts/deploy.sh` |
 | **Docker Hub** | Required ✅ | Not needed ❌ |
 | **Build Location** | GitHub runners | VPS |
 | **Secrets** | GitHub Secrets | In deploy.sh |
@@ -287,7 +287,7 @@ sudo systemctl status postgresql
 
 ### Next Steps
 
-1. ✅ Run `./deploy.sh` for first deployment
+1. ✅ Run `./scripts/deploy.sh` for first deployment
 2. ✅ Verify https://openbudget.rectorspace.com works
 3. ⏳ Create demo video
 4. ⏳ Submit to Garuda Spark hackathon
