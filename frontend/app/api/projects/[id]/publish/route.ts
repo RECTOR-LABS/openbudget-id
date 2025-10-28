@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, transaction } from '@/lib/db';
 import { getProjectPda, getExplorerUrl } from '@/lib/solana';
+import { requireAuth } from '@/lib/api-auth';
 
 /**
  * POST /api/projects/[id]/publish - Publish project to blockchain
@@ -13,6 +14,12 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { id } = params;
 
     // Validate UUID format
@@ -49,6 +56,14 @@ export async function POST(
     }
 
     const project = projectResult.rows[0];
+
+    // Authorization check - user can only publish their ministry's projects
+    if (project.ministry_id !== auth.userId) {
+      return NextResponse.json(
+        { error: 'Forbidden - You can only publish your ministry projects' },
+        { status: 403 }
+      );
+    }
 
     // Check if already published
     if (project.status === 'published') {

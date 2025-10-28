@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { transaction } from '@/lib/db';
 import { getMilestonePda, getExplorerUrl } from '@/lib/solana';
+import { requireAuth } from '@/lib/api-auth';
 
 /**
  * POST /api/milestones/[id]/release - Release milestone funds
@@ -13,6 +14,12 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const { id } = params;
     const body = await request.json();
     const { proof_url, transaction_signature } = body;
@@ -46,7 +53,7 @@ export async function POST(
     const result = await transaction(async (client) => {
       // Fetch milestone with lock
       const milestoneResult = await client.query(
-        `SELECT m.*, p.blockchain_id
+        `SELECT m.*, p.blockchain_id, p.ministry_id
          FROM milestones m
          JOIN projects p ON m.project_id = p.id
          WHERE m.id = $1
@@ -59,6 +66,11 @@ export async function POST(
       }
 
       const milestone = milestoneResult.rows[0];
+
+      // Authorization check - user can only release their ministry's milestones
+      if (milestone.ministry_id !== auth.userId) {
+        throw new Error('Forbidden - You can only release your ministry milestones');
+      }
 
       // Check if already released
       if (milestone.is_released) {

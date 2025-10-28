@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { requireAuth, requireMinistry } from '@/lib/api-auth';
 
 interface ProjectRow {
   id: string;
@@ -26,8 +27,20 @@ interface ProjectRow {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const body = await request.json();
     const { title, description, recipient_name, recipient_type, total_amount, ministry_id } = body;
+
+    // Authorization check - user can only create projects for their ministry
+    const ministryCheck = requireMinistry(auth.session, ministry_id);
+    if (!ministryCheck.authorized) {
+      return ministryCheck.response;
+    }
 
     // Validation
     if (!title || title.trim().length === 0) {

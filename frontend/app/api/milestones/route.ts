@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, transaction } from '@/lib/db';
+import { requireAuth } from '@/lib/api-auth';
 
 interface MilestoneRow {
   id: string;
@@ -21,6 +22,12 @@ interface MilestoneRow {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Authentication check
+    const auth = await requireAuth();
+    if (!auth.authorized) {
+      return auth.response;
+    }
+
     const body = await request.json();
     const { project_id, milestone_index, description, amount } = body;
 
@@ -73,6 +80,11 @@ export async function POST(request: NextRequest) {
       }
 
       const project = projectResult.rows[0];
+
+      // Authorization check - user can only add milestones to their ministry's projects
+      if (project.ministry_id !== auth.userId) {
+        throw new Error('Forbidden - You can only add milestones to your ministry projects');
+      }
 
       // Validate project is published
       if (project.status !== 'published') {
