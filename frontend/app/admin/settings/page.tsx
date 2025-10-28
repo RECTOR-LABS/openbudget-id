@@ -29,7 +29,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchAccount = async () => {
-      if (!session?.user?.id) return;
+      if (!session?.user?.id) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const res = await fetch(`/api/ministry-accounts/${session.user.id}`);
@@ -37,9 +40,12 @@ export default function SettingsPage() {
           const data = await res.json();
           setMinistryName(data.account.ministry_name || 'Unassigned');
         } else {
-          setError('Failed to load account information');
+          const errorData = await res.json();
+          console.error('Failed to load account:', errorData);
+          setError(errorData.error || 'Failed to load account information');
         }
-      } catch {
+      } catch (err) {
+        console.error('Error loading account information:', err);
         setError('Error loading account information');
       } finally {
         setLoading(false);

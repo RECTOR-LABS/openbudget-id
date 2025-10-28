@@ -76,8 +76,16 @@ export async function GET(req: NextRequest) {
 
     const result = await query(sql, params);
 
+    // Parse numeric/bigint strings to numbers for proper frontend handling
+    const trends = result.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      project_count: parseInt(row.project_count as string) || 0,
+      total_budget: row.total_budget ? row.total_budget.toString() : '0',
+      total_released: row.total_released ? row.total_released.toString() : '0',
+    }));
+
     return NextResponse.json({
-      trends: result.rows,
+      trends,
       ministry,
       period,
     });

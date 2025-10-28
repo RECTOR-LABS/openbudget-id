@@ -96,9 +96,17 @@ export async function GET() {
 
     anomalies.push(...lowTrustResult.rows);
 
+    // Parse numeric strings to numbers for proper frontend handling
+    const parsedAnomalies = anomalies.map((anomaly: Record<string, unknown>) => ({
+      ...anomaly,
+      release_percentage: anomaly.release_percentage ? parseFloat(anomaly.release_percentage as string) : undefined,
+      avg_rating: anomaly.avg_rating ? parseFloat(anomaly.avg_rating as string) : undefined,
+      over_allocation_percentage: anomaly.over_allocation_percentage ? parseFloat(anomaly.over_allocation_percentage as string) : undefined,
+    }));
+
     return NextResponse.json({
-      anomalies,
-      total_anomalies: anomalies.length,
+      anomalies: parsedAnomalies,
+      total_anomalies: parsedAnomalies.length,
       detected_at: new Date().toISOString(),
     });
   } catch (error) {

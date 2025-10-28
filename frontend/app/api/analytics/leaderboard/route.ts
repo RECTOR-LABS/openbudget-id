@@ -27,8 +27,18 @@ export async function GET() {
       ORDER BY overall_score DESC
     `);
 
+    // Parse numeric strings to numbers for proper frontend handling
+    const leaderboard = result.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      completion_rate: parseFloat(row.completion_rate as string) || 0,
+      budget_accuracy: parseFloat(row.budget_accuracy as string) || 0,
+      release_rate: parseFloat(row.release_rate as string) || 0,
+      avg_trust_score: row.avg_trust_score ? parseFloat(row.avg_trust_score as string) : null,
+      overall_score: parseFloat(row.overall_score as string) || 0,
+    }));
+
     return NextResponse.json({
-      leaderboard: result.rows,
+      leaderboard,
       updated_at: new Date().toISOString(),
     });
   } catch (error) {
