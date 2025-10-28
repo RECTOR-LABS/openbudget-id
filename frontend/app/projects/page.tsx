@@ -68,20 +68,86 @@ export default function ProjectsPage() {
       <Header />
 
       <main className="min-h-screen bg-gray-50 pt-20 pb-16">
+        {/* Hero Header Section */}
+        <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-16 mb-12 overflow-hidden">
+          {/* Batik Pattern Overlay */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          ></div>
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent"></div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
+                <a href="/" className="hover:text-white transition">
+                  🏠 Beranda
+                </a>
+                <span>/</span>
+                <span className="text-white font-medium">Proyek</span>
+              </div>
+
+              {/* Main Header */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center text-3xl border border-white/20">
+                      📊
+                    </div>
+                    <div>
+                      <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">
+                        Semua Proyek Anggaran
+                      </h1>
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-green-500/20 border border-green-400/30 rounded-full text-sm font-medium text-green-100">
+                          ✅ Verified on Blockchain
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-lg md:text-xl text-blue-100 max-w-2xl leading-relaxed">
+                    Jelajahi transparansi anggaran negara yang tercatat secara permanen di blockchain Solana.
+                    Setiap proyek dapat diverifikasi dan tidak dapat dimanipulasi.
+                  </p>
+                </div>
+
+                {/* Stats Cards */}
+                <div className="flex gap-4">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 min-w-[120px]"
+                  >
+                    <div className="text-3xl font-bold mb-1">{projects.length}</div>
+                    <div className="text-sm text-blue-100">Total Proyek</div>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 min-w-[120px]"
+                  >
+                    <div className="text-3xl font-bold mb-1">{ministries.length}</div>
+                    <div className="text-sm text-blue-100">Kementerian</div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">
-              Semua Proyek Anggaran
-            </h1>
-            <p className="text-lg text-gray-600">
-              Jelajahi transparansi anggaran negara yang tercatat di blockchain
-            </p>
-          </motion.div>
+          {/* Removed old header - now using hero section above */}
 
           {/* Search and Filter */}
           <motion.div
