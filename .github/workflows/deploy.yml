@@ -41,7 +41,7 @@ jobs:
 
       - name: Deploy with Kamal
         env:
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_SOLANA_PROGRAM_ID: ${{ secrets.NEXT_PUBLIC_SOLANA_PROGRAM_ID }}
           NEXT_PUBLIC_SOLANA_RPC_URL: ${{ secrets.NEXT_PUBLIC_SOLANA_RPC_URL }}
