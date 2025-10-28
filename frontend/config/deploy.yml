@@ -10,6 +10,7 @@ servers:
     hosts:
       - 176.222.53.185
     options:
+      network: kamal  # Use existing Docker network
       publish:
         - "3100:3000"  # Map host port 3100 to container port 3000
 
@@ -39,9 +40,6 @@ env:
     - NEXTAUTH_SECRET
     - GOOGLE_CLIENT_ID
     - GOOGLE_CLIENT_SECRET
-
-# Use existing Docker network (created manually, shared with PostgreSQL)
-network: kamal
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal app logs -r job" will tail logs from the first server in the job section.
