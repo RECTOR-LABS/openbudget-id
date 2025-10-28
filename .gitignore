@@ -37,3 +37,6 @@ test-ledger/
 # Misc
 *.pem
 .vercel
+
+# Playwright MCP
+.playwright-mcp/
