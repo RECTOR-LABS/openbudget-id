@@ -1,0 +1,290 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { formatRupiah, abbreviateNumber } from '@/lib/utils';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+
+interface Ministry {
+  ministry: string;
+  total_projects: number;
+  completed_projects: number;
+  completion_rate: number;
+  total_budget: string;
+  total_released: string;
+  budget_accuracy: number;
+  avg_trust_score: number | null;
+  total_ratings: number;
+  release_rate: number;
+  overall_score: number;
+}
+
+interface Anomaly {
+  id: string;
+  title: string;
+  ministry: string;
+  anomaly_type: string;
+  anomaly_description: string;
+  total_budget?: string;
+  release_percentage?: number;
+  missing_proof_count?: number;
+  avg_rating?: number;
+}
+
+export default function AnalyticsPage() {
+  const [leaderboard, setLeaderboard] = useState<Ministry[]>([]);
+  const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('overall_score');
+  const [selectedMinistry, setSelectedMinistry] = useState<string | null>(null);
+  const [trends, setTrends] = useState<{ period: string; project_count: number; total_budget: string; total_released: string }[]>([]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  useEffect(() => {
+    if (selectedMinistry) {
+      fetchTrends(selectedMinistry);
+    }
+  }, [selectedMinistry]);
+
+  const fetchAnalytics = async () => {
+    try {
+      const [leaderboardRes, anomaliesRes] = await Promise.all([
+        fetch('/api/analytics/leaderboard'),
+        fetch('/api/analytics/anomalies'),
+      ]);
+
+      if (leaderboardRes.ok) {
+        const data = await leaderboardRes.json();
+        setLeaderboard(data.leaderboard || []);
+      }
+
+      if (anomaliesRes.ok) {
+        const data = await anomaliesRes.json();
+        setAnomalies(data.anomalies || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch analytics:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTrends = async (ministry: string) => {
+    try {
+      const res = await fetch(`/api/analytics/trends?ministry=${encodeURIComponent(ministry)}&period=monthly`);
+      if (res.ok) {
+        const data = await res.json();
+        setTrends(data.trends || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch trends:', err);
+    }
+  };
+
+  const sortedLeaderboard = [...leaderboard].sort((a, b) => {
+    const aVal = a[sortBy as keyof Ministry];
+    const bVal = b[sortBy as keyof Ministry];
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return bVal - aVal;
+    }
+    return 0;
+  });
+
+  const getRankBadgeColor = (index: number, total: number) => {
+    const topQuarter = Math.ceil(total * 0.25);
+    const bottomQuarter = Math.floor(total * 0.75);
+
+    if (index < topQuarter) return 'bg-green-100 text-green-800';
+    if (index >= bottomQuarter) return 'bg-red-100 text-red-800';
+    return 'bg-yellow-100 text-yellow-800';
+  };
+
+  const getAnomalyColor = (type: string) => {
+    switch (type) {
+      case 'low_release_rate': return 'bg-orange-100 border-orange-300 text-orange-900';
+      case 'missing_proof': return 'bg-red-100 border-red-300 text-red-900';
+      case 'over_allocated': return 'bg-purple-100 border-purple-300 text-purple-900';
+      case 'low_trust_score': return 'bg-yellow-100 border-yellow-300 text-yellow-900';
+      default: return 'bg-gray-100 border-gray-300 text-gray-900';
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Memuat analytics...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 pt-20">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              📊 Analytics & Intelligence Dashboard
+            </h1>
+            <p className="text-xl text-gray-600">
+              Insights mendalam dari data transparansi anggaran pemerintah
+            </p>
+          </div>
+
+          {/* Ministry Leaderboard */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">🏆 Ministry Performance Leaderboard</h2>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              >
+                <option value="overall_score">Overall Score</option>
+                <option value="completion_rate">Completion Rate</option>
+                <option value="budget_accuracy">Budget Accuracy</option>
+                <option value="release_rate">Release Rate</option>
+                <option value="avg_trust_score">Trust Score</option>
+              </select>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left p-4 font-semibold text-gray-700">Rank</th>
+                    <th className="text-left p-4 font-semibold text-gray-700">Ministry</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">Projects</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">Completion</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">Budget Accuracy</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">Trust Score</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">Overall Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedLeaderboard.map((ministry, index) => (
+                    <tr
+                      key={ministry.ministry}
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition"
+                      onClick={() => setSelectedMinistry(ministry.ministry)}
+                    >
+                      <td className="p-4">
+                        <span className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${getRankBadgeColor(index, sortedLeaderboard.length)}`}>
+                          #{index + 1}
+                        </span>
+                      </td>
+                      <td className="p-4 font-medium text-gray-900">{ministry.ministry}</td>
+                      <td className="p-4 text-center text-gray-700">{ministry.total_projects}</td>
+                      <td className="p-4 text-center text-gray-700">{ministry.completion_rate?.toFixed(1) || 0}%</td>
+                      <td className="p-4 text-center text-gray-700">{ministry.budget_accuracy?.toFixed(1) || 0}%</td>
+                      <td className="p-4 text-center">
+                        {ministry.avg_trust_score ? (
+                          <span className="text-yellow-600 font-semibold">
+                            ⭐ {ministry.avg_trust_score.toFixed(1)}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-center">
+                        <span className="text-blue-600 font-bold text-lg">
+                          {ministry.overall_score?.toFixed(1) || 0}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Spending Trends Chart */}
+          {selectedMinistry && trends.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                📈 Spending Trends - {selectedMinistry}
+              </h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={trends}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="period"
+                    tickFormatter={(value) => new Date(value).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
+                  />
+                  <YAxis tickFormatter={(value) => abbreviateNumber(value)} />
+                  <Tooltip
+                    labelFormatter={(value) => new Date(value).toLocaleDateString('id-ID')}
+                    formatter={(value: number | string) => formatRupiah(BigInt(value))}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="total_budget" stroke="#3B82F6" name="Total Budget" strokeWidth={2} />
+                  <Line type="monotone" dataKey="total_released" stroke="#10B981" name="Total Released" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Anomaly Detection */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              🚨 Anomaly Detection ({anomalies.length} terdeteksi)
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Pola pengeluaran yang mencurigakan terdeteksi otomatis oleh sistem
+            </p>
+
+            {anomalies.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <svg className="w-12 h-12 mx-auto mb-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="font-semibold">Tidak ada anomali terdeteksi</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
+                {anomalies.map((anomaly, index) => (
+                  <div
+                    key={index}
+                    className={`rounded-lg border-2 p-4 ${getAnomalyColor(anomaly.anomaly_type)}`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-bold text-lg">{anomaly.title}</h3>
+                      <span className="px-2 py-1 bg-white bg-opacity-50 rounded text-xs font-semibold">
+                        {anomaly.anomaly_type.replace('_', ' ').toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="text-sm mb-2">{anomaly.ministry}</p>
+                    <p className="text-sm mb-3">{anomaly.anomaly_description}</p>
+                    {anomaly.total_budget && (
+                      <div className="text-sm font-semibold">
+                        Budget: {formatRupiah(BigInt(anomaly.total_budget))}
+                      </div>
+                    )}
+                    {anomaly.release_percentage !== undefined && (
+                      <div className="text-sm font-semibold">
+                        Release Rate: {anomaly.release_percentage.toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+}

@@ -11,11 +11,26 @@ export default function AdminHeader() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="h-16 px-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-gray-900">
-            OpenBudget.ID
-          </h1>
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10">
+              <Image
+                src="/logo-icon.svg"
+                alt="OpenBudget Logo"
+                width={40}
+                height={40}
+                priority
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">
+                Open<span className="text-blue-600">Budget</span>
+              </h1>
+              <p className="text-xs text-gray-500 font-medium tracking-wide">ADMIN PANEL</p>
+            </div>
+          </div>
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-            Admin
+            Ministry
           </span>
         </div>
 
@@ -47,7 +62,7 @@ export default function AdminHeader() {
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="ml-2 px-3 py-1.5 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                className="ml-2 px-3 py-1.5 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
                 title="Sign out"
               >
                 <svg

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import ProjectCard from '@/components/ProjectCard';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 interface Project {
   id: string;
@@ -60,28 +61,10 @@ export default function HomePage() {
   }, [fetchProjects]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-5xl font-bold mb-2">OpenBudget.ID</h1>
-              <p className="text-xl text-blue-100">
-                Transparansi Anggaran Pemerintah dengan Blockchain
-              </p>
-            </div>
-            <Link
-              href="/admin"
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition"
-            >
-              Ministry Login
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Filters */}
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 pt-20">
+        {/* Filters */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -158,20 +141,8 @@ export default function HomePage() {
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center text-gray-600">
-            <p className="mb-2">
-              Powered by Solana Blockchain • Built for Indonesian Transparency
-            </p>
-            <p className="text-sm text-gray-500">
-              Setiap transaksi tercatat secara permanen dan dapat diverifikasi publik
-            </p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

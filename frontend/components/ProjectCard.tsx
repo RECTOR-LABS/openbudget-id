@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { formatRupiah } from '@/lib/utils';
 
 interface Project {
   id: string;
@@ -23,13 +24,9 @@ export default function ProjectCard({ project }: { project: Project }) {
     ? Number((totalReleased * 100n) / totalBudget)
     : 0;
 
-  // Format to millions for display
-  const budgetInMillions = Number(totalBudget) / 1_000_000;
-  const releasedInMillions = Number(totalReleased) / 1_000_000;
-
   return (
-    <Link href={`/projects/${project.id}`}>
-      <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer border border-gray-100 h-full flex flex-col">
+    <Link href={`/projects/${project.id}`} className="cursor-pointer">
+      <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow border border-gray-100 h-full flex flex-col">
         <div className="flex-1">
           <div className="flex items-start justify-between mb-3">
             <h3 className="text-xl font-bold text-gray-900 line-clamp-2 flex-1">
@@ -63,14 +60,14 @@ export default function ProjectCard({ project }: { project: Project }) {
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">Total Anggaran:</span>
               <span className="font-bold text-gray-900">
-                Rp {budgetInMillions.toFixed(1)}M
+                {formatRupiah(totalBudget)}
               </span>
             </div>
 
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">Telah Direalisasikan:</span>
               <span className="font-bold text-green-600">
-                Rp {releasedInMillions.toFixed(1)}M
+                {formatRupiah(totalReleased)}
               </span>
             </div>
 

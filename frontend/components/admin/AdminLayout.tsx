@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, ReactNode } from 'react';
 import AdminHeader from './AdminHeader';
 import AdminSidebar from './AdminSidebar';
+import Footer from '@/components/Footer';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -36,13 +37,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <AdminHeader />
-      <div className="flex">
+      <div className="flex flex-1">
         <AdminSidebar />
         <main className="flex-1 p-8 ml-64 mt-16">
           <div className="max-w-7xl mx-auto">{children}</div>
         </main>
+      </div>
+      <div className="ml-64">
+        <Footer />
       </div>
     </div>
   );

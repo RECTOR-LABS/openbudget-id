@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { getExplorerUrl } from '@/lib/solana';
+import { formatRupiah } from '@/lib/utils';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import CommentSection from '@/components/CommentSection';
+import TrustScoreRating from '@/components/TrustScoreRating';
+import WatchlistButton from '@/components/WatchlistButton';
+import IssueReportModal from '@/components/IssueReportModal';
 
 interface Milestone {
   id: string;
@@ -105,80 +112,77 @@ export default function ProjectDetailPage() {
   const totalBudget = BigInt(project.total_amount);
   const totalReleased = BigInt(project.total_released);
 
-  // Format with Indonesian thousand separators (dots)
-  const formatRupiah = (amount: bigint) => {
-    return Number(amount).toLocaleString('id-ID');
-  };
-
   // Calculate progress with decimal precision (convert to Number for accurate division)
   const progress = totalBudget > 0n
     ? (Number(totalReleased) / Number(totalBudget)) * 100
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <Link
-            href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 font-medium transition"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 pt-20">
+        {/* Project Hero */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <Link
+              href="/"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 font-medium transition cursor-pointer"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Kembali ke Beranda
-          </Link>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
-              <p className="text-lg text-gray-600 flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-                {project.recipient_name}
-              </p>
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              Kembali ke Beranda
+            </Link>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
+                <p className="text-lg text-gray-600 flex items-center">
+                  <svg
+                    className="w-5 h-5 mr-2 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                  {project.recipient_name}
+                </p>
+              </div>
+              {project.status === 'published' && (
+                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Dipublikasikan
+                </span>
+              )}
             </div>
-            {project.status === 'published' && (
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Dipublikasikan
-              </span>
+            {project.description && (
+              <p className="text-gray-700 mt-4 leading-relaxed">{project.description}</p>
             )}
           </div>
-          {project.description && (
-            <p className="text-gray-700 mt-4 leading-relaxed">{project.description}</p>
-          )}
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+        <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Budget Overview Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Ringkasan Anggaran</h2>
@@ -186,13 +190,13 @@ export default function ProjectDetailPage() {
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-600 mb-1">Total Anggaran</h3>
               <p className="text-2xl font-bold text-blue-900">
-                Rp {formatRupiah(totalBudget)}
+                {formatRupiah(totalBudget)}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-green-600 mb-1">Telah Direalisasikan</h3>
               <p className="text-2xl font-bold text-green-900">
-                Rp {formatRupiah(totalReleased)}
+                {formatRupiah(totalReleased)}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
@@ -259,7 +263,6 @@ export default function ProjectDetailPage() {
             <div className="space-y-4">
               {project.milestones.map((milestone) => {
                 const milestoneAmount = BigInt(milestone.amount);
-                const amountInMillions = Number(milestoneAmount) / 1_000_000;
 
                 return (
                   <div
@@ -295,7 +298,7 @@ export default function ProjectDetailPage() {
                           {milestone.description}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          Jumlah: <span className="font-semibold">Rp {amountInMillions.toFixed(1)}M</span>
+                          Jumlah: <span className="font-semibold">{formatRupiah(milestoneAmount)}</span>
                         </p>
                         {milestone.is_released && milestone.released_at && (
                           <p className="text-sm text-green-600 mt-1">
@@ -316,7 +319,7 @@ export default function ProjectDetailPage() {
                           href={getExplorerUrl(milestone.release_tx, 'tx')}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition"
+                          className="inline-flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium transition cursor-pointer"
                         >
                           <svg
                             className="w-4 h-4 mr-1"
@@ -382,21 +385,24 @@ export default function ProjectDetailPage() {
             </div>
           )}
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t mt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center text-gray-600">
-            <p className="mb-2">
-              Powered by Solana Blockchain • Built for Indonesian Transparency
-            </p>
-            <p className="text-sm text-gray-500">
-              Setiap transaksi tercatat secara permanen dan dapat diverifikasi publik
-            </p>
+        {/* Epic 6: Citizen Engagement Features */}
+        <div className="space-y-6 mt-6">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-4">
+            <WatchlistButton projectId={project.id} projectTitle={project.title} />
+            <IssueReportModal projectId={project.id} projectTitle={project.title} />
           </div>
+
+          {/* Trust Score Rating */}
+          <TrustScoreRating projectId={project.id} />
+
+          {/* Comments Section */}
+          <CommentSection projectId={project.id} />
         </div>
-      </footer>
-    </div>
+      </main>
+      </div>
+      <Footer />
+    </>
   );
 }
