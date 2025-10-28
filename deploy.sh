@@ -54,7 +54,7 @@ docker rm openbudget-web 2>/dev/null || true
 
 echo "🚀 Starting new container..."
 # Load secrets from .kamal/secrets file
-source frontend/.kamal/secrets
+source .kamal/secrets
 
 docker run -d \
   --name openbudget-web \
