@@ -39,17 +39,23 @@ jobs:
           username: rz1989
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
+      - name: Create Kamal secrets file
+        run: |
+          cd frontend
+          mkdir -p .kamal
+          cat > .kamal/secrets <<EOF
+          KAMAL_REGISTRY_PASSWORD=${{ secrets.DOCKER_HUB_TOKEN }}
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_SOLANA_PROGRAM_ID=${{ secrets.NEXT_PUBLIC_SOLANA_PROGRAM_ID }}
+          NEXT_PUBLIC_SOLANA_RPC_URL=${{ secrets.NEXT_PUBLIC_SOLANA_RPC_URL }}
+          NEXT_PUBLIC_SOLANA_NETWORK=${{ secrets.NEXT_PUBLIC_SOLANA_NETWORK }}
+          NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          EOF
+
       - name: Deploy with Kamal
-        env:
-          KAMAL_REGISTRY_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXT_PUBLIC_SOLANA_PROGRAM_ID: ${{ secrets.NEXT_PUBLIC_SOLANA_PROGRAM_ID }}
-          NEXT_PUBLIC_SOLANA_RPC_URL: ${{ secrets.NEXT_PUBLIC_SOLANA_RPC_URL }}
-          NEXT_PUBLIC_SOLANA_NETWORK: ${{ secrets.NEXT_PUBLIC_SOLANA_NETWORK }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
           cd frontend
           kamal deploy
