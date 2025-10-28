@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (legacy-peer-deps for Solana wallet compatibility)
-RUN npm ci --legacy-peer-deps
+# Install dependencies (using npm install for better Docker compatibility)
+RUN npm install --legacy-peer-deps --no-audit --prefer-offline
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
