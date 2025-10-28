@@ -21,6 +21,25 @@ interface Project {
   creation_tx: string | null;
 }
 
+// Pre-computed floating icons to avoid hydration mismatch
+const FLOATING_ICONS = [
+  { emoji: '💰', x: 10, y: 20, duration: 15 },
+  { emoji: '📊', x: 80, y: 10, duration: 18 },
+  { emoji: '🔒', x: 20, y: 70, duration: 20 },
+  { emoji: '✅', x: 90, y: 60, duration: 16 },
+  { emoji: '💰', x: 50, y: 30, duration: 19 },
+  { emoji: '📊', x: 70, y: 80, duration: 17 },
+  { emoji: '🔒', x: 30, y: 50, duration: 21 },
+  { emoji: '✅', x: 60, y: 15, duration: 14 },
+  { emoji: '💰', x: 15, y: 90, duration: 22 },
+  { emoji: '📊', x: 85, y: 40, duration: 13 },
+  { emoji: '🔒', x: 40, y: 25, duration: 19 },
+  { emoji: '✅', x: 95, y: 85, duration: 16 },
+  { emoji: '💰', x: 25, y: 60, duration: 18 },
+  { emoji: '📊', x: 55, y: 75, duration: 20 },
+  { emoji: '🔒', x: 75, y: 35, duration: 15 },
+];
+
 export default function MarketingHomePage() {
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,30 +85,26 @@ export default function MarketingHomePage() {
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden pt-20">
         {/* Animated Floating Rupiah Symbols */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(15)].map((_, i) => (
+          {FLOATING_ICONS.map((icon, i) => (
             <motion.div
               key={i}
               className="absolute text-6xl opacity-10"
               initial={{
-                x: Math.random() * 100 + '%',
-                y: Math.random() * 100 + '%',
+                x: `${icon.x}%`,
+                y: `${icon.y}%`,
               }}
               animate={{
-                y: [
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%',
-                  Math.random() * 100 + '%',
-                ],
+                y: [`${icon.y}%`, `${(icon.y + 20) % 100}%`, `${icon.y}%`],
                 rotate: [0, 360],
                 scale: [1, 1.2, 1],
               }}
               transition={{
-                duration: Math.random() * 10 + 10,
+                duration: icon.duration,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
             >
-              {['💰', '📊', '🔒', '✅'][Math.floor(Math.random() * 4)]}
+              {icon.emoji}
             </motion.div>
           ))}
         </div>
