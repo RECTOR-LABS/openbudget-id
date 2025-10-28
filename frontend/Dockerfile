@@ -3,7 +3,14 @@
 
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    linux-headers \
+    eudev-dev \
+    libusb-dev
 WORKDIR /app
 
 # Copy package files
