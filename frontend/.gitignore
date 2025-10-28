@@ -39,3 +39,4 @@ next-env.d.ts
 # Uploaded proof documents
 /public/uploads/proofs/*
 !/public/uploads/proofs/.gitkeep
+.kamal/secrets
