@@ -48,14 +48,20 @@ export async function GET(req: NextRequest) {
     }> = [];
 
     // 1. Project Published
-    const projectsResult = await query(
-      `SELECT id, title, created_at, creation_tx
-      FROM projects
-      WHERE recipient_name = $1 AND status = 'published'
-      ORDER BY created_at DESC
-      LIMIT $2`,
-      [ministryName, limit]
-    );
+    let projectsResult;
+    try {
+      projectsResult = await query(
+        `SELECT id, title, created_at, creation_tx
+        FROM projects
+        WHERE recipient_name = $1 AND status = 'published'
+        ORDER BY created_at DESC
+        LIMIT $2`,
+        [ministryName, limit]
+      );
+    } catch (err) {
+      console.error('[recent-activity] Projects query error:', err);
+      projectsResult = { rows: [] };
+    }
 
     projectsResult.rows.forEach((row: Record<string, string>) => {
       activities.push({
@@ -73,15 +79,21 @@ export async function GET(req: NextRequest) {
     });
 
     // 2. Milestones Released
-    const milestonesResult = await query(
-      `SELECT m.id, m.description, m.released_at, m.release_tx, p.id as project_id, p.title as project_title
-      FROM milestones m
-      JOIN projects p ON p.id = m.project_id
-      WHERE p.recipient_name = $1 AND m.is_released = true
-      ORDER BY m.released_at DESC
-      LIMIT $2`,
-      [ministryName, limit]
-    );
+    let milestonesResult;
+    try {
+      milestonesResult = await query(
+        `SELECT m.id, m.description, m.released_at, m.release_tx, p.id as project_id, p.title as project_title
+        FROM milestones m
+        JOIN projects p ON p.id = m.project_id
+        WHERE p.recipient_name = $1 AND m.is_released = true
+        ORDER BY m.released_at DESC
+        LIMIT $2`,
+        [ministryName, limit]
+      );
+    } catch (err) {
+      console.error('[recent-activity] Milestones query error:', err);
+      milestonesResult = { rows: [] };
+    }
 
     milestonesResult.rows.forEach((row: Record<string, string>) => {
       activities.push({
@@ -99,17 +111,27 @@ export async function GET(req: NextRequest) {
     });
 
     // 3. Comments Received
-    const commentsResult = await query(
-      `SELECT c.id, c.comment, c.created_at, c.email, p.id as project_id, p.title as project_title
-      FROM comments c
-      JOIN projects p ON p.id = c.project_id
-      WHERE p.recipient_name = $1
-      ORDER BY c.created_at DESC
-      LIMIT $2`,
-      [ministryName, limit]
-    );
+    let commentsResult;
+    try {
+      commentsResult = await query(
+        `SELECT c.id, c.comment, c.created_at, c.email, p.id as project_id, p.title as project_title
+        FROM comments c
+        JOIN projects p ON p.id = c.project_id
+        WHERE p.recipient_name = $1
+        ORDER BY c.created_at DESC
+        LIMIT $2`,
+        [ministryName, limit]
+      );
+    } catch (err) {
+      console.error('[recent-activity] Comments query error:', err);
+      commentsResult = { rows: [] };
+    }
 
     commentsResult.rows.forEach((row: Record<string, string>) => {
+      const commentPreview = row.comment
+        ? row.comment.substring(0, 100) + (row.comment.length > 100 ? '...' : '')
+        : '';
+
       activities.push({
         type: 'comment_received',
         title: 'Komentar Baru',
@@ -119,23 +141,33 @@ export async function GET(req: NextRequest) {
         project_title: row.project_title,
         link: `/projects/${row.project_id}#comments`,
         metadata: {
-          comment: row.comment.substring(0, 100) + (row.comment.length > 100 ? '...' : ''),
+          comment: commentPreview,
         },
       });
     });
 
     // 4. Issues Reported
-    const issuesResult = await query(
-      `SELECT i.id, i.description, i.severity, i.created_at, p.id as project_id, p.title as project_title
-      FROM issues i
-      JOIN projects p ON p.id = i.project_id
-      WHERE p.recipient_name = $1
-      ORDER BY i.created_at DESC
-      LIMIT $2`,
-      [ministryName, limit]
-    );
+    let issuesResult;
+    try {
+      issuesResult = await query(
+        `SELECT i.id, i.description, i.severity, i.created_at, p.id as project_id, p.title as project_title
+        FROM issues i
+        JOIN projects p ON p.id = i.project_id
+        WHERE p.recipient_name = $1
+        ORDER BY i.created_at DESC
+        LIMIT $2`,
+        [ministryName, limit]
+      );
+    } catch (err) {
+      console.error('[recent-activity] Issues query error:', err);
+      issuesResult = { rows: [] };
+    }
 
     issuesResult.rows.forEach((row: Record<string, string>) => {
+      const descPreview = row.description
+        ? row.description.substring(0, 100) + (row.description.length > 100 ? '...' : '')
+        : '';
+
       activities.push({
         type: 'issue_reported',
         title: 'Laporan Masalah',
@@ -146,21 +178,27 @@ export async function GET(req: NextRequest) {
         link: `/admin/projects/${row.project_id}#issues`,
         metadata: {
           severity: row.severity,
-          description: row.description.substring(0, 100) + (row.description.length > 100 ? '...' : ''),
+          description: descPreview,
         },
       });
     });
 
     // 5. Trust Scores / Ratings
-    const ratingsResult = await query(
-      `SELECT r.id, r.rating, r.created_at, r.email, p.id as project_id, p.title as project_title
-      FROM project_ratings r
-      JOIN projects p ON p.id = r.project_id
-      WHERE p.recipient_name = $1
-      ORDER BY r.created_at DESC
-      LIMIT $2`,
-      [ministryName, limit]
-    );
+    let ratingsResult;
+    try {
+      ratingsResult = await query(
+        `SELECT r.id, r.rating, r.created_at, r.email, p.id as project_id, p.title as project_title
+        FROM project_ratings r
+        JOIN projects p ON p.id = r.project_id
+        WHERE p.recipient_name = $1
+        ORDER BY r.created_at DESC
+        LIMIT $2`,
+        [ministryName, limit]
+      );
+    } catch (err) {
+      console.error('[recent-activity] Ratings query error:', err);
+      ratingsResult = { rows: [] };
+    }
 
     ratingsResult.rows.forEach((row: Record<string, unknown>) => {
       activities.push({
