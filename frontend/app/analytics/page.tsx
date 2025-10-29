@@ -7,18 +7,20 @@ import { formatRupiah, abbreviateNumber } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-interface Ministry {
+interface Project {
+  id: string;
+  title: string;
   ministry: string;
-  total_projects: number;
-  completed_projects: number;
-  completion_rate: number;
   total_budget: string;
   total_released: string;
+  completion_rate: number;
   budget_accuracy: number;
   avg_trust_score: number | null;
   total_ratings: number;
-  release_rate: number;
+  total_milestones: number;
+  released_milestones: number;
   overall_score: number;
+  created_at: string;
 }
 
 interface Anomaly {
@@ -34,11 +36,11 @@ interface Anomaly {
 }
 
 export default function AnalyticsPage() {
-  const [leaderboard, setLeaderboard] = useState<Ministry[]>([]);
+  const [leaderboard, setLeaderboard] = useState<Project[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('overall_score');
-  const [selectedMinistry, setSelectedMinistry] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [trends, setTrends] = useState<{ period: string; project_count: number; total_budget: string; total_released: string }[]>([]);
 
   useEffect(() => {
@@ -46,21 +48,22 @@ export default function AnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedMinistry) {
-      fetchTrends(selectedMinistry);
+    if (selectedProject) {
+      fetchTrends(selectedProject);
     }
-  }, [selectedMinistry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProject]);
 
   const fetchAnalytics = async () => {
     try {
       const [leaderboardRes, anomaliesRes] = await Promise.all([
-        fetch('/api/analytics/leaderboard'),
+        fetch('/api/analytics/projects-leaderboard'),
         fetch('/api/analytics/anomalies'),
       ]);
 
       if (leaderboardRes.ok) {
         const data = await leaderboardRes.json();
-        setLeaderboard(data.leaderboard || []);
+        setLeaderboard(data.projects || []);
       }
 
       if (anomaliesRes.ok) {
@@ -74,9 +77,12 @@ export default function AnalyticsPage() {
     }
   };
 
-  const fetchTrends = async (ministry: string) => {
+  const fetchTrends = async (projectId: string) => {
     try {
-      const res = await fetch(`/api/analytics/trends?ministry=${encodeURIComponent(ministry)}&period=monthly`);
+      const project = leaderboard.find(p => p.id === projectId);
+      if (!project) return;
+
+      const res = await fetch(`/api/analytics/trends?ministry=${encodeURIComponent(project.ministry)}&period=monthly`);
       if (res.ok) {
         const data = await res.json();
         setTrends(data.trends || []);
@@ -87,8 +93,8 @@ export default function AnalyticsPage() {
   };
 
   const sortedLeaderboard = [...leaderboard].sort((a, b) => {
-    const aVal = a[sortBy as keyof Ministry];
-    const bVal = b[sortBy as keyof Ministry];
+    const aVal = a[sortBy as keyof Project];
+    const bVal = b[sortBy as keyof Project];
     if (typeof aVal === 'number' && typeof bVal === 'number') {
       return bVal - aVal;
     }
@@ -192,10 +198,10 @@ export default function AnalyticsPage() {
 
         <div className="max-w-7xl mx-auto px-4 pb-8">
 
-          {/* Ministry Leaderboard */}
+          {/* Project Leaderboard */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">🏆 Ministry Performance Leaderboard</h2>
+              <h2 className="text-2xl font-bold text-gray-900">🏆 Project Performance Leaderboard</h2>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -204,7 +210,6 @@ export default function AnalyticsPage() {
                 <option value="overall_score">Overall Score</option>
                 <option value="completion_rate">Completion Rate</option>
                 <option value="budget_accuracy">Budget Accuracy</option>
-                <option value="release_rate">Release Rate</option>
                 <option value="avg_trust_score">Trust Score</option>
               </select>
             </div>
@@ -214,8 +219,8 @@ export default function AnalyticsPage() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left p-4 font-semibold text-gray-700">Rank</th>
+                    <th className="text-left p-4 font-semibold text-gray-700">Project</th>
                     <th className="text-left p-4 font-semibold text-gray-700">Ministry</th>
-                    <th className="text-center p-4 font-semibold text-gray-700">Projects</th>
                     <th className="text-center p-4 font-semibold text-gray-700">Completion</th>
                     <th className="text-center p-4 font-semibold text-gray-700">Budget Accuracy</th>
                     <th className="text-center p-4 font-semibold text-gray-700">Trust Score</th>
@@ -223,11 +228,11 @@ export default function AnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedLeaderboard.map((ministry, index) => (
+                  {sortedLeaderboard.map((project, index) => (
                     <tr
-                      key={ministry.ministry}
+                      key={project.id}
                       className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition"
-                      onClick={() => setSelectedMinistry(ministry.ministry)}
+                      onClick={() => setSelectedProject(project.id)}
                     >
                       <td className="p-4">
                         <span className={`inline-block px-3 py-1 rounded-full font-semibold text-sm ${getRankBadgeColor(index, sortedLeaderboard.length)}`}>
@@ -236,20 +241,20 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="p-4">
                         <Link
-                          href={`/projects?ministry=${encodeURIComponent(ministry.ministry)}`}
+                          href={`/projects/${project.id}`}
                           className="font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          {ministry.ministry}
+                          {project.title}
                         </Link>
                       </td>
-                      <td className="p-4 text-center text-gray-700">{ministry.total_projects}</td>
-                      <td className="p-4 text-center text-gray-700">{ministry.completion_rate?.toFixed(1) || 0}%</td>
-                      <td className="p-4 text-center text-gray-700">{ministry.budget_accuracy?.toFixed(1) || 0}%</td>
+                      <td className="p-4 text-gray-700 text-sm">{project.ministry}</td>
+                      <td className="p-4 text-center text-gray-700">{project.completion_rate?.toFixed(1) || 0}%</td>
+                      <td className="p-4 text-center text-gray-700">{project.budget_accuracy?.toFixed(1) || 0}%</td>
                       <td className="p-4 text-center">
-                        {ministry.avg_trust_score ? (
+                        {project.avg_trust_score ? (
                           <span className="text-yellow-600 font-semibold">
-                            ⭐ {ministry.avg_trust_score.toFixed(1)}
+                            ⭐ {project.avg_trust_score.toFixed(1)}
                           </span>
                         ) : (
                           <span className="text-gray-400">—</span>
@@ -257,7 +262,7 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="p-4 text-center">
                         <span className="text-blue-600 font-bold text-lg">
-                          {ministry.overall_score?.toFixed(1) || 0}
+                          {project.overall_score?.toFixed(1) || 0}
                         </span>
                       </td>
                     </tr>
@@ -268,10 +273,10 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Spending Trends Chart */}
-          {selectedMinistry && trends.length > 0 && (
+          {selectedProject && trends.length > 0 && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                📈 Spending Trends - {selectedMinistry}
+                📈 Spending Trends - {leaderboard.find(p => p.id === selectedProject)?.title || 'Project'}
               </h2>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={trends}>
