@@ -132,16 +132,64 @@ export default function AnalyticsPage() {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 pt-20">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              📊 Analytics & Intelligence Dashboard
-            </h1>
-            <p className="text-xl text-gray-600">
-              Insights mendalam dari data transparansi anggaran pemerintah
-            </p>
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-16 mb-12 overflow-hidden">
+          {/* Batik Pattern Overlay */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='6' fill='%23ffffff'/%3E%3Ccircle cx='45' cy='15' r='6' fill='%23ffffff'/%3E%3Ccircle cx='15' cy='45' r='6' fill='%23ffffff'/%3E%3Ccircle cx='45' cy='45' r='6' fill='%23ffffff'/%3E%3Ccircle cx='30' cy='30' r='8' fill='%23ffffff'/%3E%3C/svg%3E")`,
+              backgroundSize: '60px 60px',
+            }}
+          />
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
+              <a href="/" className="hover:text-white transition-colors">
+                🏠 Beranda
+              </a>
+              <span>/</span>
+              <span className="text-white font-medium">Analytics</span>
+            </div>
+
+            {/* Main Header */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="flex items-start gap-4">
+                {/* Icon with glassmorphism */}
+                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 flex items-center justify-center text-4xl flex-shrink-0">
+                  📊
+                </div>
+
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+                    Analytics & Intelligence Dashboard
+                  </h1>
+                  <p className="text-lg lg:text-xl text-blue-100 max-w-2xl">
+                    Insights mendalam dari data transparansi anggaran pemerintah
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="flex flex-wrap gap-3">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 min-w-[120px]">
+                  <div className="text-sm text-blue-100 mb-1">Total Kementerian</div>
+                  <div className="text-2xl font-bold">{leaderboard.length}</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 min-w-[120px]">
+                  <div className="text-sm text-blue-100 mb-1">Anomali Terdeteksi</div>
+                  <div className="text-2xl font-bold text-yellow-300">{anomalies.length}</div>
+                </div>
+              </div>
+            </div>
           </div>
+        </section>
+
+        <div className="max-w-7xl mx-auto px-4 pb-8">
 
           {/* Ministry Leaderboard */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
