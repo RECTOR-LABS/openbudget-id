@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { formatRupiah, abbreviateNumber } from '@/lib/utils';
 import Header from '@/components/Header';
@@ -233,7 +234,15 @@ export default function AnalyticsPage() {
                           #{index + 1}
                         </span>
                       </td>
-                      <td className="p-4 font-medium text-gray-900">{ministry.ministry}</td>
+                      <td className="p-4">
+                        <Link
+                          href={`/projects?ministry=${encodeURIComponent(ministry.ministry)}`}
+                          className="font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {ministry.ministry}
+                        </Link>
+                      </td>
                       <td className="p-4 text-center text-gray-700">{ministry.total_projects}</td>
                       <td className="p-4 text-center text-gray-700">{ministry.completion_rate?.toFixed(1) || 0}%</td>
                       <td className="p-4 text-center text-gray-700">{ministry.budget_accuracy?.toFixed(1) || 0}%</td>

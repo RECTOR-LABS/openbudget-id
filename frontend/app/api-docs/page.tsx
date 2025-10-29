@@ -252,6 +252,467 @@ const endpoints: Endpoint[] = [
   }
 }`,
   },
+
+  // Epic 6: Citizen Engagement - Comments
+  {
+    id: 'get-comments',
+    method: 'GET',
+    path: '/api/comments',
+    title: 'Get Comments',
+    description: 'Retrieve comments for a project or milestone',
+    category: 'Engagement',
+    auth: 'none',
+    responseSchema: {
+      type: 'array',
+      properties: {
+        id: { type: 'string', description: 'Comment UUID' },
+        project_id: { type: 'string', description: 'Project UUID' },
+        milestone_id: { type: 'string', description: 'Milestone UUID (optional)' },
+        commenter_name: { type: 'string', description: 'Name of commenter' },
+        commenter_email: { type: 'string', description: 'Email of commenter' },
+        comment_text: { type: 'string', description: 'Comment content (max 1000 chars)' },
+        parent_comment_id: { type: 'string', description: 'Parent comment for threading' },
+        is_ministry_response: { type: 'boolean', description: 'True if from ministry' },
+        created_at: { type: 'string', description: 'ISO 8601 timestamp' },
+      },
+    },
+    exampleResponse: `[
+  {
+    "id": "comment-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "milestone_id": null,
+    "commenter_name": "Budi Santoso",
+    "commenter_email": "budi@example.com",
+    "comment_text": "Kapan proyek ini akan dimulai?",
+    "parent_comment_id": null,
+    "is_ministry_response": false,
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+]`,
+  },
+  {
+    id: 'post-comment',
+    method: 'POST',
+    path: '/api/comments',
+    title: 'Submit Comment',
+    description: 'Submit a public comment or question (rate limited: 5 per 24h per email)',
+    category: 'Engagement',
+    auth: 'none',
+    requestBody: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project UUID', required: true },
+        milestone_id: { type: 'string', description: 'Milestone UUID (optional)', required: false },
+        commenter_name: { type: 'string', description: 'Your name', required: true },
+        commenter_email: { type: 'string', description: 'Your email', required: true },
+        comment_text: { type: 'string', description: 'Comment (max 1000 chars)', required: true },
+        parent_comment_id: { type: 'string', description: 'Reply to comment', required: false },
+      },
+    },
+    responseSchema: {
+      type: 'object',
+      properties: {
+        comment: { type: 'object', description: 'Created comment object' },
+      },
+    },
+    exampleRequest: `{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "commenter_name": "Budi Santoso",
+  "commenter_email": "budi@example.com",
+  "comment_text": "Kapan proyek ini akan dimulai?"
+}`,
+    exampleResponse: `{
+  "comment": {
+    "id": "comment-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "commenter_name": "Budi Santoso",
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+}`,
+  },
+  {
+    id: 'get-comment-replies',
+    method: 'GET',
+    path: '/api/comments/:id/replies',
+    title: 'Get Comment Replies',
+    description: 'Get threaded replies to a specific comment',
+    category: 'Engagement',
+    auth: 'none',
+    responseSchema: {
+      type: 'array',
+      properties: {
+        id: { type: 'string', description: 'Reply comment UUID' },
+        parent_comment_id: { type: 'string', description: 'Parent comment UUID' },
+        comment_text: { type: 'string', description: 'Reply content' },
+      },
+    },
+    exampleResponse: `[
+  {
+    "id": "reply-uuid",
+    "parent_comment_id": "comment-uuid",
+    "commenter_name": "Kementerian Pendidikan",
+    "comment_text": "Proyek akan dimulai Q2 2026",
+    "is_ministry_response": true,
+    "created_at": "2025-10-28T11:00:00Z"
+  }
+]`,
+  },
+
+  // Epic 6: Trust Score Ratings
+  {
+    id: 'get-ratings',
+    method: 'GET',
+    path: '/api/ratings',
+    title: 'Get Project Ratings',
+    description: 'Get average rating and breakdown for a project',
+    category: 'Engagement',
+    auth: 'none',
+    responseSchema: {
+      type: 'object',
+      properties: {
+        average_rating: { type: 'number', description: 'Average rating (1-5)' },
+        total_ratings: { type: 'number', description: 'Total rating count' },
+        breakdown: { type: 'object', description: 'Count per star (1-5)' },
+      },
+    },
+    exampleResponse: `{
+  "average_rating": 4.2,
+  "total_ratings": 15,
+  "breakdown": {
+    "5": 8,
+    "4": 5,
+    "3": 2,
+    "2": 0,
+    "1": 0
+  }
+}`,
+  },
+  {
+    id: 'post-rating',
+    method: 'POST',
+    path: '/api/ratings',
+    title: 'Submit Rating',
+    description: 'Submit or update trust score rating (1-5 stars, one per email per project)',
+    category: 'Engagement',
+    auth: 'none',
+    requestBody: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project UUID', required: true },
+        rater_email: { type: 'string', description: 'Your email', required: true },
+        rating: { type: 'number', description: 'Rating 1-5', required: true },
+        comment: { type: 'string', description: 'Optional comment (max 500 chars)', required: false },
+      },
+    },
+    responseSchema: {
+      type: 'object',
+      properties: {
+        rating: { type: 'object', description: 'Created/updated rating object' },
+      },
+    },
+    exampleRequest: `{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "rater_email": "budi@example.com",
+  "rating": 5,
+  "comment": "Proyek sangat transparan!"
+}`,
+    exampleResponse: `{
+  "rating": {
+    "id": "rating-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "rating": 5,
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+}`,
+  },
+
+  // Epic 6: Watchlist
+  {
+    id: 'get-watchlist',
+    method: 'GET',
+    path: '/api/watchlist',
+    title: 'Get Watchlist',
+    description: 'Get all projects a user is subscribed to',
+    category: 'Engagement',
+    auth: 'none',
+    responseSchema: {
+      type: 'array',
+      properties: {
+        id: { type: 'string', description: 'Subscription UUID' },
+        project_id: { type: 'string', description: 'Project UUID' },
+        subscriber_email: { type: 'string', description: 'Subscriber email' },
+        notification_frequency: { type: 'string', description: 'instant | daily | weekly' },
+      },
+    },
+    exampleResponse: `[
+  {
+    "id": "sub-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "subscriber_email": "budi@example.com",
+    "notification_frequency": "instant",
+    "created_at": "2025-10-20T10:00:00Z"
+  }
+]`,
+  },
+  {
+    id: 'post-watchlist',
+    method: 'POST',
+    path: '/api/watchlist',
+    title: 'Subscribe to Project',
+    description: 'Subscribe to email notifications for project updates',
+    category: 'Engagement',
+    auth: 'none',
+    requestBody: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project UUID', required: true },
+        subscriber_email: { type: 'string', description: 'Your email', required: true },
+        notification_frequency: {
+          type: 'string',
+          description: 'instant | daily | weekly',
+          required: true,
+        },
+      },
+    },
+    responseSchema: {
+      type: 'object',
+      properties: {
+        subscription: { type: 'object', description: 'Created subscription' },
+      },
+    },
+    exampleRequest: `{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "subscriber_email": "budi@example.com",
+  "notification_frequency": "instant"
+}`,
+    exampleResponse: `{
+  "subscription": {
+    "id": "sub-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+}`,
+  },
+  {
+    id: 'delete-watchlist',
+    method: 'DELETE',
+    path: '/api/watchlist',
+    title: 'Unsubscribe from Project',
+    description: 'Remove project from watchlist',
+    category: 'Engagement',
+    auth: 'none',
+    requestBody: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project UUID', required: true },
+        subscriber_email: { type: 'string', description: 'Your email', required: true },
+      },
+    },
+    responseSchema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', description: 'Success message' },
+      },
+    },
+    exampleRequest: `{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "subscriber_email": "budi@example.com"
+}`,
+    exampleResponse: `{
+  "message": "Unsubscribed successfully"
+}`,
+  },
+
+  // Epic 6: Issue Reporting
+  {
+    id: 'get-issues',
+    method: 'GET',
+    path: '/api/issues',
+    title: 'Get Reported Issues',
+    description: 'Get issues reported for projects or milestones',
+    category: 'Engagement',
+    auth: 'none',
+    responseSchema: {
+      type: 'array',
+      properties: {
+        id: { type: 'string', description: 'Issue UUID' },
+        project_id: { type: 'string', description: 'Project UUID' },
+        issue_type: {
+          type: 'string',
+          description: 'budget_mismatch | missing_proof | delayed_release | fraudulent_claim | other',
+        },
+        severity: { type: 'string', description: 'low | medium | high | critical' },
+        description: { type: 'string', description: 'Issue description (10-2000 chars)' },
+        status: { type: 'string', description: 'open | under_review | resolved | dismissed' },
+      },
+    },
+    exampleResponse: `[
+  {
+    "id": "issue-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "issue_type": "missing_proof",
+    "severity": "high",
+    "description": "Milestone 2 dirilis tanpa dokumen bukti",
+    "status": "open",
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+]`,
+  },
+  {
+    id: 'post-issue',
+    method: 'POST',
+    path: '/api/issues',
+    title: 'Report Issue',
+    description: 'Report suspicious spending or irregularities',
+    category: 'Engagement',
+    auth: 'none',
+    requestBody: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'Project UUID', required: true },
+        milestone_id: { type: 'string', description: 'Milestone UUID (optional)', required: false },
+        issue_type: {
+          type: 'string',
+          description: 'budget_mismatch | missing_proof | delayed_release | fraudulent_claim | other',
+          required: true,
+        },
+        severity: { type: 'string', description: 'low | medium | high | critical', required: true },
+        reporter_email: { type: 'string', description: 'Your email', required: true },
+        description: { type: 'string', description: 'Description (10-2000 chars)', required: true },
+      },
+    },
+    responseSchema: {
+      type: 'object',
+      properties: {
+        issue: { type: 'object', description: 'Created issue object' },
+      },
+    },
+    exampleRequest: `{
+  "project_id": "550e8400-e29b-41d4-a716-446655440000",
+  "issue_type": "missing_proof",
+  "severity": "high",
+  "reporter_email": "citizen@example.com",
+  "description": "Milestone 2 dirilis tanpa dokumen bukti yang valid"
+}`,
+    exampleResponse: `{
+  "issue": {
+    "id": "issue-uuid",
+    "project_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "open",
+    "created_at": "2025-10-28T10:00:00Z"
+  }
+}`,
+  },
+
+  // Epic 7: Analytics - Leaderboard
+  {
+    id: 'get-leaderboard',
+    method: 'GET',
+    path: '/api/analytics/leaderboard',
+    title: 'Ministry Performance Leaderboard',
+    description: 'Get ranked ministry performance with calculated scores',
+    category: 'Analytics',
+    auth: 'none',
+    responseSchema: {
+      type: 'object',
+      properties: {
+        leaderboard: {
+          type: 'array',
+          description: 'Array of ministry performance metrics sorted by overall_score',
+        },
+      },
+    },
+    exampleResponse: `{
+  "leaderboard": [
+    {
+      "ministry": "Kementerian Pendidikan",
+      "total_projects": 24,
+      "completed_projects": 12,
+      "completion_rate": 50.0,
+      "total_budget": "500000000000",
+      "total_released": "250000000000",
+      "budget_accuracy": 85.5,
+      "avg_trust_score": 4.2,
+      "total_ratings": 75,
+      "release_rate": 50.0,
+      "overall_score": 68.5
+    }
+  ]
+}`,
+  },
+
+  // Epic 7: Analytics - Trends
+  {
+    id: 'get-trends',
+    method: 'GET',
+    path: '/api/analytics/trends',
+    title: 'Spending Trends',
+    description: 'Time-series spending data with date grouping (daily/weekly/monthly/yearly)',
+    category: 'Analytics',
+    auth: 'none',
+    responseSchema: {
+      type: 'object',
+      properties: {
+        trends: { type: 'array', description: 'Time-series data grouped by period' },
+      },
+    },
+    exampleResponse: `{
+  "trends": [
+    {
+      "period": "2025-10",
+      "project_count": 15,
+      "total_budget": "300000000000",
+      "total_released": "150000000000",
+      "release_rate": 50.0
+    },
+    {
+      "period": "2025-11",
+      "project_count": 20,
+      "total_budget": "400000000000",
+      "total_released": "200000000000",
+      "release_rate": 50.0
+    }
+  ]
+}`,
+  },
+
+  // Epic 7: Analytics - Anomalies
+  {
+    id: 'get-anomalies',
+    method: 'GET',
+    path: '/api/analytics/anomalies',
+    title: 'Anomaly Detection',
+    description: 'Detect suspicious patterns (low release rate, missing proof, over-allocated, low trust)',
+    category: 'Analytics',
+    auth: 'none',
+    responseSchema: {
+      type: 'object',
+      properties: {
+        anomalies: { type: 'array', description: 'Array of detected anomalies with descriptions' },
+      },
+    },
+    exampleResponse: `{
+  "anomalies": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "title": "Proyek Infrastruktur Nasional",
+      "ministry": "Kementerian PUPR",
+      "anomaly_type": "low_release_rate",
+      "anomaly_description": "Large budget project with unusually low fund release",
+      "total_budget": "150000000000",
+      "release_percentage": 15.5
+    },
+    {
+      "id": "650e8400-e29b-41d4-a716-446655440001",
+      "title": "Program Beasiswa",
+      "ministry": "Kementerian Pendidikan",
+      "anomaly_type": "missing_proof",
+      "anomaly_description": "Released milestones without proof documentation",
+      "missing_proof_count": 3
+    }
+  ]
+}`,
+  },
 ];
 
 const categories = Array.from(new Set(endpoints.map((e) => e.category)));
