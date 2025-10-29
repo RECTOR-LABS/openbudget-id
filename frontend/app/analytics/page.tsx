@@ -95,8 +95,11 @@ export default function AnalyticsPage() {
   const sortedLeaderboard = [...leaderboard].sort((a, b) => {
     const aVal = a[sortBy as keyof Project];
     const bVal = b[sortBy as keyof Project];
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return bVal - aVal;
+    // Convert to number if it's a numeric string
+    const aNum = typeof aVal === 'number' ? aVal : Number(aVal);
+    const bNum = typeof bVal === 'number' ? bVal : Number(bVal);
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return bNum - aNum;
     }
     return 0;
   });
@@ -249,12 +252,12 @@ export default function AnalyticsPage() {
                         </Link>
                       </td>
                       <td className="p-4 text-gray-700 text-sm">{project.ministry}</td>
-                      <td className="p-4 text-center text-gray-700">{project.completion_rate?.toFixed(1) || 0}%</td>
-                      <td className="p-4 text-center text-gray-700">{project.budget_accuracy?.toFixed(1) || 0}%</td>
+                      <td className="p-4 text-center text-gray-700">{Number(project.completion_rate || 0).toFixed(1)}%</td>
+                      <td className="p-4 text-center text-gray-700">{Number(project.budget_accuracy || 0).toFixed(1)}%</td>
                       <td className="p-4 text-center">
                         {project.avg_trust_score ? (
                           <span className="text-yellow-600 font-semibold">
-                            ⭐ {project.avg_trust_score.toFixed(1)}
+                            ⭐ {Number(project.avg_trust_score).toFixed(1)}
                           </span>
                         ) : (
                           <span className="text-gray-400">—</span>
@@ -262,7 +265,7 @@ export default function AnalyticsPage() {
                       </td>
                       <td className="p-4 text-center">
                         <span className="text-blue-600 font-bold text-lg">
-                          {project.overall_score?.toFixed(1) || 0}
+                          {Number(project.overall_score || 0).toFixed(1)}
                         </span>
                       </td>
                     </tr>
