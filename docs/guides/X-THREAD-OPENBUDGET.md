@@ -4,7 +4,7 @@
 
 **Tone**: Friendly, sedikit bad grammar, very human
 
-**Total Posts**: 8 posts + 1 closing
+**Total Posts**: 11 posts (with hackathon shoutout)
 
 ---
 
@@ -148,24 +148,40 @@ Indonesia butuh lebih banyak real-world blockchain use case kayak gini 🇮🇩�
 [TAMBAHKAN: Screenshot pitch deck hero atau analytics dashboard]
 ```
 
+### Post 11 - Hackathon Shoutout + Viral Hashtags
+```
+big shoutout to @SuperteamEarn @SuperteamINDO yang ngadain Garuda Spark hackathon ini! 🙏
+
+dan ke @ekraf_ri yang support ekosistem digital kreatif Indonesia
+
+platform kayak OpenBudget ini selaras banget sama visi transparansi pemerintahan
+
+rakyat berhak tau kemana uang negara dipake, gabisa ditutup-tutupi lagi 💪
+
+#purbaya #laporpakpurbaya #GarudaSpark2025 #TransparansiAPBN #BlockchainIndonesia #Web3Indonesia #SolanaID #BangunIndonesia #DigitalIndonesia2045 🇮🇩
+
+[TAMBAHKAN: Screenshot final / team photo / celebration image]
+```
+
 ---
 
 ## Tips Posting Thread
 
 1. **Post gradually** - jangan spam semua sekaligus, kasih jeda 2-3 menit per post
 2. **Engage with replies** - jawab questions dengan casual juga
-3. **Add relevant hashtags** di post terakhir:
-   - #GarudaSpark2025
-   - #SolanaIndonesia
-   - #BlockchainForGood
-   - #Web3Indonesia
-   - #BuildInPublic
-   - #SolanaDev
-4. **Tag relevant accounts** (optional):
-   - @SuperteamID
-   - @solana
-   - @SolanaFndn
+3. **Viral hashtag strategy** di Post 11:
+   - #purbaya #laporpakpurbaya - connects to transparency/accountability movement
+   - #GarudaSpark2025 - hackathon tag
+   - #TransparansiAPBN #BlockchainIndonesia - main theme
+   - #Web3Indonesia #SolanaID - community tags
+   - #BangunIndonesia #DigitalIndonesia2045 - nation building vibes
+4. **Tag timing**:
+   - Tag @SuperteamEarn @SuperteamINDO @ekraf_ri di Post 11
+   - Optional: Tag @solana @SolanaFndn in replies for visibility
 5. **Pin the thread** ke profile kalo engagement bagus
+6. **Best time to post**:
+   - Weekdays 7-9am atau 7-9pm WIB (peak Indonesian Twitter time)
+   - Avoid posting during prayer times (especially Jumat 12-1pm)
 
 ---
 
@@ -222,17 +238,19 @@ built with:
 live: https://openbudget.rectorspace.com
 ```
 
-### Post 5 - CTA
+### Post 5 - CTA + Hackathon Shoutout
 ```
 Indonesia butuh real-world blockchain use cases kayak gini
 
 bukan cuma speculation, tapi solve real problems: korupsi & transparency
 
-open source, built in public
+shoutout @SuperteamEarn @SuperteamINDO @ekraf_ri buat hackathon & support nya! 🙏
 
-kalo tertarik collab atau ada questions, DM aja!
+rakyat berhak tau kemana APBN dipake 💪
 
-#GarudaSpark2025 #SolanaIndonesia #BlockchainForGood 🇮🇩💪
+live: https://openbudget.rectorspace.com
+
+#purbaya #laporpakpurbaya #GarudaSpark2025 #TransparansiAPBN #BlockchainIndonesia #Web3Indonesia #SolanaID #BangunIndonesia 🇮🇩
 
 [Screenshot: Analytics atau Pitch Deck]
 ```
