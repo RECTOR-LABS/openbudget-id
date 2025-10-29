@@ -3,13 +3,23 @@ import { query } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/dashboard-stats - Get ministry-specific dashboard statistics
 export async function GET() {
   try {
     // Get authenticated session
     const session = await getServerSession(authOptions);
 
+    console.log('[dashboard-stats] Session check:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      hasUserId: !!session?.user?.id,
+      userEmail: session?.user?.email,
+    });
+
     if (!session?.user?.id) {
+      console.log('[dashboard-stats] Unauthorized: No session or user ID');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

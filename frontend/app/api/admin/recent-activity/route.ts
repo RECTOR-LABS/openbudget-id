@@ -3,6 +3,8 @@ import { query } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/recent-activity?limit=10 - Get ministry's recent activities
 export async function GET(req: NextRequest) {
   try {
