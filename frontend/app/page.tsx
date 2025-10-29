@@ -263,8 +263,8 @@ export default function MarketingHomePage() {
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{problem.title}</h3>
                 <p className="text-gray-600 mb-6">{problem.description}</p>
                 <div className={`bg-${problem.color}-50 rounded-lg p-4 border border-${problem.color}-200`}>
-                  <div className={`text-3xl font-bold text-${problem.color}-700`}>{problem.stat}</div>
-                  <div className={`text-sm text-${problem.color}-600 mt-1`}>{problem.statLabel}</div>
+                  <div className={`text-3xl font-bold text-${problem.color}-900`}>{problem.stat}</div>
+                  <div className={`text-sm text-${problem.color}-800 mt-1`}>{problem.statLabel}</div>
                 </div>
               </motion.div>
             ))}

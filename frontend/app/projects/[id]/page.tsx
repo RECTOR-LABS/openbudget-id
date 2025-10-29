@@ -121,66 +121,100 @@ export default function ProjectDetailPage() {
     <>
       <Header />
       <div className="min-h-screen bg-gray-50 pt-20">
-        {/* Project Hero */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <Link
-              href="/"
-              className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 font-medium transition cursor-pointer"
-            >
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Kembali ke Beranda
-            </Link>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
-                <p className="text-lg text-gray-600 flex items-center">
-                  <svg
-                    className="w-5 h-5 mr-2 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  {project.recipient_name}
-                </p>
-              </div>
-              {project.status === 'published' && (
-                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  Dipublikasikan
-                </span>
-              )}
+        {/* Project Hero Section */}
+        <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-12 overflow-hidden">
+          {/* Batik Pattern Overlay */}
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          ></div>
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 to-transparent"></div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
+              <Link href="/" className="hover:text-white transition">
+                🏠 Beranda
+              </Link>
+              <span>/</span>
+              <Link href="/projects" className="hover:text-white transition">
+                Proyek
+              </Link>
+              <span>/</span>
+              <span className="text-white font-medium">Detail</span>
             </div>
-            {project.description && (
-              <p className="text-gray-700 mt-4 leading-relaxed">{project.description}</p>
-            )}
+
+            {/* Main Header */}
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-16 h-16 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center text-3xl border border-white/20 flex-shrink-0">
+                    📄
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl lg:text-4xl font-bold mb-3 tracking-tight break-words">
+                      {project.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <span className="text-sm font-medium">{project.recipient_name}</span>
+                      </div>
+                      {project.status === 'published' && (
+                        <span className="inline-flex items-center px-3 py-1.5 bg-green-500/20 border border-green-400/30 rounded-lg text-sm font-medium">
+                          <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          Published
+                        </span>
+                      )}
+                      {project.creation_tx && (
+                        <a
+                          href={getExplorerUrl(project.creation_tx, 'tx')}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1.5 bg-purple-500/20 border border-purple-400/30 rounded-lg text-sm font-medium hover:bg-purple-500/30 transition"
+                        >
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          On-Chain
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {project.description && (
+                  <p className="text-lg text-blue-100 leading-relaxed max-w-3xl">
+                    {project.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="flex flex-col gap-3 lg:min-w-[280px]">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <div className="text-sm text-blue-100 mb-1">Total Anggaran</div>
+                  <div className="text-2xl font-bold">{formatRupiah(totalBudget)}</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                  <div className="text-sm text-blue-100 mb-1">Direalisasikan</div>
+                  <div className="text-2xl font-bold text-green-300">{formatRupiah(totalReleased)}</div>
+                  <div className="mt-2 bg-white/20 rounded-full h-2 overflow-hidden">
+                    <div className="bg-green-400 h-full transition-all" style={{ width: `${Math.min(progress, 100)}%` }}></div>
+                  </div>
+                  <div className="text-xs text-blue-100 mt-1">{progress.toFixed(1)}% tercapai</div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Budget Overview Card */}
