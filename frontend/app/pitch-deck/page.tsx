@@ -377,10 +377,10 @@ export default function PitchDeckPage() {
                     </motion.div>
                     <div className="absolute bottom-8 left-0 right-0 text-center">
                       <p className="text-white text-xl font-semibold mb-2">
-                        Click to Watch Demo
+                        Klik untuk Menonton Demo
                       </p>
                       <p className="text-blue-200 text-sm">
-                        See how OpenBudget.ID brings transparency to government spending
+                        Lihat bagaimana OpenBudget.ID membawa transparansi ke pengeluaran pemerintah
                       </p>
                     </div>
                   </div>
@@ -400,15 +400,15 @@ export default function PitchDeckPage() {
                           d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                         />
                       </svg>
-                      <h3 className="text-2xl font-bold mb-2">Video Demo Placeholder</h3>
+                      <h3 className="text-2xl font-bold mb-2">Placeholder Video Demo</h3>
                       <p className="text-gray-400 mb-4">
-                        Replace this section with your video embed:
+                        Ganti bagian ini dengan embed video Anda:
                       </p>
                       <code className="text-sm bg-gray-800 px-4 py-2 rounded block max-w-md mx-auto">
                         {'<iframe src="YOUR_VIDEO_URL" .../>'}
                       </code>
                       <p className="text-gray-500 text-sm mt-4">
-                        Supports: YouTube, Vimeo, Loom, or direct video file
+                        Mendukung: YouTube, Vimeo, Loom, atau file video langsung
                       </p>
                     </div>
                   </div>
@@ -424,10 +424,10 @@ export default function PitchDeckPage() {
               className="mt-8 text-center"
             >
               <p className="text-gray-400 text-sm mb-4">
-                💡 <strong>Pro Tip:</strong> Embed your demo video URL in the iframe above
+                💡 <strong>Tips:</strong> Masukkan URL video demo Anda di iframe di atas
               </p>
               <p className="text-gray-500 text-xs">
-                Example: https://www.youtube.com/embed/YOUR_VIDEO_ID or
+                Contoh: https://www.youtube.com/embed/YOUR_VIDEO_ID atau
                 https://player.vimeo.com/video/YOUR_VIDEO_ID
               </p>
             </motion.div>
