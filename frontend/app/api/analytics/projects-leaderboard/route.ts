@@ -62,7 +62,7 @@ export async function GET() {
 
         -- Calculate overall score (weighted average)
         ROUND(
-          (COALESCE(
+          CAST((COALESCE(
             (SELECT COUNT(*)::FLOAT / NULLIF(COUNT(*), 0) * 100
              FROM milestones m
              WHERE m.project_id = p.id AND m.is_released = true),
@@ -83,7 +83,7 @@ export async function GET() {
              FROM project_ratings pr
              WHERE pr.project_id = p.id),
             0
-          ) * 0.20)
+          ) * 0.20) AS NUMERIC)
         , 2) as overall_score,
 
         p.created_at
