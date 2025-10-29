@@ -1095,7 +1095,13 @@ const data = await response.json();`;
                       </div>
                       <CodeBlock
                         code={generateCodeExample(endpoint, selectedLanguage)}
-                        language={selectedLanguage === 'curl' ? 'bash' : 'typescript'}
+                        language={
+                          selectedLanguage === 'curl'
+                            ? 'bash'
+                            : selectedLanguage === 'javascript'
+                            ? 'javascript'
+                            : 'typescript'
+                        }
                       />
                     </div>
 
