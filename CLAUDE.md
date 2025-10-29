@@ -490,8 +490,170 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 ## Deployment
 
+### Solana Program Deployment
+
 **Devnet:** `cd solana-program/openbudget && anchor deploy --provider.cluster devnet`
-**Production VPS:** Check `~/.ssh/config` for host, deploy to `openbudget.rectorspace.com`
+
+### Production VPS Deployment
+
+**Status:** ✅ Deployed to openbudget.rectorspace.com
+
+**Infrastructure:**
+- **VPS Host:** 176.222.53.185
+- **SSH Host Alias:** `openbudget` (configured in `~/.ssh/config`)
+- **User:** `openbudget`
+- **Repository Path:** `/home/openbudget/openbudget-garuda-spark`
+- **Deployment Method:** Docker + automated deployment script
+
+**Docker Configuration:**
+- **Image Name:** `openbudget:latest`
+- **Container Name:** `openbudget-web`
+- **Network:** `kamal`
+- **Port Mapping:** `3100:3000` (host:container)
+- **Restart Policy:** `unless-stopped`
+- **Environment Variables:** Loaded from `.kamal/secrets`
+
+**Deployment Workflow:**
+
+1. **Automated Deployment (Recommended):**
+   ```bash
+   # From local machine on desired branch
+   ./scripts/deploy.sh
+   ```
+
+   This script automatically:
+   - Checks for uncommitted changes
+   - Pushes current branch to GitHub
+   - SSHs into VPS
+   - Pulls latest code
+   - Builds Docker image with git metadata
+   - Stops old container
+   - Starts new container with environment variables
+   - Shows deployment logs
+
+2. **Manual Deployment:**
+   ```bash
+   # SSH into VPS
+   ssh openbudget
+
+   # Navigate to repository
+   cd openbudget-garuda-spark
+
+   # Pull latest code
+   git fetch origin
+   git checkout <branch-name>
+   git pull origin <branch-name>
+
+   # Build and deploy
+   cd frontend
+   docker build -t openbudget:latest .
+   docker stop openbudget-web
+   docker rm openbudget-web
+
+   # Load environment variables
+   source .kamal/secrets
+
+   # Run container
+   docker run -d \
+     --name openbudget-web \
+     --restart unless-stopped \
+     --network kamal \
+     -p 3100:3000 \
+     -e DATABASE_URL="$DATABASE_URL" \
+     -e NEXT_PUBLIC_SOLANA_PROGRAM_ID="$NEXT_PUBLIC_SOLANA_PROGRAM_ID" \
+     -e NEXT_PUBLIC_SOLANA_RPC_URL="$NEXT_PUBLIC_SOLANA_RPC_URL" \
+     -e NEXT_PUBLIC_SOLANA_NETWORK="$NEXT_PUBLIC_SOLANA_NETWORK" \
+     -e NEXTAUTH_URL="$NEXTAUTH_URL" \
+     -e NEXTAUTH_SECRET="$NEXTAUTH_SECRET" \
+     -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+     -e GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+     openbudget:latest
+   ```
+
+**Container Management Commands:**
+
+```bash
+# View running containers
+ssh openbudget "docker ps | grep openbudget"
+
+# View container logs (live)
+ssh openbudget "docker logs -f openbudget-web"
+
+# View last 50 log lines
+ssh openbudget "docker logs --tail 50 openbudget-web"
+
+# Restart container
+ssh openbudget "docker restart openbudget-web"
+
+# Stop container
+ssh openbudget "docker stop openbudget-web"
+
+# Check container resource usage
+ssh openbudget "docker stats openbudget-web --no-stream"
+
+# Execute commands inside container
+ssh openbudget "docker exec -it openbudget-web sh"
+```
+
+**Branch Strategy:**
+- **main** - Stable production branch
+- **dev** - Development and testing
+- **submission** - Hackathon submission branch (production deployment)
+
+**Post-Deployment Verification:**
+1. Visit https://openbudget.rectorspace.com
+2. Check container status: `ssh openbudget "docker ps | grep openbudget"`
+3. Monitor logs: `ssh openbudget "docker logs --tail 20 openbudget-web"`
+4. Test key features:
+   - Public homepage loads
+   - Admin login (Google OAuth)
+   - Project creation and blockchain publishing
+   - Milestone release functionality
+
+**Environment Variables Location:**
+- VPS: `/home/openbudget/openbudget-garuda-spark/frontend/.kamal/secrets`
+- Contains all production secrets (DATABASE_URL, API keys, etc.)
+
+**Troubleshooting:**
+
+1. **Container won't start:**
+   ```bash
+   ssh openbudget "docker logs openbudget-web"
+   # Check for missing environment variables or build errors
+   ```
+
+2. **Database connection errors:**
+   ```bash
+   # Verify DATABASE_URL in .kamal/secrets
+   ssh openbudget "cat openbudget-garuda-spark/frontend/.kamal/secrets | grep DATABASE_URL"
+
+   # Test PostgreSQL connection
+   ssh openbudget "psql <DATABASE_URL> -c 'SELECT 1'"
+   ```
+
+3. **Port conflicts:**
+   ```bash
+   # Check what's using port 3100
+   ssh openbudget "lsof -i :3100"
+
+   # Stop conflicting service or change port mapping
+   ```
+
+4. **Build errors during deployment:**
+   ```bash
+   # SSH into VPS and build manually to see full logs
+   ssh openbudget
+   cd openbudget-garuda-spark/frontend
+   docker build -t openbudget:latest .
+   ```
+
+**Performance Notes:**
+- Docker build time: ~50-60 seconds
+- Container startup: ~5 seconds
+- Static page generation warnings during build are expected (database not accessible during build)
+- First request after deployment may take 2-3 seconds (cold start)
+
+**Production URL:** https://openbudget.rectorspace.com
 
 ## Hackathon Context
 
