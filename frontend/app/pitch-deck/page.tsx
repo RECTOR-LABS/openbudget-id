@@ -619,9 +619,9 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-4">⛓️ Solana Smart Contract Architecture</h2>
+              <h2 className="text-5xl font-bold mb-4">⛓️ Arsitektur Solana Smart Contract</h2>
               <p className="text-xl text-blue-200 max-w-4xl mx-auto">
-                Immutable, auditable, and transparent — built with Anchor Framework on Solana
+                Immutable, dapat diaudit, dan transparan — dibangun dengan Anchor Framework di Solana
               </p>
             </motion.div>
 
@@ -864,9 +864,9 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold text-gray-900 mb-4">👨‍💻 Meet the Builder</h2>
+              <h2 className="text-5xl font-bold text-gray-900 mb-4">👨‍💻 Kenali Developer-nya</h2>
               <p className="text-xl text-gray-600">
-                Solo developer passionate about blockchain transparency
+                Developer solo yang bersemangat tentang transparansi blockchain
               </p>
             </motion.div>
 
@@ -906,7 +906,7 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
                     <p className="text-lg text-blue-600 font-semibold mb-3">
                       Lead Developer & Blockchain Architect
                     </p>
-                    <p className="text-gray-700 italic mb-4">&quot;Building for eternity&quot;</p>
+                    <p className="text-gray-700 italic mb-4">&quot;Membangun untuk keabadian&quot;</p>
 
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
                       <div className="bg-white rounded-lg px-4 py-2 shadow">
@@ -1015,48 +1015,48 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-4">🏆 Hackathon Alignment</h2>
+              <h2 className="text-5xl font-bold mb-4">🏆 Kesesuaian Hackathon</h2>
               <p className="text-xl text-purple-100">
-                Designed to excel in every evaluation criteria
+                Dirancang untuk unggul di setiap kriteria evaluasi
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
               {[
                 {
-                  criteria: 'Impact Potential (35%)',
+                  criteria: 'Potensi Dampak (35%)',
                   score: '⭐⭐⭐⭐⭐',
                   points: [
-                    'Addresses corruption & transparency — critical national problem',
-                    'Aligns perfectly with Digital Indonesia 2045 vision',
-                    'Scalable to all ministries & local governments',
+                    'Mengatasi korupsi & transparansi — masalah nasional kritis',
+                    'Selaras sempurna dengan visi Digital Indonesia 2045',
+                    'Dapat diskalakan ke semua kementerian & pemerintah daerah',
                   ],
                 },
                 {
-                  criteria: 'Tech Feasibility (25%)',
+                  criteria: 'Kelayakan Teknis (25%)',
                   score: '⭐⭐⭐⭐⭐',
                   points: [
-                    'Fully functional MVP deployed on Solana devnet',
-                    'Sound hybrid architecture (on-chain + off-chain)',
-                    'Production-ready with self-healing capabilities',
+                    'MVP yang sepenuhnya fungsional di-deploy di Solana devnet',
+                    'Hybrid architecture yang solid (on-chain + off-chain)',
+                    'Siap produksi dengan kemampuan self-healing',
                   ],
                 },
                 {
                   criteria: 'Innovation (20%)',
                   score: '⭐⭐⭐⭐⭐',
                   points: [
-                    'Novel self-healing DB ↔ blockchain sync system',
-                    'Blockchain as invisible infrastructure (UX-first)',
-                    'Indonesian batik-inspired design language',
+                    'Sistem sinkronisasi self-healing DB ↔ blockchain yang baru',
+                    'Blockchain sebagai infrastruktur invisible (UX-first)',
+                    'Bahasa desain yang terinspirasi batik Indonesia',
                   ],
                 },
                 {
-                  criteria: 'Business Feasibility (20%)',
+                  criteria: 'Kelayakan Bisnis (20%)',
                   score: '⭐⭐⭐⭐⭐',
                   points: [
-                    'Clear adoption path: pilot with 1 ministry → scale nationally',
-                    'Government as primary user — strong sustainability',
-                    'Open API for NGO/media integration',
+                    'Jalur adopsi yang jelas: pilot dengan 1 kementerian → skalakan secara nasional',
+                    'Pemerintah sebagai pengguna utama — keberlanjutan yang kuat',
+                    'Open API untuk integrasi NGO/media',
                   ],
                 },
               ].map((item, index) => (
