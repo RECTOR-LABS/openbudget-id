@@ -44,9 +44,23 @@ echo "📦 Pulling latest code..."
 cd /home/openbudget/openbudget-garuda-spark
 git pull origin $(git branch --show-current)
 
-echo "🔨 Building Docker image..."
+echo "🔨 Building Docker image with git info..."
 cd frontend
-docker build -t openbudget:latest .
+
+# Capture git info
+GIT_COMMIT=$(git rev-parse --short HEAD)
+GIT_BRANCH=$(git branch --show-current)
+BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+echo "  📌 Commit: $GIT_COMMIT"
+echo "  🌿 Branch: $GIT_BRANCH"
+echo "  ⏰ Build Time: $BUILD_TIME"
+
+docker build \
+  --build-arg GIT_COMMIT_HASH="$GIT_COMMIT" \
+  --build-arg GIT_BRANCH="$GIT_BRANCH" \
+  --build-arg BUILD_TIME="$BUILD_TIME" \
+  -t openbudget:latest .
 
 echo "🛑 Stopping old container..."
 docker stop openbudget-web 2>/dev/null || true
