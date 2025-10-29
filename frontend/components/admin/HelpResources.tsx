@@ -255,12 +255,10 @@ export default function HelpResources() {
                     Lihat Pitch Deck
                   </a>
                   <a
-                    href="https://docs.rectorspace.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="/api-docs"
                     className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors"
                   >
-                    Baca Dokumentasi
+                    Lihat API Docs
                   </a>
                 </div>
               </div>

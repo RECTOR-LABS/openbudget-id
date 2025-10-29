@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 
 interface DashboardStatsData {
@@ -37,11 +38,23 @@ interface DashboardStatsData {
 }
 
 export default function DashboardStats() {
+  const { status } = useSession();
   const [stats, setStats] = useState<DashboardStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for session to be loaded
+    if (status === 'loading') {
+      return;
+    }
+
+    if (status === 'unauthenticated') {
+      setError('Please log in to view dashboard stats');
+      setLoading(false);
+      return;
+    }
+
     const fetchStats = async () => {
       try {
         const res = await fetch('/api/admin/dashboard-stats');
@@ -61,7 +74,7 @@ export default function DashboardStats() {
     };
 
     fetchStats();
-  }, []);
+  }, [status]);
 
   const formatRupiah = (amount: string) => {
     const num = BigInt(amount);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -16,11 +17,23 @@ interface Activity {
 }
 
 export default function RecentActivity({ limit = 10 }: { limit?: number }) {
+  const { status } = useSession();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for session to be loaded
+    if (status === 'loading') {
+      return;
+    }
+
+    if (status === 'unauthenticated') {
+      setError('Please log in to view recent activities');
+      setLoading(false);
+      return;
+    }
+
     const fetchActivities = async () => {
       try {
         const res = await fetch(`/api/admin/recent-activity?limit=${limit}`);
@@ -40,7 +53,7 @@ export default function RecentActivity({ limit = 10 }: { limit?: number }) {
     };
 
     fetchActivities();
-  }, [limit]);
+  }, [status, limit]);
 
   const getActivityIcon = (type: string) => {
     const icons: Record<string, string> = {
