@@ -1,10 +1,8 @@
 # Demo Video Script & Mock Data
 
-**Purpose**: Copy-paste data for recording OpenBudget.ID demo video
-
 **Target Duration**: 3-5 minutes
 
-**Demo URL**: https://openbudget.rectorspace.com
+**Demo URL**: <https://openbudget.rectorspace.com>
 
 ---
 
@@ -21,19 +19,24 @@
 ## Demo Flow
 
 ### 1. Introduction (30 seconds)
+
 **Talking Points:**
+
 - "OpenBudget.ID adalah platform transparansi anggaran pemerintah berbasis blockchain Solana"
 - "Kementerian mencatat milestone spending secara immutable, masyarakat bisa verifikasi real-time"
 - "Saya akan demo sebagai admin Kementerian Kesehatan"
 
 ### 2. Admin Login & Dashboard (20 seconds)
+
 **Actions:**
-1. Navigate to https://openbudget.rectorspace.com
+
+1. Navigate to <https://openbudget.rectorspace.com>
 2. Click "Login untuk Admin Kementerian"
 3. Login with Google OAuth
 4. Show admin dashboard overview
 
 **Talking Points:**
+
 - "Dashboard menampilkan statistik proyek dan recent activity"
 - "Saya akan membuat proyek baru untuk aplikasi E-Kesehatan"
 
@@ -61,12 +64,14 @@ Teknologi Informasi
 ```
 
 **Talking Points:**
+
 - "Proyek ini untuk membangun platform E-Kesehatan dengan budget Rp 85 miliar"
 - "Setelah draft dibuat, saya publish ke blockchain untuk transparansi"
 
 ### 4. Publish to Blockchain (40 seconds)
 
 **Actions:**
+
 1. Click "Publish to Blockchain"
 2. Connect Phantom wallet if not connected
 3. Approve transaction in Phantom
@@ -74,6 +79,7 @@ Teknologi Informasi
 5. Show transaction signature
 
 **Talking Points:**
+
 - "Dengan publish ke Solana blockchain, data proyek ini menjadi immutable"
 - "Transaction signature ini adalah bukti bahwa data tersimpan permanent di blockchain"
 - "Mari kita breakdown budget menjadi beberapa milestone"
@@ -83,6 +89,7 @@ Teknologi Informasi
 **Navigate to**: Project Detail → Add Milestone
 
 **Milestone 1:**
+
 ```
 Description:
 Analisis Kebutuhan dan Desain Sistem - Survey kebutuhan user, arsitektur sistem, dan UI/UX design
@@ -95,6 +102,7 @@ Target Date:
 ```
 
 **Milestone 2:**
+
 ```
 Description:
 Pengembangan Backend API dan Database - Infrastruktur server, REST API, dan integrasi dengan sistem rumah sakit existing
@@ -107,6 +115,7 @@ Target Date:
 ```
 
 **Milestone 3:**
+
 ```
 Description:
 Pengembangan Frontend Mobile & Web App - Aplikasi mobile (iOS/Android) dan dashboard web untuk pasien dan tenaga medis
@@ -119,6 +128,7 @@ Target Date:
 ```
 
 **Milestone 4:**
+
 ```
 Description:
 Testing, Security Audit, dan Deployment Nasional - Penetration testing, sertifikasi ISO 27001, training, dan rollout bertahap
@@ -131,6 +141,7 @@ Target Date:
 ```
 
 **Talking Points:**
+
 - "Budget Rp 85 miliar saya breakdown menjadi 4 milestone sesuai tahapan development"
 - "Milestone 1: Analisis dan desain - Rp 15 miliar"
 - "Milestone 2: Backend development - Rp 25 miliar"
@@ -141,17 +152,20 @@ Target Date:
 ### 6. Release First Milestone (60 seconds)
 
 **Actions:**
+
 1. Click "Release Funds" on Milestone 1
 2. Enter proof document URL
 3. Sign transaction with wallet
 4. Show confirmation
 
 **Proof Document URL:**
+
 ```
 https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 ```
 
 **Talking Points:**
+
 - "Milestone pertama sudah selesai, saya upload bukti laporan dan release dana"
 - "Setiap release funds harus disertai proof document untuk accountability"
 - "Transaksi ini juga tercatat permanent di blockchain"
@@ -159,6 +173,7 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 ### 7. Public Verification (40 seconds)
 
 **Actions:**
+
 1. Navigate to Public Homepage (logout or new incognito tab)
 2. Search for "E-Kesehatan"
 3. Click project card
@@ -167,6 +182,7 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 6. Show Explorer page with transaction details
 
 **Talking Points:**
+
 - "Masyarakat bisa browse semua proyek tanpa login"
 - "Setiap transaksi punya link ke Solana Explorer untuk verifikasi independen"
 - "Data di blockchain tidak bisa diubah atau dihapus, ensuring full transparency"
@@ -176,6 +192,7 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 **Navigate to**: /analytics
 
 **Talking Points:**
+
 - "Platform juga menyediakan analytics untuk monitoring spending trends"
 - "Leaderboard menampilkan ranking proyek berdasarkan trust score dan performance"
 - "Anomaly detection otomatis mendeteksi suspicious spending patterns"
@@ -183,6 +200,7 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 ### 9. Closing (20 seconds)
 
 **Talking Points:**
+
 - "OpenBudget.ID membuktikan bahwa blockchain bisa meningkatkan transparansi pemerintah"
 - "Platform ini built untuk Garuda Spark hackathon menggunakan Solana Agave 3.0"
 - "Source code tersedia di GitHub, terima kasih!"
@@ -204,6 +222,7 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 ## Technical Details (For Q&A)
 
 **Tech Stack:**
+
 - Blockchain: Solana Agave 3.0.7 (Rust 1.90.0 + Anchor 0.32.1)
 - Frontend: Next.js 14 App Router + TypeScript
 - Database: PostgreSQL 17.6
@@ -212,11 +231,13 @@ https://drive.google.com/file/d/analisis-kebutuhan-ekesehatan-2025
 - Wallet: Phantom/Solflare via @solana/wallet-adapter
 
 **Program ID:**
+
 ```
 RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY
 ```
 
 **Explorer Link:**
+
 ```
 https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet
 ```
@@ -265,6 +286,7 @@ https://drive.google.com/file/d/deployment-security-audit-2026
 - [ ] Share link in hackathon submission
 
 **Target Platforms:**
+
 - Garuda Spark submission portal
 - YouTube (public/unlisted)
 - GitHub README

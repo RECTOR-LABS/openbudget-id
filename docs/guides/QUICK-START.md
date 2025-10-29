@@ -97,7 +97,7 @@ psql -U postgres -d openbudget -c "\dt"
 
 ### Option B: Supabase (Recommended for quick setup)
 
-1. Go to https://supabase.com
+1. Go to <https://supabase.com>
 2. Create new project: `openbudget`
 3. Wait for provisioning (~2 minutes)
 4. Go to SQL Editor
@@ -146,7 +146,7 @@ NEXT_PUBLIC_SOLANA_NETWORK=devnet
 
 ## Step 6: Set Up Google OAuth
 
-1. Go to https://console.cloud.google.com
+1. Go to <https://console.cloud.google.com>
 2. Create new project: "OpenBudget"
 3. Enable APIs: "Google+ API"
 4. Go to Credentials → Create OAuth 2.0 Client ID
@@ -171,6 +171,7 @@ open http://localhost:3000
 ```
 
 **You should see:**
+
 - Homepage with "OpenBudget.ID" title
 - "View Projects" and "Ministry Login" buttons
 
@@ -256,12 +257,14 @@ npm run dev
 ## Next Steps
 
 **Day 1 Complete? ✅**
+
 - [ ] Solana program deployed
 - [ ] Database set up
 - [ ] Frontend running
 - [ ] Can create project on-chain
 
 **Ready for Day 2:**
+
 - Build out admin dashboard
 - Implement milestone release
 - Create public project view
@@ -292,15 +295,17 @@ anchor test --skip-build
 ```
 
 **Key URLs:**
-- Local dev: http://localhost:3000
-- Solana Explorer: https://explorer.solana.com/?cluster=devnet
-- Supabase Dashboard: https://app.supabase.com
+
+- Local dev: <http://localhost:3000>
+- Solana Explorer: <https://explorer.solana.com/?cluster=devnet>
+- Supabase Dashboard: <https://app.supabase.com>
 
 ---
 
 **Alhamdulillah! You're ready to build! 🚀**
 
 Need help? Check:
+
 - `docs/IMPLEMENTATION-PLAN.md` - Technical details
 - `docs/TIMELINE.md` - Daily sprint plan
 - `README.md` - Full project overview

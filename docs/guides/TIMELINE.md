@@ -13,6 +13,7 @@
 **Goal:** Working Solana program deployed to devnet
 
 #### Morning (4 hours)
+
 - [x] Workspace setup & documentation ✓
 - [ ] Initialize Anchor project
 - [ ] Define program architecture
@@ -25,6 +26,7 @@
   - `release_funds()`
 
 #### Afternoon (4 hours)
+
 - [ ] Write Anchor tests
 - [ ] Deploy to Solana devnet
 - [ ] Test all instructions via CLI
@@ -32,6 +34,7 @@
 - [ ] Create test data (3 sample projects)
 
 #### Evening (2 hours)
+
 - [ ] Initialize Next.js project
 - [ ] Set up project structure
 - [ ] Install dependencies:
@@ -43,6 +46,7 @@
   - shadcn/ui (optional)
 
 **Deliverables:**
+
 - ✅ Solana program deployed on devnet
 - ✅ Test transactions confirmed
 - ✅ Next.js skeleton ready
@@ -54,6 +58,7 @@
 **Goal:** Ministry can create projects & release funds via web interface
 
 #### Morning (4 hours)
+
 - [ ] Set up Supabase project (or local PostgreSQL)
 - [ ] Create database schema:
   - `ministry_accounts` table
@@ -69,6 +74,7 @@
   - `POST /api/projects/[id]/release`
 
 #### Afternoon (4 hours)
+
 - [ ] Build admin dashboard UI
   - `/admin` - Login page
   - `/admin/dashboard` - Project overview
@@ -81,6 +87,7 @@
   - Save tx hash to database
 
 #### Evening (2 hours)
+
 - [ ] Build project management page
   - `/admin/projects/[id]/edit`
   - Milestone list UI
@@ -90,6 +97,7 @@
 - [ ] Verify all data on Solana Explorer
 
 **Deliverables:**
+
 - ✅ Admin can login with Google
 - ✅ Admin can create project (on-chain + DB)
 - ✅ Admin can release milestone funds
@@ -102,6 +110,7 @@
 **Goal:** Citizens can view and verify all spending
 
 #### Morning (4 hours)
+
 - [ ] Build public homepage (`/`)
   - Hero section
   - Key metrics (fetch from DB + on-chain)
@@ -114,6 +123,7 @@
   - Responsive design
 
 #### Afternoon (4 hours)
+
 - [ ] Build project detail page (`/projects/[id]`)
   - Project header (ministry, recipient, amount)
   - Milestone timeline (visual)
@@ -126,6 +136,7 @@
   - Aggregate statistics
 
 #### Evening (2 hours)
+
 - [ ] Build analytics page (`/analytics`)
   - Simple stats (if time permits):
     - Total projects, funds allocated
@@ -138,6 +149,7 @@
   - Contact info
 
 **Deliverables:**
+
 - ✅ Public can view all projects
 - ✅ Public can verify transactions on Solana Explorer
 - ✅ Responsive UI works on mobile
@@ -150,6 +162,7 @@
 **Goal:** Professional demo video + complete submission
 
 #### Morning (3 hours)
+
 - [ ] UI polish & bug fixes
   - Loading states
   - Error handling
@@ -166,6 +179,7 @@
   - Smooth transitions
 
 #### Afternoon (4 hours)
+
 - [ ] Deploy to VPS
   - Set up domain/subdomain
   - Configure environment variables
@@ -181,6 +195,7 @@
   - Mobile responsiveness check
 
 #### Evening (3 hours)
+
 - [ ] **Record demo video (MAX 3 minutes)**
   - Script narration (see script below)
   - Screen recording (1080p minimum)
@@ -190,6 +205,7 @@
   - Professional editing (simple cuts OK)
 
 **Video Script Structure:**
+
 ```
 00:00-00:20  Problem (corruption, opacity)
 00:20-00:40  Solution (blockchain as trust layer)
@@ -213,6 +229,7 @@
   - Slide 11: Contact & GitHub
 
 #### Late Evening (2 hours)
+
 - [ ] Prepare GitHub repository
   - Clean up code
   - Add comprehensive README
@@ -230,6 +247,7 @@
   - Same materials as Superteam
 
 **Deliverables:**
+
 - ✅ Live MVP on public URL
 - ✅ 3-minute demo video
 - ✅ Pitch deck
@@ -243,6 +261,7 @@
 ### If Ahead of Schedule
 
 **Priority additions:**
+
 1. Analytics page with charts (Chart.js or Recharts)
 2. Advanced search/filter on projects list
 3. Export data to CSV
@@ -252,6 +271,7 @@
 ### If Behind Schedule
 
 **Cut features in this order:**
+
 1. ❌ Analytics page (use simple stats instead)
 2. ❌ About page (can be minimal text)
 3. ❌ Advanced filters (just basic dropdown)
@@ -267,12 +287,14 @@
 ## Daily Checkpoints
 
 **End of each day, verify:**
+
 - [ ] Code committed to Git
 - [ ] Features work end-to-end (no broken state)
 - [ ] On-chain data verifiable on Solana Explorer
 - [ ] No critical bugs blocking next day's work
 
 **Red flags that require scope cut:**
+
 - Behind schedule by >4 hours
 - Bugs taking >2 hours to debug
 - Third-party service issues (Solana RPC, Supabase, etc.)
@@ -282,12 +304,14 @@
 ## Team Roles (if working solo, prioritize in order)
 
 **If solo:**
+
 1. Backend + Blockchain (critical path)
 2. Frontend (core pages only)
 3. Design (use Tailwind defaults + minimal custom)
 4. Content (write copy during breaks)
 
 **If team of 2-3:**
+
 - Person A: Solana program + API routes
 - Person B: Frontend UI + integration
 - Person C: Design, demo video, pitch deck
@@ -297,6 +321,7 @@
 ## Success Metrics
 
 **Minimum Viable Demo:**
+
 - [x] Ministry can login
 - [x] Ministry can create project on-chain
 - [x] Ministry can release milestone on-chain
@@ -306,6 +331,7 @@
 - [x] Submitted before deadline
 
 **Stretch Goals:**
+
 - [ ] Analytics page with charts
 - [ ] Mobile-optimized UI
 - [ ] Real Ekraf program data
@@ -317,15 +343,19 @@
 ## Critical Path Items (CANNOT BE DELAYED)
 
 **Day 1:**
+
 - ✅ Solana program working on devnet
 
 **Day 2:**
+
 - ✅ Admin can create projects on-chain via web UI
 
 **Day 3:**
+
 - ✅ Public can view and verify projects
 
 **Day 4:**
+
 - ✅ Demo video recorded
 - ✅ Submission completed
 
@@ -336,15 +366,18 @@
 ## Emergency Contacts & Resources
 
 **Solana Issues:**
-- Devnet RPC: https://api.devnet.solana.com
-- Explorer: https://explorer.solana.com/?cluster=devnet
+
+- Devnet RPC: <https://api.devnet.solana.com>
+- Explorer: <https://explorer.solana.com/?cluster=devnet>
 - Discord: Solana Tech support
 
 **Hackathon Support:**
+
 - Telegram: @Steven4293
 - Superteam Indonesia community
 
 **Deployment:**
+
 - VPS provider support
 - Domain registrar support
 
@@ -353,18 +386,21 @@
 ## Motivation Checkpoints
 
 **Daily affirmations:**
+
 - ✅ "This solves a real problem"
 - ✅ "The tech approach is sound"
 - ✅ "Winning probability is high"
 - ✅ "Even if we don't win, this is valuable"
 
 **When feeling overwhelmed:**
+
 - Focus on critical path only
 - Cut features ruthlessly
 - Working simple > broken complex
 - Demo quality > feature count
 
 **Remember:**
+
 - 8 submissions = low competition
 - Judges are ministry partners = built-in alignment
 - Your concept is already strong

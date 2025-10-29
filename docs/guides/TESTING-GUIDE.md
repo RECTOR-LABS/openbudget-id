@@ -8,7 +8,7 @@
 
 ## ✅ Prerequisites Verified
 
-- ✅ Dev server running: http://localhost:3000
+- ✅ Dev server running: <http://localhost:3000>
 - ✅ PostgreSQL connected: 1 project in database
 - ✅ Environment variables configured (.env.local)
 - ✅ TypeScript/ESLint: 0 errors, 0 warnings
@@ -18,6 +18,7 @@
 ## 📋 Test Plan Overview
 
 **Epic Coverage:**
+
 - ✅ Epic 1: Solana program (tested via API)
 - ✅ Epic 2: Database & API (tested via endpoints)
 - ✅ Epic 3: Admin Dashboard (manual testing required)
@@ -31,9 +32,10 @@
 
 **Objective:** Verify public-facing citizen interface
 
-### Steps:
+### Steps
 
 1. **Open Homepage**
+
    ```
    URL: http://localhost:3000
    ```
@@ -78,13 +80,15 @@
 
 **Objective:** Verify public project detail view with blockchain verification
 
-### Steps:
+### Steps
 
 1. **Navigate to Detail**
    - Click "Lihat Detail" on the project card
+
    ```
    URL: http://localhost:3000/projects/887b892c-196d-4195-bd54-0fbd633f41f3
    ```
+
    (UUID may differ - use your actual project ID)
 
 2. **Expected Results - Header:**
@@ -136,12 +140,14 @@
 
 **Objective:** Verify Google OAuth authentication
 
-### Steps:
+### Steps
 
 1. **Access Admin Login**
+
    ```
    URL: http://localhost:3000/admin
    ```
+
    OR click "Ministry Login" button on homepage
 
 2. **Expected Results:**
@@ -163,9 +169,11 @@
      - ✅ Sign out button (exit icon)
 
 5. **Database Verification** (Optional)
+
    ```bash
    psql -d openbudget -c "SELECT email, name, ministry_name FROM ministry_accounts WHERE email = 'your-email@gmail.com';"
    ```
+
    **Expected:** Your account record exists
 
 ---
@@ -174,9 +182,10 @@
 
 **Objective:** Verify admin interface and navigation
 
-### Steps:
+### Steps
 
 1. **Dashboard Overview**
+
    ```
    URL: http://localhost:3000/admin
    ```
@@ -205,9 +214,10 @@
 
 **Objective:** Verify project management interface
 
-### Steps:
+### Steps
 
 1. **Access Projects List**
+
    ```
    URL: http://localhost:3000/admin/projects
    ```
@@ -249,12 +259,13 @@
 
 **Objective:** Connect Solana wallet for blockchain transactions
 
-### Prerequisites:
+### Prerequisites
+
 - ✅ Phantom OR Solflare wallet extension installed
 - ✅ Wallet set to **Devnet** network
-- ✅ Some devnet SOL in wallet (get from https://faucet.solana.com/)
+- ✅ Some devnet SOL in wallet (get from <https://faucet.solana.com/>)
 
-### Steps:
+### Steps
 
 1. **Check Wallet Extension:**
    - Open browser extensions
@@ -263,9 +274,11 @@
    - Verify you have at least 0.1 SOL on devnet
 
 2. **Connect from Admin Dashboard:**
+
    ```
    URL: http://localhost:3000/admin
    ```
+
    - Look for wallet button in:
      - **Sidebar** (bottom section), OR
      - **Header** (top-right, near profile)
@@ -313,12 +326,14 @@
 
 **Objective:** Create draft project in database
 
-### Steps:
+### Steps
 
 1. **Access New Project Form:**
+
    ```
    URL: http://localhost:3000/admin/projects/new
    ```
+
    OR click "New Project" button
 
 2. **Fill Form:**
@@ -348,9 +363,11 @@
      - No blockchain info (not published yet)
 
 6. **Database Verification** (Optional):
+
    ```bash
    psql -d openbudget -c "SELECT title, status, total_amount FROM projects ORDER BY created_at DESC LIMIT 1;"
    ```
+
    **Expected:** Your test project with status='draft', total_amount='1000000000000'
 
 ---
@@ -359,12 +376,13 @@
 
 **Objective:** Deploy project to Solana devnet
 
-### Prerequisites:
+### Prerequisites
+
 - ✅ Wallet connected (from Test 6)
 - ✅ Devnet SOL in wallet (≥0.1 SOL)
 - ✅ Draft project created (from Test 7)
 
-### Steps:
+### Steps
 
 1. **Navigate to Your Draft Project:**
    - Go to `/admin/projects`
@@ -411,7 +429,7 @@
 
 8. **Click Solana Explorer Link:**
    - Opens in new tab
-   - **Expected URL:** https://explorer.solana.com/address/[PROJECT_PDA]?cluster=devnet
+   - **Expected URL:** <https://explorer.solana.com/address/[PROJECT_PDA]?cluster=devnet>
    - **Expected content:**
      - Account exists
      - Shows transaction history
@@ -420,9 +438,11 @@
      - Recent activity visible
 
 9. **Database Verification** (Optional):
+
    ```bash
    psql -d openbudget -c "SELECT title, status, blockchain_id, solana_account, creation_tx FROM projects WHERE title LIKE 'Test Project%';"
    ```
+
    **Expected:**
    - status = 'published'
    - blockchain_id populated (e.g., "PROJ-20251027-ABC123")
@@ -435,12 +455,13 @@
 
 **Objective:** Create milestone and deploy to blockchain
 
-### Prerequisites:
+### Prerequisites
+
 - ✅ Wallet connected
 - ✅ Published project (from Test 8)
 - ✅ Devnet SOL in wallet
 
-### Steps:
+### Steps
 
 1. **Navigate to Published Project:**
    - `/admin/projects/[your-project-id]`
@@ -491,12 +512,13 @@
 
 **Objective:** Execute funds release to blockchain
 
-### Prerequisites:
+### Prerequisites
+
 - ✅ Wallet connected
 - ✅ Milestone created (from Test 9)
 - ✅ Devnet SOL in wallet
 
-### Steps:
+### Steps
 
 1. **Locate Milestone:**
    - On project detail page
@@ -508,7 +530,7 @@
    - Shows "Confirm Release" button
 
 3. **Enter Proof URL:**
-   - Example: "https://example.com/proof.pdf"
+   - Example: "<https://example.com/proof.pdf>"
    - Any valid URL format
    - **Required field**
 
@@ -553,13 +575,14 @@
 
 **Objective:** Verify published data visible to citizens
 
-### Steps:
+### Steps
 
 1. **Sign Out from Admin:**
    - Click sign out button (top-right)
    - OR open incognito/private window
 
 2. **Visit Homepage:**
+
    ```
    URL: http://localhost:3000
    ```
@@ -646,7 +669,9 @@ Copy and fill this checklist as you test:
 ## 🐛 Common Issues & Solutions
 
 ### Issue: Wallet Won't Connect
+
 **Solutions:**
+
 - Ensure wallet extension is unlocked
 - Check network is set to Devnet (not Mainnet)
 - Try refreshing page
@@ -654,35 +679,45 @@ Copy and fill this checklist as you test:
 - Try different browser
 
 ### Issue: "Insufficient Funds" Error
+
 **Solution:**
-- Visit https://faucet.solana.com/
+
+- Visit <https://faucet.solana.com/>
 - Enter your devnet wallet address
 - Request 1-2 SOL
 - Wait 30 seconds
 - Retry transaction
 
 ### Issue: Transaction Fails
+
 **Solutions:**
-- Check Solana devnet status: https://status.solana.com/
+
+- Check Solana devnet status: <https://status.solana.com/>
 - Ensure wallet has enough SOL (≥0.1)
 - Wait 1 minute and retry
 - Check transaction on Solana Explorer for error details
 
 ### Issue: Google Login Fails
+
 **Solutions:**
+
 - Clear browser cookies for localhost
 - Check .env.local has GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 - Verify Google OAuth consent screen is configured
 - Try different Google account
 
 ### Issue: "Project Not Found" After Publishing
+
 **Solution:**
+
 - Wait 10-15 seconds for Solana confirmation
 - Refresh page manually
 - Check Solana Explorer to confirm transaction succeeded
 
 ### Issue: Budget Validation Error
+
 **Solution:**
+
 - Check remaining budget calculation
 - Ensure milestone amount ≤ (total_budget - total_allocated)
 - Verify amounts in billions, not millions
@@ -692,32 +727,36 @@ Copy and fill this checklist as you test:
 ## 📞 Need Help?
 
 **Check Server Logs:**
+
 ```bash
 tail -f /tmp/nextjs-dev.log
 ```
 
 **Check Database:**
+
 ```bash
 psql -d openbudget -c "\dt"  # List tables
 psql -d openbudget -c "SELECT * FROM projects;"  # View projects
 ```
 
 **Restart Dev Server:**
+
 ```bash
 npm run clean && npm run dev
 ```
 
 **Devnet SOL Faucet:**
-https://faucet.solana.com/
+<https://faucet.solana.com/>
 
 **Solana Explorer:**
-https://explorer.solana.com/?cluster=devnet
+<https://explorer.solana.com/?cluster=devnet>
 
 ---
 
 ## ✅ Success Criteria
 
 **All tests pass when:**
+
 - ✅ Can view projects as public citizen
 - ✅ Can verify blockchain data on Solana Explorer
 - ✅ Can login with Google OAuth

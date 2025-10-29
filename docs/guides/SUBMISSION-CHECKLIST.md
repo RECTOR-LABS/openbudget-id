@@ -11,6 +11,7 @@
 ### ✅ 1. Project Title & Description
 
 **Required:**
+
 - [x] Clear project name: **OpenBudget.ID**
 - [x] Concise tagline
 - [ ] Problem statement (2-3 sentences)
@@ -31,6 +32,7 @@
 ### ✅ 2. MVP / Project Website
 
 **Requirements:**
+
 - [ ] **Live, publicly accessible URL**
 - [ ] Working application (not localhost)
 - [ ] Demonstrates core functionality
@@ -38,12 +40,14 @@
 - [ ] Loads within 5 seconds
 
 **Implementation:**
+
 - **URL Format:** `openbudget.rectorspace.com` or `openbudget-id.rectorspace.com`
 - **Hosting:** Deploy on VPS
 - **SSL:** Enable HTTPS (free Let's Encrypt)
 - **Uptime:** Ensure 99% uptime during judging period
 
 **Pre-Submission Testing:**
+
 - [ ] Test from multiple devices (desktop, mobile, tablet)
 - [ ] Test from incognito/private browsing
 - [ ] Test on different networks (WiFi, mobile data)
@@ -56,6 +60,7 @@
 ### ✅ 3. Demo Video
 
 **Specifications:**
+
 - [ ] **Maximum length:** 3 minutes (180 seconds)
 - [ ] **Minimum quality:** 1080p (1920×1080)
 - [ ] **Format:** MP4, WebM, or YouTube/Loom link
@@ -110,6 +115,7 @@ Segment 6: Closing (2:50-3:00) - 10 seconds
 ```
 
 **Production Checklist:**
+
 - [ ] Write full narration script
 - [ ] Record voiceover OR use text overlays
 - [ ] Record screen captures (use OBS Studio / Loom)
@@ -121,6 +127,7 @@ Segment 6: Closing (2:50-3:00) - 10 seconds
 - [ ] Add subtitles/captions (optional but helpful)
 
 **Tools:**
+
 - **Screen recording:** OBS Studio (free), Loom, QuickTime
 - **Video editing:** DaVinci Resolve (free), iMovie, Premiere Pro
 - **Hosting:** YouTube (unlisted link), Loom, Vimeo
@@ -130,6 +137,7 @@ Segment 6: Closing (2:50-3:00) - 10 seconds
 ### ✅ 4. GitHub Repository
 
 **Requirements:**
+
 - [ ] **Public repository** (not private)
 - [ ] Clean, organized code structure
 - [ ] Comprehensive README.md
@@ -170,6 +178,7 @@ openbudget-garuda-spark/
 ```
 
 **README.md Must Include:**
+
 - [ ] Project title & description
 - [ ] Problem statement
 - [ ] Solution overview
@@ -184,6 +193,7 @@ openbudget-garuda-spark/
 - [ ] Hackathon submission note
 
 **Pre-Submission Checks:**
+
 - [ ] Remove all `.env` files (use `.env.example` instead)
 - [ ] Remove API keys, private keys, secrets
 - [ ] Ensure `npm install` works from scratch
@@ -196,6 +206,7 @@ openbudget-garuda-spark/
 ### ✅ 5. Pitch Deck / Presentation
 
 **Requirements:**
+
 - [ ] **Format:** Google Slides, PowerPoint, or PDF
 - [ ] **Publicly accessible link**
 - [ ] Professional design
@@ -204,24 +215,28 @@ openbudget-garuda-spark/
 **Slide Breakdown (10-12 slides):**
 
 **Slide 1: Title**
+
 - OpenBudget.ID logo
 - Tagline: "Making every public fund traceable"
 - Hackathon: Garuda Spark 2025
 - Team name/members
 
 **Slide 2: The Problem**
+
 - Corruption statistics in Indonesia
 - Citizens cannot track government spending
 - Public trust in governance is low
 - Current systems: opaque, manual, unverifiable
 
 **Slide 3: Our Solution**
+
 - Blockchain as immutable public ledger
 - Real-time transparency for citizens
 - Minimal Web3 friction for government users
 - "Trust layer" not "crypto complexity"
 
 **Slide 4: How It Works**
+
 - Visual flow diagram:
   - Ministry creates project → On-chain
   - Ministry releases funds → On-chain
@@ -229,12 +244,14 @@ openbudget-garuda-spark/
 - Simple, 3-step illustration
 
 **Slide 5: User Experience**
+
 - Screenshots: Admin dashboard
 - Screenshots: Public project view
 - Screenshots: On-chain verification
 - Highlight: "Login with Google, verify on blockchain"
 
 **Slide 6: Technology Stack**
+
 - Frontend: Next.js, TypeScript, Tailwind CSS
 - Blockchain: Solana, Anchor framework
 - Auth: NextAuth (Google OAuth)
@@ -242,6 +259,7 @@ openbudget-garuda-spark/
 - Deployment: VPS, HTTPS
 
 **Slide 7: Architecture**
+
 - Diagram showing:
   - Public dashboard (Next.js)
   - Ministry dashboard (Next.js + Auth)
@@ -250,35 +268,41 @@ openbudget-garuda-spark/
   - IPFS/Storage (proof documents)
 
 **Slide 8: Impact Potential (35% of judging)**
+
 - 270M+ Indonesians benefit
 - Rebuilds trust in government
 - Prevents corruption through transparency
 - Aligns with Digital Indonesia 2045
 
 **Slide 9: Business Model & Sustainability**
+
 - Government SaaS subscription model
 - OR public good funded by transparency initiatives
 - Low operational costs (Solana fees ~$0.00025/tx)
 - Scalable to all Indonesian ministries
 
 **Slide 10: Roadmap**
+
 - Phase 1 (MVP): Central government tracking ✅
 - Phase 2: Provincial/city budgets
 - Phase 3: Citizen voting on fund allocation
 - Phase 4: AI-powered anomaly detection
 
 **Slide 11: Team**
+
 - Team members + roles
 - Relevant experience
 - Contact information
 
 **Slide 12: Call to Action**
+
 - Live demo: [URL]
 - GitHub: [URL]
 - Contact: [Email/Telegram]
 - "Join us in rebuilding public trust through transparency"
 
 **Design Tips:**
+
 - Use Indonesia flag colors (red, white) + government blue
 - Include ministry logos (Ekraf, Kominfo)
 - High-quality screenshots
@@ -290,18 +314,21 @@ openbudget-garuda-spark/
 ### ✅ 6. Dual Submission Requirement
 
 **Platform 1: Superteam Earn**
-- [ ] Submit via https://earn.superteam.fun/listing/st-indo-x-komdigi-x-ekraf
+
+- [ ] Submit via <https://earn.superteam.fun/listing/st-indo-x-komdigi-x-ekraf>
 - [ ] Fill all required fields
 - [ ] Paste all URLs (MVP, video, GitHub, deck)
 - [ ] Confirm submission received
 
 **Platform 2: Cypherpunk Colosseum**
+
 - [ ] Find submission portal (check hackathon page)
 - [ ] Submit same materials
 - [ ] Confirm submission received
 - [ ] Note: Per hackathon rules, "Any of the submitters MUST submit to Colosseum Cyberpunk"
 
 **Submission Timing:**
+
 - [ ] **Aim to submit 6-12 hours before deadline** (buffer for issues)
 - [ ] Test all links before submitting
 - [ ] Save confirmation emails/screenshots
@@ -311,11 +338,13 @@ openbudget-garuda-spark/
 ## 🎨 Additional Assets (Optional but Recommended)
 
 ### Logo & Branding
+
 - [ ] OpenBudget.ID logo (SVG + PNG)
 - [ ] Favicon for website
 - [ ] Social media preview image (Open Graph)
 
 ### Screenshots for Pitch Deck
+
 - [ ] Admin dashboard
 - [ ] Create project page
 - [ ] Public projects list
@@ -324,6 +353,7 @@ openbudget-garuda-spark/
 - [ ] Mobile responsive view
 
 ### Supporting Materials
+
 - [ ] Architecture diagram (Figma/Draw.io)
 - [ ] User flow diagram
 - [ ] Data model diagram
@@ -335,6 +365,7 @@ openbudget-garuda-spark/
 **Day Before Submission:**
 
 **1. Functional Testing**
+
 - [ ] Test complete user journey as ministry
 - [ ] Test complete user journey as citizen
 - [ ] Verify all Solana transactions on Explorer
@@ -342,24 +373,28 @@ openbudget-garuda-spark/
 - [ ] Check mobile responsiveness
 
 **2. Performance Testing**
+
 - [ ] Test page load speeds (<3 seconds)
 - [ ] Test with slow 3G connection
 - [ ] Check for console errors
 - [ ] Verify no memory leaks
 
 **3. Content Review**
+
 - [ ] Proofread all text (no typos)
 - [ ] Check grammar in description/README
 - [ ] Verify all amounts use Indonesian Rupiah (IDR)
 - [ ] Ensure ministry names are spelled correctly
 
 **4. Security Check**
+
 - [ ] No private keys in GitHub
 - [ ] No API secrets exposed
 - [ ] Admin routes properly protected
 - [ ] Rate limiting on API endpoints (if applicable)
 
 **5. Accessibility**
+
 - [ ] Test with screen reader (basic check)
 - [ ] Verify color contrast (WCAG AA)
 - [ ] Ensure keyboard navigation works
@@ -417,18 +452,21 @@ Contact: [Email/Telegram]
 ## 🎉 Post-Submission
 
 **Immediately After Submitting:**
+
 - [ ] Take screenshot of confirmation page
 - [ ] Save confirmation email
 - [ ] Backup all assets (video, code, deck)
 - [ ] Keep MVP running (don't shut down server!)
 
 **During Judging Period:**
+
 - [ ] Monitor server uptime
 - [ ] Check for judge questions/comments
 - [ ] Be responsive on Telegram
 - [ ] Keep wallet funded (for demo if needed)
 
 **After Results:**
+
 - [ ] Thank organizers (win or lose)
 - [ ] Share project on social media
 - [ ] Continue development if interested
@@ -439,15 +477,18 @@ Contact: [Email/Telegram]
 ## 🚨 Emergency Contacts
 
 **Technical Issues:**
+
 - VPS provider support
 - Solana Discord (devnet issues)
 - Superteam Indonesia Telegram
 
 **Hackathon Questions:**
+
 - Telegram: @Steven4293
 - Superteam Earn support
 
 **Deadline Extension:**
+
 - Only contact if critical failure (server down, etc.)
 - Have backup plan ready
 

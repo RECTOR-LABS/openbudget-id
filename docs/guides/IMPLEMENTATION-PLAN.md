@@ -12,12 +12,14 @@
 ### MUST HAVE (Core Demo)
 
 ✅ **Solana Program:**
+
 - `initialize_project()` instruction
 - `release_funds()` instruction
 - Project and Milestone account structures
 - Basic authority validation
 
 ✅ **Admin Dashboard:**
+
 - Google OAuth login
 - Create project form
 - Wallet connection (one-time)
@@ -26,6 +28,7 @@
 - Transaction confirmation UI
 
 ✅ **Public Dashboard:**
+
 - Homepage with key stats
 - Projects list (grid view)
 - Project detail page
@@ -34,6 +37,7 @@
 - Mobile responsive
 
 ✅ **Data Layer:**
+
 - PostgreSQL schema
 - API routes for CRUD
 - Solana account reading
@@ -712,23 +716,27 @@ CREATE INDEX idx_milestones_project ON milestones(project_id);
 ## 🚀 Deployment Checklist
 
 ### Day 1 Evening
+
 - [ ] Solana program compiled
 - [ ] Program deployed to devnet
 - [ ] Program ID saved
 - [ ] Test transactions confirmed
 
 ### Day 2 Evening
+
 - [ ] Database created
 - [ ] NextAuth configured
 - [ ] Admin dashboard functional
 - [ ] Can create project on-chain
 
 ### Day 3 Evening
+
 - [ ] Public dashboard live
 - [ ] Can verify on Solana Explorer
 - [ ] Responsive on mobile
 
 ### Day 4
+
 - [ ] Deploy to VPS
 - [ ] Configure domain
 - [ ] SSL certificate

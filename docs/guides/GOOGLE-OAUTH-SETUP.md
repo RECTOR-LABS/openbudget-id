@@ -11,6 +11,7 @@
 OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin access. This guide will walk you through creating OAuth credentials in Google Cloud Console.
 
 **What you'll get:**
+
 - `GOOGLE_CLIENT_ID` - Public identifier for your app
 - `GOOGLE_CLIENT_SECRET` - Secret key for authentication
 
@@ -21,6 +22,7 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
 ### Step 1: Access Google Cloud Console
 
 1. **Open Google Cloud Console:**
+
    ```
    URL: https://console.cloud.google.com/
    ```
@@ -133,6 +135,7 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
 4. **Configure Web Application:**
 
    **Name:**
+
    ```
    OpenBudget.ID Web Client
    ```
@@ -158,16 +161,20 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
 **IMPORTANT:** This popup shows your credentials. Copy them now!
 
 1. **Your Client ID** (looks like):
+
    ```
    123456789-abcdefghijklmnop.apps.googleusercontent.com
    ```
+
    - Click the copy icon
    - Save temporarily in a text file
 
 2. **Your Client Secret** (looks like):
+
    ```
    GOCSPX-aBcDeFgHiJkLmNoPqRsTuVwXyZ
    ```
+
    - Click the copy icon
    - Save temporarily in a text file
 
@@ -180,6 +187,7 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
 ### Step 7: Update .env.local
 
 1. **Open your .env.local file:**
+
    ```bash
    # Navigate to frontend directory
    cd /Users/rz/local-dev/openbudget-garuda-spark/frontend
@@ -191,6 +199,7 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
    ```
 
 2. **Add your credentials:**
+
    ```env
    # Google OAuth Configuration
    GOOGLE_CLIENT_ID=YOUR_CLIENT_ID_HERE
@@ -202,15 +211,18 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
    - Replace `YOUR_CLIENT_SECRET_HERE` with the Client Secret you copied
 
 4. **Verify other OAuth variables exist:**
+
    ```env
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your-nextauth-secret-here
    ```
 
    **Generate NEXTAUTH_SECRET if missing:**
+
    ```bash
    openssl rand -base64 32
    ```
+
    Copy output and paste as NEXTAUTH_SECRET value
 
 5. **Save the file**
@@ -244,6 +256,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 ### Step 9: Test OAuth Authentication
 
 1. **Restart your dev server:**
+
    ```bash
    # Stop current server (Ctrl+C if running)
    npm run clean
@@ -251,6 +264,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
    ```
 
 2. **Open your application:**
+
    ```
    URL: http://localhost:3000
    ```
@@ -282,12 +296,15 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 **Cause:** The redirect URI in Google Console doesn't match your app's callback URL.
 
 **Solution:**
+
 1. Go to Google Cloud Console → Credentials
 2. Click your OAuth Client ID
 3. Under "Authorized redirect URIs", ensure you have:
+
    ```
    http://localhost:3000/api/auth/callback/google
    ```
+
    (Exact match, including `/api/auth/callback/google`)
 4. Save and retry in 1 minute
 
@@ -298,6 +315,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 **Cause:** OAuth consent screen not properly configured.
 
 **Solution:**
+
 1. Go to OAuth consent screen
 2. Ensure **User Type** is set to "External" (for testing)
 3. Ensure your email is added to **Test users**
@@ -313,6 +331,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 **Cause:** Google+ API not enabled for this project.
 
 **Solution:**
+
 1. Go to APIs & Services → Library
 2. Search "Google+ API"
 3. Click it → Click "ENABLE"
@@ -325,14 +344,19 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 **Cause:** Missing or invalid NEXTAUTH_SECRET in .env.local.
 
 **Solution:**
+
 1. Generate a new secret:
+
    ```bash
    openssl rand -base64 32
    ```
+
 2. Add to .env.local:
+
    ```env
    NEXTAUTH_SECRET=<paste-generated-secret-here>
    ```
+
 3. Restart dev server
 
 ---
@@ -342,10 +366,13 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 **Cause:** Session not configured correctly or database connection issue.
 
 **Solution:**
+
 1. Check database is running:
+
    ```bash
    psql -d openbudget -c "SELECT * FROM ministry_accounts LIMIT 1;"
    ```
+
 2. Check NextAuth session configuration in `lib/auth.ts`
 3. Clear browser cookies for localhost
 4. Try login again
@@ -357,11 +384,13 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 ### Development (Localhost)
 
 ✅ **Safe:**
+
 - Using "External" user type with test users
-- HTTP for localhost (http://localhost:3000)
+- HTTP for localhost (<http://localhost:3000>)
 - Sharing Client ID (public identifier)
 
 ❌ **DO NOT:**
+
 - Commit .env.local to Git (already in .gitignore)
 - Share Client Secret publicly
 - Use production credentials for development
@@ -377,6 +406,7 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
    - Add: `https://openbudget.rectorspace.com/api/auth/callback/google`
 
 3. **Update .env.local (or .env.production):**
+
    ```env
    NEXTAUTH_URL=https://openbudget.rectorspace.com
    ```
@@ -390,11 +420,12 @@ GOOGLE_CLIENT_SECRET=GOCSPX-aBcDeFgHiJkLmNoP  # Your actual secret
 
 ## 📞 Need Help?
 
-**Google Cloud Console:** https://console.cloud.google.com/
-**Google OAuth Documentation:** https://developers.google.com/identity/protocols/oauth2
-**NextAuth Documentation:** https://next-auth.js.org/providers/google
+**Google Cloud Console:** <https://console.cloud.google.com/>
+**Google OAuth Documentation:** <https://developers.google.com/identity/protocols/oauth2>
+**NextAuth Documentation:** <https://next-auth.js.org/providers/google>
 
 **Common Quick Fixes:**
+
 - Clear browser cache and cookies
 - Restart dev server after .env.local changes
 - Wait 1-2 minutes after updating Google Console settings
@@ -414,7 +445,7 @@ Before moving to testing, verify:
 - [ ] Client ID copied to .env.local
 - [ ] Client Secret copied to .env.local
 - [ ] NEXTAUTH_SECRET generated and added
-- [ ] NEXTAUTH_URL set to http://localhost:3000
+- [ ] NEXTAUTH_URL set to <http://localhost:3000>
 - [ ] Authorized redirect URI includes `/api/auth/callback/google`
 - [ ] Dev server restarted
 - [ ] Login tested and working
