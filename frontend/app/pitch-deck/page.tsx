@@ -1,10 +1,11 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
+import VideoCarousel from '@/components/VideoCarousel';
 
 export default function PitchDeckPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,8 +13,6 @@ export default function PitchDeckPage() {
     target: containerRef,
     offset: ['start start', 'end end'],
   });
-
-  const [videoPlaying, setVideoPlaying] = useState(false);
 
   // Scroll-based animations
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -294,7 +293,7 @@ export default function PitchDeckPage() {
           </div>
         </section>
 
-        {/* Video Demo Section - STUNNING ANIMATED */}
+        {/* Video Demo Section - Interactive Carousel */}
         <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 relative overflow-hidden">
           {/* Animated background particles */}
           <div className="absolute inset-0 overflow-hidden">
@@ -319,7 +318,7 @@ export default function PitchDeckPage() {
             ))}
           </div>
 
-          <div className="relative z-10 max-w-6xl mx-auto px-6">
+          <div className="relative z-10 max-w-7xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -328,8 +327,11 @@ export default function PitchDeckPage() {
               className="text-center mb-12"
             >
               <h2 className="text-5xl font-bold text-white mb-4">🎥 Demo Video</h2>
-              <p className="text-xl text-gray-300">
-                Lihat OpenBudget.ID beraksi dalam 3 menit
+              <p className="text-xl text-gray-300 mb-2">
+                6 scene menampilkan full journey OpenBudget.ID
+              </p>
+              <p className="text-sm text-gray-400">
+                Dari overview publik hingga verifikasi on-chain di Solana Explorer
               </p>
             </motion.div>
 
@@ -338,98 +340,8 @@ export default function PitchDeckPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="relative"
             >
-              {/* Batik frame decoration */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-3xl opacity-50 blur-xl" />
-              <div className="absolute -inset-2 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl">
-                {/* Batik pattern on frame */}
-                <div
-                  className="absolute inset-0 opacity-20 rounded-2xl"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='7.5' cy='7.5' r='3' fill='%23F59E0B'/%3E%3Ccircle cx='22.5' cy='7.5' r='3' fill='%23F59E0B'/%3E%3Ccircle cx='7.5' cy='22.5' r='3' fill='%23F59E0B'/%3E%3Ccircle cx='22.5' cy='22.5' r='3' fill='%23F59E0B'/%3E%3C/svg%3E")`,
-                    backgroundSize: '30px 30px',
-                  }}
-                />
-              </div>
-
-              <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl aspect-video">
-                {!videoPlaying ? (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 cursor-pointer group"
-                    onClick={() => setVideoPlaying(true)}
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="relative"
-                    >
-                      <div className="absolute inset-0 bg-yellow-400 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" />
-                      <div className="relative bg-white rounded-full p-8 shadow-2xl">
-                        <svg
-                          className="w-16 h-16 text-blue-600 ml-2"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </motion.div>
-                    <div className="absolute bottom-8 left-0 right-0 text-center">
-                      <p className="text-white text-xl font-semibold mb-2">
-                        Klik untuk Menonton Demo
-                      </p>
-                      <p className="text-blue-200 text-sm">
-                        Lihat bagaimana OpenBudget.ID membawa transparansi ke pengeluaran pemerintah
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                    <div className="text-center text-white p-8">
-                      <svg
-                        className="w-16 h-16 mx-auto mb-4 text-yellow-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <h3 className="text-2xl font-bold mb-2">Placeholder Video Demo</h3>
-                      <p className="text-gray-400 mb-4">
-                        Ganti bagian ini dengan embed video Anda:
-                      </p>
-                      <code className="text-sm bg-gray-800 px-4 py-2 rounded block max-w-md mx-auto">
-                        {'<iframe src="YOUR_VIDEO_URL" .../>'}
-                      </code>
-                      <p className="text-gray-500 text-sm mt-4">
-                        Mendukung: YouTube, Vimeo, Loom, atau file video langsung
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              viewport={{ once: true }}
-              className="mt-8 text-center"
-            >
-              <p className="text-gray-400 text-sm mb-4">
-                💡 <strong>Tips:</strong> Masukkan URL video demo Anda di iframe di atas
-              </p>
-              <p className="text-gray-500 text-xs">
-                Contoh: https://www.youtube.com/embed/YOUR_VIDEO_ID atau
-                https://player.vimeo.com/video/YOUR_VIDEO_ID
-              </p>
+              <VideoCarousel />
             </motion.div>
           </div>
         </section>
