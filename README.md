@@ -2,18 +2,22 @@
 
 **Making every public fund traceable, auditable, and transparent — powered by Solana.**
 
+![Award](https://img.shields.io/badge/🥈_Garuda_Spark-2nd_Place-gold.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Solana](https://img.shields.io/badge/Solana-Devnet-purple.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)
 
 ---
 
-## 🎯 Hackathon Submission
+## 🏆 Hackathon Winner
+
+**🥈 2nd Place - Garuda Spark Hackathon**
+**Prize:** 1,500 USDC
 
 **Hackathon:** Garuda Spark - Blockchain for Good
 **Track:** Civic Tech & Governance
 **Organizers:** Superteam Indonesia × Ministry of Communication and Digital Affairs × Ministry of Creative Economy
-**Submission Date:** October 2025
+**Date:** October 2025
 
 ---
 
