@@ -4,6 +4,10 @@
 
 **OpenBudget.ID** - 🥈 **2nd Place Winner** at Garuda Spark Hackathon (Oct 2025) - **1,500 USDC Prize**
 
+> ⚠️ **STATUS: OFFLINE (Indefinite Hiatus)**
+> Site taken offline on 2026-01-01. Container stopped, all data preserved.
+> To bring back online: `ssh openbudget "docker start openbudget-web"`
+
 Blockchain transparency platform enabling Indonesian ministries to record spending milestones immutably on Solana, allowing citizens to verify in real-time.
 
 - **Achievement:** 2nd Place, Garuda Spark - Blockchain for Good (Superteam Indonesia × Komdigi × Ekraf)
@@ -498,7 +502,7 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 ### Production VPS Deployment
 
-**Status:** ✅ Deployed to openbudget.rectorspace.com
+**Status:** ⏸️ OFFLINE (Container stopped, data preserved)
 
 **Infrastructure:**
 - **VPS Host:** 176.222.53.185
@@ -711,4 +715,27 @@ ssh openbudget "docker exec -it openbudget-web sh"
 
 ---
 
-**Live:** https://openbudget.rectorspace.com | **Reference:** docs/IMPLEMENTATION-PLAN.md
+## Current Hiatus (2026-01-01)
+
+**Project on indefinite hold.** Site taken offline, all infrastructure preserved.
+
+**What's preserved:**
+- Source code on VPS (`/home/openbudget/openbudget-garuda-spark`)
+- GitHub + GitLab repos (dual-push backup)
+- PostgreSQL database with all data
+- Solana program on devnet (immutable)
+- Docker image (`openbudget:latest`)
+- nginx config + SSL cert
+
+**What's stopped:**
+- Docker container `openbudget-web` (Exited)
+- Site returns 502 Bad Gateway
+
+**To resume:**
+```bash
+ssh openbudget "docker start openbudget-web"
+```
+
+---
+
+**Offline:** https://openbudget.rectorspace.com (502) | **Reference:** docs/IMPLEMENTATION-PLAN.md
