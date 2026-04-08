@@ -236,7 +236,7 @@ OpenBudget.ID uses Google OAuth to authenticate ministry officials for admin acc
 ```env
 # Solana Program Configuration
 NEXT_PUBLIC_SOLANA_PROGRAM_ID=RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY
-NEXT_PUBLIC_SOLANA_RPC_URL=https://devnet.helius-rpc.com/?api-key=142fb48a-aa24-4083-99c8-249df5400b30
+NEXT_PUBLIC_SOLANA_RPC_URL=https://devnet.helius-rpc.com/?api-key=<your-helius-api-key>
 NEXT_PUBLIC_SOLANA_NETWORK=devnet
 
 # Database Configuration
