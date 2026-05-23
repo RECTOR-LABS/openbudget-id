@@ -1,0 +1,1538 @@
+# OpenBudget Vercel Re-Deployment + Henrik Pitch Pack — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Bring `openbudget.rectorspace.com` live on Vercel with Neon Postgres, then ship an English pitch surface at `/international` + `/international/brief` and 3 intro templates so RECTOR can send Henrik a self-contained briefing pack within 1-2 days.
+
+**Architecture:** Next.js 14 App Router frontend deployed to Vercel (personal scope `rectors-projects`), serverless functions for API routes, Neon Postgres (free tier) provisioned via Vercel Marketplace for searchable metadata, Solana devnet for blockchain truth (unchanged). New `/international` page reuses existing `Header`/`Footer` components and Tailwind palette but ships English copy with a foreign-aid (DANIDA) wedge. Print-optimized `/international/brief` uses `@media print` CSS so RECTOR/Henrik can Cmd+P → save as PDF without a designer in the loop.
+
+**Tech Stack:** Next.js 14.2.15, React 18, TypeScript 5, Tailwind 3.4, framer-motion 12, next-auth 4, `pg` Postgres driver, Solana web3.js, Vercel CLI, Neon (via Vercel Marketplace), Cloudflare DNS.
+
+**Reference spec:** `docs/superpowers/specs/2026-05-23-openbudget-vercel-plus-henrik-pitch-design.md`
+
+**Critical constraints (verbatim from spec §3):**
+- **C1:** Vercel scope MUST be `rectors-projects` — NEVER `vincents-projects-2bbb9bb8`
+- **C2:** Cloudflare account MUST be RECTOR personal (owns `rectorspace.com`) — NEVER Arbital
+- **C3:** No new video recording from RECTOR — text/visual only
+- **C7:** 1-2 day wall-clock budget — defer scope creep
+
+---
+
+## File Structure
+
+**Files created by this plan:**
+
+| Path | Responsibility |
+|---|---|
+| `frontend/app/international/page.tsx` | English landing page — single-scroll, 6 sections, ~400 lines |
+| `frontend/app/international/brief/page.tsx` | Print-optimized 1-page brief — same content condensed, `@media print` styles |
+| `docs/pitch/intro-template-casual.md` | Friendly intro Henrik forwards to wellness/foundation contacts (~60 words) |
+| `docs/pitch/intro-template-formal.md` | Professional intro for Danish gov / org contacts (~110 words) |
+| `docs/pitch/email-followup-template.md` | Email template for Henrik when warm reply arrives (~150 words) |
+
+**Files NOT modified (intentionally):**
+- Existing `/pitch-deck/page.tsx` (Bahasa Indonesian) — kept as-is, it's the credibility artifact for Indonesian audience
+- `Header.tsx` / `Footer.tsx` — reused as-is, no `/international` link added (Henrik shares URL directly, no need for nav exposure)
+- `CLAUDE.md` — deployment infra changes will be reflected in a post-migration update, OUT OF SCOPE here
+
+**Cloud resources provisioned (no source files):**
+- Vercel project (linked, scope `rectors-projects`)
+- Neon Postgres instance (free tier via Vercel Marketplace)
+- Cloudflare DNS CNAME (`openbudget` → `cname.vercel-dns.com`)
+- Google OAuth redirect URIs (added Vercel URLs)
+
+---
+
+## Phase 1: Vercel Deployment (Tasks 1-7)
+
+### Task 1: Preflight check — local environment + dependencies + clean build
+
+**Files:**
+- Verify: `frontend/package.json`
+- Verify: `frontend/.env.local` (must NOT be committed — confirm `.gitignore` honors it)
+
+- [ ] **Step 1: Verify Vercel CLI authenticated as RECTOR personal**
+
+Run:
+```bash
+vercel whoami
+```
+Expected: `rz1989s`
+
+If output differs, RECTOR must run `vercel login` and authenticate with personal account.
+
+- [ ] **Step 2: List Vercel scopes and confirm `rectors-projects` exists**
+
+Run:
+```bash
+vercel teams ls
+```
+Expected output includes both:
+- `rectors-projects` — RECTOR's projects (USE THIS)
+- `vincents-projects-2bbb9bb8` — Vincent's projects (AVOID)
+
+If `rectors-projects` is missing, stop and ask RECTOR.
+
+- [ ] **Step 3: Confirm branch is `main` and working tree clean**
+
+Run:
+```bash
+cd /Users/rector/local-dev/openbudget-garuda-spark && git status && git log --oneline -1
+```
+Expected: branch `main`, no uncommitted changes (or only the planning files from brainstorm/writing-plans), last commit visible.
+
+- [ ] **Step 4: Install dependencies fresh and verify TypeScript passes**
+
+Run:
+```bash
+cd /Users/rector/local-dev/openbudget-garuda-spark/frontend && npm install && npm run typecheck
+```
+Expected: install completes, `tsc --noEmit` exits 0 (no type errors).
+
+- [ ] **Step 5: Verify production build succeeds locally**
+
+Run:
+```bash
+cd /Users/rector/local-dev/openbudget-garuda-spark/frontend && npm run build
+```
+Expected: `next build` completes successfully. Some static-page warnings about database-not-accessible-during-build are EXPECTED and acceptable (per CLAUDE.md deployment notes).
+
+- [ ] **Step 6: NO COMMIT (preflight only)**
+
+---
+
+### Task 2: Link Vercel project + provision Neon Postgres via Marketplace
+
+**Files:**
+- Will create: `frontend/.vercel/project.json` (auto-generated by `vercel link`, gitignored)
+
+- [ ] **Step 1: Navigate to frontend directory and link Vercel project**
+
+Run from `/Users/rector/local-dev/openbudget-garuda-spark/frontend`:
+```bash
+vercel link
+```
+
+Interactive prompts:
+- "Set up `~/local-dev/openbudget-garuda-spark/frontend`?" → **Y**
+- "Which scope should contain your project?" → **Select `rectors-projects`** (NOT `vincents-projects-2bbb9bb8`)
+- "Link to existing project?" → **N** (new project)
+- "What's your project's name?" → **openbudget** (or accept default)
+- "In which directory is your code located?" → `./` (accept default)
+
+Expected: `.vercel/project.json` created in `frontend/`. Verify with:
+```bash
+cat frontend/.vercel/project.json
+```
+Output should include `orgId` matching the `rectors-projects` team ID (NOT `team_xxx` for vincents).
+
+- [ ] **Step 2: Verify `.vercel/` is gitignored**
+
+Run:
+```bash
+grep -E '^\.vercel' /Users/rector/local-dev/openbudget-garuda-spark/.gitignore /Users/rector/local-dev/openbudget-garuda-spark/frontend/.gitignore 2>/dev/null
+```
+Expected: at least one `.vercel` entry. If none, append to `frontend/.gitignore`:
+```
+.vercel
+```
+
+- [ ] **Step 3: Provision Neon Postgres via Vercel Marketplace**
+
+RECTOR must perform this via Vercel dashboard (CLI provisioning of Marketplace integrations requires browser auth):
+
+1. Open https://vercel.com/rectors-projects/openbudget/storage
+2. Click "Connect Database" → "Marketplace Database Providers"
+3. Select **Neon Postgres**
+4. Region: **Singapore (sin1)** (closest to Indonesia for low latency; OR pick Frankfurt for closer to Henrik/Denmark if traffic skews European — recommendation: Singapore since most data is Indonesian projects)
+5. Plan: **Free tier**
+6. Database name: `openbudget`
+7. Click "Continue" → "Connect"
+
+Expected: Neon Postgres connected; Vercel auto-injects these env vars into the project:
+- `DATABASE_URL`
+- `DATABASE_URL_UNPOOLED` (direct connection, used for migrations)
+- `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE` (individual components)
+
+- [ ] **Step 4: Pull env vars locally to verify provisioning**
+
+Run from `frontend/`:
+```bash
+vercel env pull .env.vercel.local
+```
+Expected: file `.env.vercel.local` created with the Neon `DATABASE_URL` and unpooled variant.
+
+Verify (do not print full secret — confirm format only):
+```bash
+grep -E '^DATABASE_URL=' .env.vercel.local | sed 's/=.*/=<redacted>/'
+grep -E '^DATABASE_URL_UNPOOLED=' .env.vercel.local | sed 's/=.*/=<redacted>/'
+```
+Expected: both lines present.
+
+- [ ] **Step 5: NO COMMIT (no source files changed)**
+
+---
+
+### Task 3: Apply database schema to Neon
+
+**Files:**
+- Read: `database/schema.sql`
+- Read: `database/schema-epic6-7.sql`
+- Read: `database/mock-data-epic6.sql`
+
+- [ ] **Step 1: Extract unpooled connection string for schema migration**
+
+Run from `frontend/`:
+```bash
+NEON_UNPOOLED=$(grep -E '^DATABASE_URL_UNPOOLED=' .env.vercel.local | cut -d'=' -f2- | tr -d '"')
+echo "Neon connection ready: ${NEON_UNPOOLED:0:30}..."  # Print prefix only
+```
+Expected: prefix `postgresql://...` visible (full string suppressed).
+
+Note: We use the UNPOOLED connection because the migration applies DDL which can conflict with pooled connections.
+
+- [ ] **Step 2: Apply core schema**
+
+Run from repo root:
+```bash
+psql "$NEON_UNPOOLED" -f /Users/rector/local-dev/openbudget-garuda-spark/database/schema.sql
+```
+Expected: `CREATE TABLE`, `CREATE INDEX` statements complete. No errors.
+
+- [ ] **Step 3: Apply Epic 6/7 schema (engagement + analytics tables + materialized view)**
+
+Run:
+```bash
+psql "$NEON_UNPOOLED" -f /Users/rector/local-dev/openbudget-garuda-spark/database/schema-epic6-7.sql
+```
+Expected: `CREATE TABLE`, `CREATE MATERIALIZED VIEW`, `CREATE FUNCTION`, `CREATE INDEX` complete. If materialized view fails on Neon, note the error — Neon supports MVs but check syntax.
+
+- [ ] **Step 4: Apply mock data**
+
+Run:
+```bash
+psql "$NEON_UNPOOLED" -f /Users/rector/local-dev/openbudget-garuda-spark/database/mock-data-epic6.sql
+```
+Expected: `INSERT` statements for ministries, projects, milestones, comments, ratings, watchlist, issues complete.
+
+- [ ] **Step 5: Verify schema with smoke query**
+
+Run:
+```bash
+psql "$NEON_UNPOOLED" -c "SELECT count(*) AS ministries FROM ministry_accounts; SELECT count(*) AS projects FROM projects; SELECT count(*) AS comments FROM comments; SELECT count(*) AS materialized_view_rows FROM ministry_performance;"
+```
+Expected: all four counts > 0. Materialized view should auto-populate from mock data.
+
+- [ ] **Step 6: Refresh materialized view to ensure it's populated**
+
+Run:
+```bash
+psql "$NEON_UNPOOLED" -c "SELECT refresh_ministry_performance();"
+```
+Expected: function returns void successfully.
+
+- [ ] **Step 7: NO COMMIT (no source files changed)**
+
+---
+
+### Task 4: Configure Vercel environment variables + first deploy (preview)
+
+**Files:**
+- Read: `frontend/.kamal/secrets` (source of NEXTAUTH_SECRET, GOOGLE_CLIENT_ID/SECRET)
+
+- [ ] **Step 1: Source existing production secrets to extract values**
+
+Run from repo root:
+```bash
+set -a; source /Users/rector/local-dev/openbudget-garuda-spark/frontend/.kamal/secrets; set +a
+echo "NEXTAUTH_SECRET length: ${#NEXTAUTH_SECRET}"  # Verify loaded without printing
+echo "GOOGLE_CLIENT_ID prefix: ${GOOGLE_CLIENT_ID:0:20}..."
+echo "GOOGLE_CLIENT_SECRET length: ${#GOOGLE_CLIENT_SECRET}"
+```
+Expected: lengths > 0 for all three; no secrets printed in full.
+
+- [ ] **Step 2: Push Solana env vars to Vercel (all environments)**
+
+Run from `frontend/`:
+```bash
+echo "RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY" | vercel env add NEXT_PUBLIC_SOLANA_PROGRAM_ID production preview development
+echo "https://api.devnet.solana.com" | vercel env add NEXT_PUBLIC_SOLANA_RPC_URL production preview development
+echo "devnet" | vercel env add NEXT_PUBLIC_SOLANA_NETWORK production preview development
+```
+Expected: each command outputs `Success! Added Environment Variable ... [Production, Preview, Development]`.
+
+- [ ] **Step 3: Push NextAuth secrets to Vercel**
+
+Run from `frontend/`:
+```bash
+echo "$NEXTAUTH_SECRET" | vercel env add NEXTAUTH_SECRET production preview development
+echo "$GOOGLE_CLIENT_ID" | vercel env add GOOGLE_CLIENT_ID production preview development
+echo "$GOOGLE_CLIENT_SECRET" | vercel env add GOOGLE_CLIENT_SECRET production preview development
+```
+Expected: three `Success!` messages.
+
+- [ ] **Step 4: Set NEXTAUTH_URL placeholder (will update after domain bound)**
+
+Run from `frontend/`:
+```bash
+# Production URL — temporary; will be replaced when custom domain bound (Task 6)
+echo "https://openbudget.rectorspace.com" | vercel env add NEXTAUTH_URL production
+# Preview/dev use the *.vercel.app URLs
+echo "https://openbudget.vercel.app" | vercel env add NEXTAUTH_URL preview development
+```
+Expected: two `Success!` messages.
+
+- [ ] **Step 5: Verify all env vars present**
+
+Run:
+```bash
+vercel env ls
+```
+Expected: 7 variables listed — `NEXT_PUBLIC_SOLANA_PROGRAM_ID`, `NEXT_PUBLIC_SOLANA_RPC_URL`, `NEXT_PUBLIC_SOLANA_NETWORK`, `NEXTAUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXTAUTH_URL` — plus the Neon-injected `DATABASE_URL*` set from Task 2.
+
+- [ ] **Step 6: Deploy a preview build**
+
+Run from `frontend/`:
+```bash
+vercel
+```
+Expected: build runs, deploys to a unique `*.vercel.app` URL printed at the end (e.g., `https://openbudget-abc123.vercel.app`). Build time ~50-90 seconds.
+
+Save the preview URL — it's used in Task 5.
+
+- [ ] **Step 7: NO COMMIT (no source files changed)**
+
+---
+
+### Task 5: Preview smoke test
+
+**Files:** none — purely operational verification
+
+- [ ] **Step 1: Public homepage loads on preview URL**
+
+Open the preview URL from Task 4 step 6 in a browser. Verify:
+- Hero loads (Indonesian copy, search input, ministry filter dropdown)
+- Project cards render below
+- No console errors (open DevTools, check Console tab)
+- No 500s in Network tab
+
+- [ ] **Step 2: Project detail page loads**
+
+Click any project card. Verify:
+- Project detail page renders
+- Budget breakdown visible
+- Milestones list shows
+- "View on Solana Explorer" links present (don't need to click — just verify they render with `?cluster=devnet` query param)
+
+- [ ] **Step 3: Analytics dashboard loads**
+
+Navigate to `<preview-url>/analytics`. Verify:
+- Leaderboard table renders with ministries
+- Recharts LineChart renders for spending trends
+- Anomalies section visible
+
+- [ ] **Step 4: API docs page loads**
+
+Navigate to `<preview-url>/api-docs`. Verify renders without error.
+
+- [ ] **Step 5: Pitch deck page loads (Bahasa, video carousel)**
+
+Navigate to `<preview-url>/pitch-deck`. Verify:
+- Page renders in Bahasa Indonesian
+- VideoCarousel section is present (video may or may not autoplay — that's fine, just verify the component renders)
+
+- [ ] **Step 6: Admin OAuth NOT tested yet**
+
+NOTE: Don't test admin OAuth login on preview — Google OAuth redirect URIs aren't updated yet (Task 6 step 3). Skip admin testing until production smoke test in Task 7.
+
+- [ ] **Step 7: NO COMMIT**
+
+If any of steps 1-5 fails, STOP and debug before proceeding. Common failure modes:
+- DB connection error → revisit Task 3 (was schema applied to right Neon instance?)
+- Missing env var → revisit Task 4 step 5 (`vercel env ls`)
+- Build error → check Vercel build logs at deployment URL
+
+---
+
+### Task 6: Bind custom domain + Cloudflare DNS + Google OAuth update
+
+**Files:** none — operational
+
+- [ ] **Step 1: Promote preview to production deployment**
+
+Run from `frontend/`:
+```bash
+vercel --prod
+```
+Expected: production deployment URL printed (e.g., `https://openbudget.vercel.app`). This is the canonical production URL until custom domain is bound.
+
+- [ ] **Step 2: Bind custom domain `openbudget.rectorspace.com` in Vercel**
+
+Run from `frontend/`:
+```bash
+vercel domains add openbudget.rectorspace.com
+```
+Expected: Vercel prompts for DNS configuration. Output includes a CNAME target like `cname.vercel-dns.com`.
+
+If domain is already added to another project, Vercel will error — investigate before proceeding.
+
+- [ ] **Step 3: Update Google OAuth redirect URIs (RECTOR action)**
+
+RECTOR must perform this via browser:
+
+1. Open https://console.cloud.google.com/apis/credentials
+2. Find the OAuth 2.0 Client ID matching `GOOGLE_CLIENT_ID` (likely named "OpenBudget" or similar)
+3. Click edit
+4. Under "Authorized redirect URIs", ADD (don't replace existing localhost entries):
+   - `https://openbudget.rectorspace.com/api/auth/callback/google`
+   - `https://openbudget.vercel.app/api/auth/callback/google` (for production deployment URL)
+5. Click "Save"
+
+Wait ~5 min for Google to propagate the change before testing OAuth.
+
+- [ ] **Step 4: Update Cloudflare DNS — add CNAME**
+
+RECTOR must perform this via browser using PERSONAL Cloudflare account (rector@rectorspace.com, owns `rectorspace.com`). NOT Arbital.
+
+1. Open https://dash.cloudflare.com/ → sign in as `rector@rectorspace.com`
+2. Select `rectorspace.com` zone
+3. DNS → Records → Add record:
+   - **Type:** CNAME
+   - **Name:** `openbudget`
+   - **Target:** `cname.vercel-dns.com`
+   - **Proxy status:** **DNS only (grey cloud)** — IMPORTANT: Vercel SSL needs unproxied DNS, do NOT enable Cloudflare proxy
+   - **TTL:** Auto
+4. Save
+
+Wait ~30-60s for Cloudflare propagation.
+
+- [ ] **Step 5: Verify DNS propagation**
+
+Run:
+```bash
+dig +short openbudget.rectorspace.com CNAME
+```
+Expected: returns `cname.vercel-dns.com.`
+
+If empty after 2 min, recheck CF record was saved correctly (grey cloud, correct name + target).
+
+- [ ] **Step 6: Verify Vercel SSL issued**
+
+Run:
+```bash
+curl -sI https://openbudget.rectorspace.com -o /dev/null -w "HTTP: %{http_code} | SSL: %{ssl_verify_result}\n"
+```
+Expected: `HTTP: 200` or `HTTP: 308` (redirect), `SSL: 0` (verified). May take 1-2 min for Vercel to issue SSL after DNS propagates.
+
+- [ ] **Step 7: NO COMMIT**
+
+---
+
+### Task 7: Production smoke test (full)
+
+**Files:** none — operational
+
+- [ ] **Step 1: Public flows on `openbudget.rectorspace.com`**
+
+Open https://openbudget.rectorspace.com in browser. Verify:
+- Homepage loads, no errors
+- Project search works (type a query)
+- Ministry filter dropdown populates
+- Click any project → detail page loads
+- Analytics page loads (`/analytics`)
+- Pitch-deck page loads (`/pitch-deck`)
+- API docs page loads (`/api-docs`)
+
+- [ ] **Step 2: Admin OAuth login (RECTOR action)**
+
+1. Navigate to `https://openbudget.rectorspace.com/admin`
+2. Click "Sign in with Google"
+3. Authenticate with RECTOR's Google account
+4. Expected: redirected back to `/admin` dashboard, session active
+
+If OAuth fails:
+- Check redirect URI in Google Console matches exactly (Task 6 Step 3)
+- Check `NEXTAUTH_URL` env var in Vercel = `https://openbudget.rectorspace.com`
+- Check Vercel function logs: `vercel logs <deployment-url>`
+
+- [ ] **Step 3: Wallet connect on devnet (RECTOR action with Phantom)**
+
+1. From `/admin`, click "Connect Wallet"
+2. Select Phantom (must be installed in browser, switched to Devnet)
+3. Approve connection
+4. Expected: wallet address shown in admin header
+
+- [ ] **Step 4: Verify no console errors on key pages**
+
+Open DevTools → Console. Visit:
+- `/` (homepage)
+- `/projects/[any-uuid]` (any project detail)
+- `/analytics`
+- `/admin` (logged in)
+
+Expected: no red errors. Yellow warnings are OK if framework-related (e.g., Recharts dev warnings).
+
+- [ ] **Step 5: Take screenshot of working production site**
+
+Capture screenshot of homepage as evidence — useful for the `/international` page's Proof section in Phase 2.
+
+Save to: `/tmp/openbudget-homepage-screenshot.png` (used in Phase 2).
+
+- [ ] **Step 6: NO COMMIT**
+
+---
+
+## Phase 2: `/international` Landing Page (Tasks 8-14)
+
+### Task 8: Create `/international` page skeleton + Hero section
+
+**Files:**
+- Create: `frontend/app/international/page.tsx`
+
+- [ ] **Step 1: Create `/international` directory and skeleton file**
+
+Run:
+```bash
+mkdir -p /Users/rector/local-dev/openbudget-garuda-spark/frontend/app/international
+```
+
+- [ ] **Step 2: Write skeleton + Hero section**
+
+Create `/Users/rector/local-dev/openbudget-garuda-spark/frontend/app/international/page.tsx`:
+
+```tsx
+'use client';
+
+import { motion } from 'framer-motion';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function InternationalPage() {
+  return (
+    <>
+      <Header />
+      <main className="bg-white">
+        {/* Hero */}
+        <section className="min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-700 to-blue-900 text-white relative overflow-hidden pt-20">
+          <div className="absolute inset-0 opacity-5"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='15' r='4' fill='%23F59E0B'/%3E%3Ccircle cx='45' cy='15' r='4' fill='%23F59E0B'/%3E%3Ccircle cx='15' cy='45' r='4' fill='%23F59E0B'/%3E%3Ccircle cx='45' cy='45' r='4' fill='%23F59E0B'/%3E%3C/svg%3E")`,
+              backgroundSize: '60px 60px',
+            }}
+          />
+          <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="flex items-center justify-center mb-6">
+                <Image src="/logo-icon.svg" alt="OpenBudget" width={72} height={72} />
+              </div>
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                Public budget transparency,<br />
+                <span className="text-yellow-300">verified on Solana</span>
+              </h1>
+              <p className="text-xl md:text-2xl font-light mb-10 text-blue-100 max-w-3xl mx-auto">
+                Built and validated in Indonesia&apos;s national hackathon.
+                Ready for any institution that handles public money — including foreign aid.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link
+                  href="/"
+                  className="px-8 py-3 bg-yellow-400 text-blue-900 rounded-lg font-semibold hover:bg-yellow-300 transition"
+                >
+                  Try the live demo →
+                </Link>
+                <Link
+                  href="/international/brief"
+                  className="px-8 py-3 bg-white/10 border border-white/30 text-white rounded-lg font-semibold hover:bg-white/20 transition"
+                >
+                  Read the 1-page brief →
+                </Link>
+              </div>
+              <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm">
+                <span className="px-4 py-1 bg-green-600/80 rounded-full">🏆 2nd Place — Garuda Spark Hackathon</span>
+                <span className="px-4 py-1 bg-blue-600/80 rounded-full">🇮🇩 Endorsed by Indonesia&apos;s Komdigi + Ekraf</span>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Remaining sections added in Tasks 9-13 */}
+      </main>
+      <Footer />
+    </>
+  );
+}
+```
+
+- [ ] **Step 3: Local dev verification**
+
+Run from `frontend/`:
+```bash
+npm run dev
+```
+
+Open http://localhost:3000/international in browser. Expected:
+- Page renders
+- Hero gradient background with logo, headline, sub, two CTA buttons, badges below
+- Both CTA links visible (clicking "Try the live demo" navigates to `/`, "Read the 1-page brief" → `/international/brief` — that route will 404 until Task 14)
+- No console errors
+
+Keep `npm run dev` running for subsequent tasks. Kill with `npm run clean` when done with Phase 2.
+
+- [ ] **Step 4: Run typecheck**
+
+Run from `frontend/`:
+```bash
+npm run typecheck
+```
+Expected: exits 0.
+
+- [ ] **Step 5: NO COMMIT YET** (commit after page is complete in Task 13)
+
+---
+
+### Task 9: Add Trust Gap section (Problem — 3 cards)
+
+**Files:**
+- Modify: `frontend/app/international/page.tsx` (insert after Hero section, before closing `</main>`)
+
+- [ ] **Step 1: Add Trust Gap section between Hero and closing `</main>`**
+
+Open `frontend/app/international/page.tsx`. Locate the comment `{/* Remaining sections added in Tasks 9-13 */}` and REPLACE it with the following Trust Gap section + a new placeholder for upcoming sections:
+
+```tsx
+        {/* Trust Gap — Problem */}
+        <section className="py-24 bg-gray-50">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                The trust gap is everywhere
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Wherever money flows through institutions, accountability is slow,
+                manual, and easy to manipulate. Donors and citizens are left guessing.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  title: 'Government budgets',
+                  body: 'Annual reports arrive months late. Spending data lives in PDFs that can be amended. Citizens can’t verify how their tax money is actually used.',
+                  accent: 'bg-red-50 border-red-200',
+                  iconBg: 'bg-red-100 text-red-600',
+                  icon: '🏛️',
+                },
+                {
+                  title: 'NGOs &amp; foundations',
+                  body: 'Donors trust quarterly impact reports. When something feels off, there’s no real-time way to audit how funds were spent — only the next report cycle.',
+                  accent: 'bg-orange-50 border-orange-200',
+                  iconBg: 'bg-orange-100 text-orange-600',
+                  icon: '🤝',
+                },
+                {
+                  title: 'Foreign aid',
+                  body: 'Agencies send billions across borders, then rely on recipient governments’ own reporting. Tracking the last mile of aid is a chronic, expensive problem.',
+                  accent: 'bg-amber-50 border-amber-200',
+                  iconBg: 'bg-amber-100 text-amber-600',
+                  icon: '🌍',
+                },
+              ].map((card, i) => (
+                <motion.div
+                  key={card.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`p-8 rounded-xl border-2 ${card.accent}`}
+                >
+                  <div className={`w-14 h-14 rounded-full ${card.iconBg} flex items-center justify-center text-3xl mb-4`}>
+                    {card.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">{card.title}</h3>
+                  <p className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: card.body }} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Remaining sections added in Tasks 10-13 */}
+```
+
+- [ ] **Step 2: Visual verification**
+
+Refresh http://localhost:3000/international. Expected:
+- Below Hero: "The trust gap is everywhere" headline
+- 3 cards in row (Government / NGOs / Foreign aid), each with emoji icon, colored border, body text
+- Cards animate in on scroll
+- Responsive: cards stack on mobile (resize browser to verify)
+
+- [ ] **Step 3: Typecheck**
+
+Run from `frontend/`:
+```bash
+npm run typecheck
+```
+Expected: exits 0.
+
+- [ ] **Step 4: NO COMMIT YET**
+
+---
+
+### Task 10: Add How It Works section (Solution — 4-step flow)
+
+**Files:**
+- Modify: `frontend/app/international/page.tsx`
+
+- [ ] **Step 1: Replace placeholder with How It Works section**
+
+In `frontend/app/international/page.tsx`, replace the comment `{/* Remaining sections added in Tasks 10-13 */}` with:
+
+```tsx
+        {/* How It Works — Solution */}
+        <section className="py-24 bg-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                How OpenBudget works
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Every spending milestone is recorded on the Solana blockchain.
+                Citizens and donors verify the real transaction, in real time, without
+                trusting any single party.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-4 gap-6">
+              {[
+                {
+                  num: '01',
+                  title: 'Institution registers project',
+                  body: 'Set budget, milestones, and authorized signers. All metadata stored on-chain.',
+                },
+                {
+                  num: '02',
+                  title: 'Publishes to Solana',
+                  body: 'A blockchain account is created. From here on, the project record is immutable.',
+                },
+                {
+                  num: '03',
+                  title: 'Releases funds per milestone',
+                  body: 'Each spending milestone is signed and timestamped on-chain with a proof link.',
+                },
+                {
+                  num: '04',
+                  title: 'Anyone verifies in real time',
+                  body: 'Citizens, donors, auditors query the chain directly. No quarterly reports needed.',
+                },
+              ].map((step, i) => (
+                <motion.div
+                  key={step.num}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="relative p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100"
+                >
+                  <div className="text-5xl font-bold text-blue-200 mb-3">{step.num}</div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">{step.body}</p>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-12 p-6 bg-blue-50 border border-blue-100 rounded-xl text-center max-w-3xl mx-auto">
+              <p className="text-gray-800">
+                <strong>Hybrid architecture:</strong> The blockchain is the single source of truth.
+                A PostgreSQL cache makes browsing fast. If the cache ever drifts, the system
+                automatically heals from on-chain state.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Remaining sections added in Tasks 11-13 */}
+```
+
+- [ ] **Step 2: Visual verification**
+
+Refresh http://localhost:3000/international. Scroll past Trust Gap. Expected:
+- "How OpenBudget works" headline
+- 4 step cards in a row (numbered 01-04)
+- Hybrid architecture explainer below
+
+- [ ] **Step 3: Typecheck**
+
+Run:
+```bash
+npm run typecheck
+```
+Expected: exits 0.
+
+- [ ] **Step 4: NO COMMIT YET**
+
+---
+
+### Task 11: Add Proof section (hackathon win, ministries, live demo)
+
+**Files:**
+- Modify: `frontend/app/international/page.tsx`
+
+- [ ] **Step 1: Replace placeholder with Proof section**
+
+In `frontend/app/international/page.tsx`, replace `{/* Remaining sections added in Tasks 11-13 */}` with:
+
+```tsx
+        {/* Proof */}
+        <section className="py-24 bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                Battle-tested, not vaporware
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                OpenBudget won 2nd place at Indonesia&apos;s national Garuda Spark
+                Hackathon — organized by two government ministries and Superteam Indonesia.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <div className="p-8 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-center mb-4">
+                  <span className="text-4xl mr-3">🏆</span>
+                  <div>
+                    <div className="text-2xl font-bold">2nd Place</div>
+                    <div className="text-gray-400 text-sm">Garuda Spark Hackathon (Oct 2025)</div>
+                  </div>
+                </div>
+                <ul className="text-gray-300 space-y-2 text-sm">
+                  <li className="flex"><span className="text-green-400 mr-2">✓</span> Prize: 1,500 USDC</li>
+                  <li className="flex"><span className="text-green-400 mr-2">✓</span> Organized by Superteam Indonesia</li>
+                  <li className="flex"><span className="text-green-400 mr-2">✓</span> Endorsed by Ministry of Communication (Komdigi)</li>
+                  <li className="flex"><span className="text-green-400 mr-2">✓</span> Endorsed by Ministry of Creative Economy (Ekraf)</li>
+                </ul>
+              </div>
+              <div className="p-8 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-center mb-4">
+                  <span className="text-4xl mr-3">⚙️</span>
+                  <div>
+                    <div className="text-2xl font-bold">Production-ready stack</div>
+                    <div className="text-gray-400 text-sm">Live, deployed, working today</div>
+                  </div>
+                </div>
+                <ul className="text-gray-300 space-y-2 text-sm">
+                  <li className="flex"><span className="text-blue-400 mr-2">→</span> Solana blockchain (Anchor program on devnet)</li>
+                  <li className="flex"><span className="text-blue-400 mr-2">→</span> Next.js 14 frontend</li>
+                  <li className="flex"><span className="text-blue-400 mr-2">→</span> Self-healing PostgreSQL cache</li>
+                  <li className="flex"><span className="text-blue-400 mr-2">→</span> Public dashboard + admin tools + analytics</li>
+                </ul>
+              </div>
+            </div>
+            <div className="text-center">
+              <Link
+                href="/"
+                className="inline-block px-8 py-3 bg-yellow-400 text-gray-900 rounded-lg font-semibold hover:bg-yellow-300 transition"
+              >
+                See the live deployment →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Remaining sections added in Tasks 12-13 */}
+```
+
+- [ ] **Step 2: Visual verification**
+
+Refresh `/international`. Expected: dark-themed Proof section with two cards (hackathon win + production stack), CTA to live demo.
+
+- [ ] **Step 3: Typecheck**
+
+Run: `npm run typecheck` → exits 0.
+
+- [ ] **Step 4: NO COMMIT YET**
+
+---
+
+### Task 12: Add Next Level section (DANIDA / foreign aid angle)
+
+**Files:**
+- Modify: `frontend/app/international/page.tsx`
+
+- [ ] **Step 1: Replace placeholder with Next Level section**
+
+In `frontend/app/international/page.tsx`, replace `{/* Remaining sections added in Tasks 12-13 */}` with:
+
+```tsx
+        {/* The Next Level */}
+        <section className="py-24 bg-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Where this fits next
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                OpenBudget&apos;s architecture is institution-agnostic. The same trust
+                primitive applies anywhere public money flows.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6 mb-12">
+              {[
+                {
+                  title: 'National &amp; municipal budgets',
+                  body: 'Any government wanting tamper-proof spending records that citizens can verify directly.',
+                },
+                {
+                  title: 'Foundations &amp; NGOs',
+                  body: 'Donor-funded organizations giving stakeholders real-time visibility into program spending.',
+                },
+                {
+                  title: 'Religious institutions',
+                  body: 'Mosques, churches, temples, zakat / waqf bodies handling donations — full transparency restores donor trust.',
+                },
+                {
+                  title: 'Universities &amp; research grants',
+                  body: 'Grant recipients reporting milestone spending to funding bodies in real time, not via annual PDFs.',
+                },
+              ].map((u, i) => (
+                <motion.div
+                  key={u.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 bg-gray-50 rounded-xl border border-gray-200"
+                >
+                  <h3 className="text-xl font-bold text-gray-900 mb-2" dangerouslySetInnerHTML={{ __html: u.title }} />
+                  <p className="text-gray-700">{u.body}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Foreign Aid Spotlight */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="p-10 bg-gradient-to-br from-indigo-600 to-blue-700 text-white rounded-2xl"
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <span className="text-5xl">✈️</span>
+                <div>
+                  <div className="text-sm uppercase tracking-wide text-blue-200 mb-1">Spotlight use case</div>
+                  <h3 className="text-3xl font-bold">Foreign aid transparency</h3>
+                </div>
+              </div>
+              <p className="text-lg text-blue-50 leading-relaxed mb-4">
+                Aid agencies send billions across borders annually, then rely on recipient
+                governments&apos; own quarterly reports. There&apos;s no real-time, tamper-proof
+                way to verify the last mile of aid spending.
+              </p>
+              <p className="text-lg text-blue-50 leading-relaxed">
+                OpenBudget was built and validated by an Indonesian government hackathon —
+                a recipient country&apos;s own technologists endorsed it. An aid agency can
+                deploy the same primitive to verify exactly how its funds are spent by recipient
+                ministries, in real time, without trusting periodic reports.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Get In Touch section added in Task 13 */}
+```
+
+- [ ] **Step 2: Visual verification**
+
+Refresh `/international`. Scroll to find:
+- "Where this fits next" headline
+- 4 use case cards (national, NGOs, religious, universities)
+- Indigo-gradient spotlight card with foreign aid angle
+
+- [ ] **Step 3: Typecheck**
+
+Run: `npm run typecheck` → exits 0.
+
+- [ ] **Step 4: NO COMMIT YET**
+
+---
+
+### Task 13: Add Get In Touch section + finalize
+
+**Files:**
+- Modify: `frontend/app/international/page.tsx`
+
+- [ ] **Step 1: Replace final placeholder with Get In Touch section**
+
+In `frontend/app/international/page.tsx`, replace `{/* Get In Touch section added in Task 13 */}` with:
+
+```tsx
+        {/* Get In Touch */}
+        <section className="py-24 bg-gray-50 border-t border-gray-200">
+          <div className="max-w-3xl mx-auto px-6 text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Bring this to your institution
+            </h2>
+            <p className="text-xl text-gray-600 mb-10">
+              We&apos;re looking for the next institution to deploy OpenBudget. If your
+              organization handles public money — a government, foundation, NGO, or aid
+              agency — get in touch.
+            </p>
+            <div className="inline-flex flex-col sm:flex-row gap-4">
+              <a
+                href="mailto:rector@rectorspace.com?subject=OpenBudget%20-%20Institutional%20Inquiry"
+                className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition text-lg"
+              >
+                Email rector@rectorspace.com
+              </a>
+              <Link
+                href="/international/brief"
+                className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-50 transition text-lg"
+              >
+                Download 1-page brief →
+              </Link>
+            </div>
+            <p className="mt-10 text-sm text-gray-500">
+              Currently on Solana devnet. Mainnet deployment available on request for committed pilots.
+            </p>
+          </div>
+        </section>
+```
+
+- [ ] **Step 2: Final visual verification — full page scroll**
+
+Refresh http://localhost:3000/international. Scroll from top to bottom. Expected sequence:
+1. Hero (blue gradient, headline, 2 CTAs, badges)
+2. Trust Gap (3 colored cards)
+3. How It Works (4 numbered steps + hybrid architecture explainer)
+4. Proof (dark theme, hackathon + tech stack cards, demo CTA)
+5. Next Level (4 use cases + indigo foreign-aid spotlight)
+6. Get In Touch (email CTA, brief download link)
+
+Check responsive on narrow viewport (use DevTools device toolbar) — all sections should stack cleanly.
+
+- [ ] **Step 3: Full build verification**
+
+Stop dev server (Ctrl+C in dev terminal). Run from `frontend/`:
+```bash
+npm run build
+```
+Expected: build succeeds, includes `/international` in the route list.
+
+- [ ] **Step 4: Typecheck strict**
+
+Run from `frontend/`:
+```bash
+npm run typecheck
+```
+Expected: exits 0.
+
+- [ ] **Step 5: NO COMMIT YET** (commit happens in Task 14 after brief page also done)
+
+---
+
+### Task 14: Build `/international/brief` print-optimized page
+
+**Files:**
+- Create: `frontend/app/international/brief/page.tsx`
+
+- [ ] **Step 1: Create brief directory and page file**
+
+Run:
+```bash
+mkdir -p /Users/rector/local-dev/openbudget-garuda-spark/frontend/app/international/brief
+```
+
+- [ ] **Step 2: Write print-optimized brief page**
+
+Create `/Users/rector/local-dev/openbudget-garuda-spark/frontend/app/international/brief/page.tsx`:
+
+```tsx
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function BriefPage() {
+  return (
+    <>
+      {/* Screen-only print instructions banner */}
+      <div className="print:hidden bg-blue-50 border-b border-blue-200 px-6 py-3 text-center text-sm text-blue-900">
+        <strong>📄 Print this brief:</strong> Press <kbd className="px-2 py-0.5 bg-white border border-blue-300 rounded font-mono text-xs">Cmd+P</kbd> (Mac) or <kbd className="px-2 py-0.5 bg-white border border-blue-300 rounded font-mono text-xs">Ctrl+P</kbd> (Win) → choose &ldquo;Save as PDF&rdquo;.
+        {' '}
+        <Link href="/international" className="underline hover:text-blue-700">← Back to full page</Link>
+      </div>
+
+      <main className="max-w-4xl mx-auto px-8 py-12 print:py-6 print:px-6 bg-white text-gray-900">
+        {/* Header */}
+        <header className="flex items-center justify-between border-b-2 border-gray-900 pb-4 mb-6">
+          <div className="flex items-center gap-3">
+            <Image src="/logo-icon.svg" alt="OpenBudget" width={48} height={48} />
+            <div>
+              <div className="text-2xl font-bold">OpenBudget</div>
+              <div className="text-sm text-gray-600">Institutional Brief</div>
+            </div>
+          </div>
+          <div className="text-right text-xs text-gray-600">
+            <div>openbudget.rectorspace.com</div>
+            <div>rector@rectorspace.com</div>
+          </div>
+        </header>
+
+        {/* Headline */}
+        <section className="mb-6">
+          <h1 className="text-3xl font-bold mb-2 leading-tight">
+            Public budget transparency, verified on Solana.
+          </h1>
+          <p className="text-base text-gray-700 italic">
+            Built and validated in Indonesia&apos;s national hackathon. Ready for any
+            institution that handles public money — including foreign aid.
+          </p>
+        </section>
+
+        {/* The Problem */}
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-blue-900 uppercase tracking-wide mb-2">The Problem</h2>
+          <p className="text-sm text-gray-800 leading-relaxed">
+            Wherever money flows through institutions — governments, NGOs, foundations,
+            foreign aid agencies — accountability lags reality. Quarterly PDF reports are
+            slow, easy to amend, and force donors and citizens to trust periodic summaries
+            rather than verify actual spending. The trust gap is structural, not technical.
+          </p>
+        </section>
+
+        {/* The Solution */}
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-blue-900 uppercase tracking-wide mb-2">The Solution</h2>
+          <p className="text-sm text-gray-800 leading-relaxed mb-3">
+            OpenBudget records every spending milestone as an immutable transaction on the
+            Solana blockchain. Citizens and donors verify the real transaction in real time,
+            without trusting any single party. A hybrid architecture pairs the on-chain ledger
+            (truth) with a fast PostgreSQL cache (browsing) — and the cache self-heals from
+            chain state if they ever drift.
+          </p>
+          <div className="text-xs bg-gray-50 border border-gray-200 rounded p-3 font-mono">
+            Institution → Registers project on-chain → Releases funds per milestone (signed, timestamped, proof-linked) → Anyone queries the chain directly
+          </div>
+        </section>
+
+        {/* The Proof */}
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-blue-900 uppercase tracking-wide mb-2">The Proof</h2>
+          <ul className="text-sm text-gray-800 space-y-1.5">
+            <li>✓ <strong>2nd Place</strong> — Garuda Spark Hackathon (Oct 2025), 1,500 USDC prize</li>
+            <li>✓ Organized by <strong>Superteam Indonesia</strong></li>
+            <li>✓ Endorsed by <strong>Indonesia&apos;s Ministry of Communication</strong> (Komdigi)</li>
+            <li>✓ Endorsed by <strong>Indonesia&apos;s Ministry of Creative Economy</strong> (Ekraf)</li>
+            <li>✓ <strong>Live, deployed system</strong>: openbudget.rectorspace.com</li>
+            <li>✓ Stack: Solana (Anchor) + Next.js 14 + PostgreSQL + Phantom/Solflare wallets</li>
+          </ul>
+        </section>
+
+        {/* The Next Level */}
+        <section className="mb-6">
+          <h2 className="text-lg font-bold text-blue-900 uppercase tracking-wide mb-2">The Next Level</h2>
+          <p className="text-sm text-gray-800 leading-relaxed">
+            OpenBudget&apos;s architecture is institution-agnostic. The same trust primitive
+            applies to <strong>national budgets, foundations, NGOs, religious institutions, and
+            university grants</strong>. The most powerful immediate fit is{' '}
+            <strong>foreign aid transparency</strong>: aid agencies sending billions across
+            borders today rely on recipient-country quarterly reports. With OpenBudget, every
+            dollar of aid becomes verifiable in real time, from agency to final ministry
+            spending — a tamper-proof complement to existing accountability frameworks.
+          </p>
+        </section>
+
+        {/* Contact */}
+        <section className="mt-8 pt-6 border-t-2 border-gray-900">
+          <div className="flex justify-between items-end">
+            <div>
+              <h2 className="text-base font-bold text-blue-900 uppercase tracking-wide mb-1">Get in touch</h2>
+              <p className="text-sm text-gray-800">
+                <a href="mailto:rector@rectorspace.com" className="text-blue-700 underline">
+                  rector@rectorspace.com
+                </a>
+                {' · '}
+                <a href="https://openbudget.rectorspace.com" className="text-blue-700 underline">
+                  openbudget.rectorspace.com
+                </a>
+              </p>
+            </div>
+            <div className="text-xs text-gray-500 text-right">
+              OpenBudget Institutional Brief<br />
+              Generated for international partnerships
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Print-only style adjustments */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 12mm 12mm 12mm 12mm;
+          }
+          html, body {
+            background: white;
+            font-size: 11pt;
+            color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+```
+
+- [ ] **Step 3: Visual verification — screen mode**
+
+Run from `frontend/` if dev server is stopped:
+```bash
+npm run dev
+```
+
+Open http://localhost:3000/international/brief. Expected:
+- Blue banner at top with print instructions and back link
+- Brief content rendering: header (logo + URL/email), headline, 5 content sections, footer with contact info
+
+- [ ] **Step 4: Visual verification — print preview**
+
+In the browser, press `Cmd+P` (Mac) or `Ctrl+P` (Win). Verify in print preview:
+- Blue instruction banner hidden
+- Content fits on **single A4 page** (if it overflows to page 2, body copy needs tightening — but the current draft is sized to fit)
+- Black-and-white friendly (no critical info conveyed by color alone)
+- Margins look clean (~12mm all sides)
+
+If overflow to page 2 occurs, trim 1-2 sentences from "The Problem" or "The Next Level" sections.
+
+- [ ] **Step 5: Build verification**
+
+Stop dev server. Run from `frontend/`:
+```bash
+npm run build
+```
+Expected: build succeeds, both `/international` and `/international/brief` routes listed.
+
+- [ ] **Step 6: Typecheck**
+
+Run: `npm run typecheck` → exits 0.
+
+- [ ] **Step 7: Commit both pages**
+
+Run from repo root:
+```bash
+git add frontend/app/international/page.tsx frontend/app/international/brief/page.tsx
+git commit -m "$(cat <<'EOF'
+feat: add /international landing page + print-optimized brief
+
+English pitch surface for international audiences (Henrik's network +
+potential Denmark government via DANIDA foreign-aid angle). Single-scroll
+6-section landing at /international with hero, trust gap, how it works,
+proof (hackathon + stack), use cases incl. foreign-aid spotlight, and
+email CTA. Print-optimized 1-page brief at /international/brief with
+@media print styles for Cmd+P → Save as PDF workflow.
+
+Reuses existing Header/Footer + brand palette. Spec:
+docs/superpowers/specs/2026-05-23-openbudget-vercel-plus-henrik-pitch-design.md
+EOF
+)"
+```
+
+- [ ] **Step 8: Deploy to production**
+
+Run from `frontend/`:
+```bash
+vercel --prod
+```
+Expected: production deployment URL printed. Build ~50-90s.
+
+- [ ] **Step 9: Smoke test deployed pages**
+
+Open in browser:
+- https://openbudget.rectorspace.com/international — full page renders, all sections present
+- https://openbudget.rectorspace.com/international/brief — brief renders, Cmd+P shows clean single-page A4
+
+If either fails, check Vercel deploy logs and fix before proceeding.
+
+---
+
+## Phase 3: Intro Templates + Handoff (Tasks 15-17)
+
+### Task 15: Create casual intro template
+
+**Files:**
+- Create: `docs/pitch/intro-template-casual.md`
+
+- [ ] **Step 1: Create docs/pitch/ directory**
+
+Run from repo root:
+```bash
+mkdir -p /Users/rector/local-dev/openbudget-garuda-spark/docs/pitch
+```
+
+- [ ] **Step 2: Write casual template**
+
+Create `/Users/rector/local-dev/openbudget-garuda-spark/docs/pitch/intro-template-casual.md`:
+
+```markdown
+# Casual Intro Template — for wellness, friend, foundation contacts
+
+**When to use:** When introducing OpenBudget to someone in your personal/wellness/friend network — informal contexts, social settings, low-pressure conversations.
+
+**Length:** ~60 words
+
+**Tone:** Conversational, warm, low-friction.
+
+---
+
+## Template (copy-paste ready)
+
+> Hey [Name], remember I told you about my friend Rector? He just won 2nd place at a big Indonesian government hackathon for a project that puts public spending on blockchain so citizens can verify how their tax money is actually used. It's already deployed and working. He's looking to take it international — would love your thoughts.
+>
+> Demo + brief: **openbudget.rectorspace.com/international**
+
+---
+
+## Variations
+
+**Even shorter (one-liner for chat):**
+> Check this out — my friend's transparency project that won at the Indonesian govt hackathon: openbudget.rectorspace.com/international
+
+**With a soft ask:**
+> [Template above] — anyone in your network who might be interested? No pressure either way.
+```
+
+- [ ] **Step 3: Verify file**
+
+Run:
+```bash
+cat /Users/rector/local-dev/openbudget-garuda-spark/docs/pitch/intro-template-casual.md | head -20
+```
+Expected: header and template content visible.
+
+- [ ] **Step 4: NO COMMIT YET** (commit all three templates together in Task 17)
+
+---
+
+### Task 16: Create formal intro template + email follow-up template
+
+**Files:**
+- Create: `docs/pitch/intro-template-formal.md`
+- Create: `docs/pitch/email-followup-template.md`
+
+- [ ] **Step 1: Write formal template**
+
+Create `/Users/rector/local-dev/openbudget-garuda-spark/docs/pitch/intro-template-formal.md`:
+
+```markdown
+# Formal Intro Template — for government, organization, professional contacts
+
+**When to use:** When introducing OpenBudget to a professional or government contact (e.g., Henrik's potential Denmark government connection, foundation officers, NGO leaders).
+
+**Length:** ~110 words
+
+**Tone:** Professional, credibility-forward, low-pressure.
+
+---
+
+## Template (copy-paste ready)
+
+> [Name] — I wanted to introduce you to a project I've been following. OpenBudget is a public-budget transparency platform built on Solana that recently won 2nd place at Indonesia's national Garuda Spark Hackathon, endorsed by the Ministry of Communication and the Ministry of Creative Economy. The team has deployed it for Indonesian government use, and they're now exploring international partnerships — particularly for foreign aid transparency, which I thought might resonate with your work.
+>
+> Live demo and brief: **openbudget.rectorspace.com/international**
+>
+> The founder is Rector (rector@rectorspace.com) — happy to make a warm intro if useful.
+
+---
+
+## Variations
+
+**For aid agency contacts (add DANIDA-style hook):**
+> [Template above] — Indonesia is already a major recipient of foreign aid, so they have a vested interest in proving recipient-side accountability. Could be relevant for any aid program where you want to verify last-mile spending.
+
+**For foundation / NGO contacts:**
+> [Template above] — the same primitive applies to donor-funded organizations: real-time spending verification for your funders, without quarterly reporting overhead.
+```
+
+- [ ] **Step 2: Write email follow-up template**
+
+Create `/Users/rector/local-dev/openbudget-garuda-spark/docs/pitch/email-followup-template.md`:
+
+```markdown
+# Email Follow-Up Template — for warm replies to intro
+
+**When to use:** When Henrik (or any introducer) gets a warm reply from a prospect and wants to escalate to email. Rector can send this directly after a warm intro lands in his inbox.
+
+**Length:** ~150 words
+
+**Tone:** Professional, brief, action-oriented.
+
+---
+
+## Subject line options
+
+- `OpenBudget — quick intro from [Henrik's name]`
+- `Following up on [Henrik's name]'s introduction — OpenBudget`
+- `[Henrik's name] suggested I reach out — OpenBudget`
+
+---
+
+## Email body (copy-paste ready)
+
+> Hi [Name],
+>
+> Thanks to [Henrik's name] for the introduction. Sharing a bit more on OpenBudget so you can decide if a conversation makes sense.
+>
+> **What it is:** A public-budget transparency platform that records every institutional spending milestone on the Solana blockchain. Donors, citizens, or auditors verify spending in real time, without trusting periodic reports.
+>
+> **What we've shipped:** Won 2nd place at Indonesia's national Garuda Spark Hackathon (Oct 2025), endorsed by two Indonesian ministries (Komdigi + Ekraf). System is live and operational at openbudget.rectorspace.com.
+>
+> **Why this might be relevant to you:** [Customize 1 sentence — e.g., "DANIDA's foreign aid transparency challenges line up directly with what OpenBudget solves"]
+>
+> Happy to set up a 20-minute call if useful. Otherwise the deck and brief at openbudget.rectorspace.com/international cover the essentials.
+>
+> Best,
+> Rector
+> rector@rectorspace.com | openbudget.rectorspace.com
+
+---
+
+## Customization checklist before sending
+
+- [ ] Replace `[Name]` with actual recipient name
+- [ ] Replace `[Henrik's name]` with whoever made the intro (or remove if cold reach-out)
+- [ ] Customize the "Why this might be relevant to you" sentence based on their org/role
+- [ ] Adjust meeting offer length (20 min default; can be 15 or 30)
+- [ ] Verify links work (especially `/international`)
+```
+
+- [ ] **Step 3: Verify both files**
+
+Run:
+```bash
+ls -la /Users/rector/local-dev/openbudget-garuda-spark/docs/pitch/
+```
+Expected: 3 markdown files (`intro-template-casual.md`, `intro-template-formal.md`, `email-followup-template.md`).
+
+- [ ] **Step 4: NO COMMIT YET** (commit all three templates in Task 17)
+
+---
+
+### Task 17: Commit templates + RECTOR handoff to Henrik
+
+**Files:**
+- Commit: `docs/pitch/intro-template-casual.md`, `docs/pitch/intro-template-formal.md`, `docs/pitch/email-followup-template.md`
+
+- [ ] **Step 1: Stage and commit the three templates**
+
+Run from repo root:
+```bash
+git add docs/pitch/intro-template-casual.md docs/pitch/intro-template-formal.md docs/pitch/email-followup-template.md
+git commit -m "$(cat <<'EOF'
+docs: add Henrik pitch intro templates (casual, formal, email follow-up)
+
+Three ready-to-share templates for OpenBudget introduction:
+- Casual (~60 words): wellness/friend/foundation contacts via WhatsApp
+- Formal (~110 words): government/organization/professional contacts
+- Email follow-up (~150 words): warm-reply escalation after intros land
+
+Templates link to /international landing page; tone calibrated for the
+"hackathon-validated, ready for international institutions" positioning
+from the design spec.
+EOF
+)"
+```
+
+- [ ] **Step 2: Verify clean working tree**
+
+Run:
+```bash
+git status
+```
+Expected: clean working tree, recent commits include both `feat: add /international landing page + print-optimized brief` and `docs: add Henrik pitch intro templates`.
+
+- [ ] **Step 3: Final production smoke test (one more time)**
+
+Open in browser:
+- https://openbudget.rectorspace.com (homepage)
+- https://openbudget.rectorspace.com/international (English landing)
+- https://openbudget.rectorspace.com/international/brief (print brief — try Cmd+P)
+
+All three should load cleanly. If any errors, debug before handoff.
+
+- [ ] **Step 4: RECTOR sends WhatsApp messages to Henrik**
+
+RECTOR action — not automatable. Send Henrik this 3-message sequence on WhatsApp (or his preferred channel):
+
+**Message 1:**
+```
+Hey Henrik! Thanks again for being open to spreading the word
+about OpenBudget. Put together a quick package for you so you can
+look at it whenever, and easily share if you meet the right person.
+```
+
+**Message 2:**
+```
+🔗 Live demo: openbudget.rectorspace.com
+🌍 What it's about (English): openbudget.rectorspace.com/international
+📄 1-page brief (open + Cmd+P → Save as PDF):
+   openbudget.rectorspace.com/international/brief
+```
+
+**Message 3** (paste content of `docs/pitch/intro-template-casual.md` "Template (copy-paste ready)" section + `docs/pitch/intro-template-formal.md` "Template (copy-paste ready)" section):
+```
+When you meet someone who might be interested, here are two
+ready-to-copy intros depending on who you're talking to:
+
+Casual (friends/wellness folks):
+[paste content of intro-template-casual.md template]
+
+Formal (gov/org folks — like that Denmark gov connection):
+[paste content of intro-template-formal.md template]
+
+Take your time going through it. Any questions or confusing
+parts, please tell me — I'll improve the materials based on
+your feedback. JazakAllahu khairan, brother 🙏
+```
+
+- [ ] **Step 5: Document Henrik's reply (when it arrives)**
+
+When Henrik responds (any timeframe), capture feedback for v2 iteration. Save to a new file or update this plan with observations. Use the feedback-loop response table from the spec (§7) to decide RECTOR's next move:
+
+- Enthusiastic → ask Henrik to name 1-2 specific prospects
+- Lukewarm → ask what was unclear, refine materials
+- Silent for a week → soft follow-up
+- Asks gov intro → pivot to Denmark-specific artifact (out of scope for this plan; new plan needed)
+
+---
+
+## Success criteria
+
+All of the following true after Task 17 completes:
+
+- [ ] `openbudget.rectorspace.com` returns HTTP 200 with valid SSL
+- [ ] `openbudget.rectorspace.com/international` renders all 6 sections without console errors
+- [ ] `openbudget.rectorspace.com/international/brief` prints cleanly to single A4 page
+- [ ] Admin Google OAuth login works on production domain
+- [ ] All env vars present in Vercel (`vercel env ls` shows 7+ vars)
+- [ ] Vercel scope is `rectors-projects` (verify via `vercel project ls`)
+- [ ] Cloudflare CNAME is on RECTOR personal account (verify via dashboard)
+- [ ] Three markdown templates exist under `docs/pitch/`
+- [ ] Two git commits added to `main`: one for landing pages, one for templates
+- [ ] RECTOR has sent the WhatsApp briefing to Henrik
+
+---
+
+## Post-completion (out of scope, but track)
+
+- Update `CLAUDE.md` deployment section to reflect Vercel + Neon (away from VPS/Docker) — separate task, not blocking
+- Consider VPS decommission (no urgency — dormant, costs nothing extra)
+- Wait for Henrik feedback, iterate materials
+- If Denmark gov contact materializes — trigger a new plan for DANIDA-specific landing variant
