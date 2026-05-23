@@ -40,3 +40,4 @@ next-env.d.ts
 /public/uploads/proofs/*
 !/public/uploads/proofs/.gitkeep
 .kamal/secrets
+.env.vercel*
