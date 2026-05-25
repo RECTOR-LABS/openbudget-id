@@ -24,5 +24,393 @@
     },
     "copyright": "© {year} OpenBudget.ID - Garuda Spark Hackathon",
     "builtWith": "Built with Solana, Next.js, and Indonesian pride 🇮🇩"
+  },
+  "home": {
+    "hero": {
+      "headline": "Government Budget Transparency,\nAt Your Fingertips",
+      "headlineHighlight": "At Your Fingertips",
+      "subhead": "Track every rupiah of public spending in real time.\nBlockchain technology ensures every transaction is permanently recorded and cannot be altered.",
+      "exploreButton": "Explore Projects",
+      "learnButton": "Learn How It Works"
+    },
+    "problem": {
+      "title": "Why Do We Need Transparency?",
+      "subtitle": "Without transparency, it is difficult to ensure public funds are managed properly",
+      "cards": [
+        {
+          "icon": "🕵️",
+          "title": "Hard to Monitor",
+          "description": "Citizens do not know where their tax money goes. Budget data is difficult to access and understand.",
+          "stat": "72%",
+          "statLabel": "of citizens distrust national budget management"
+        },
+        {
+          "icon": "✏️",
+          "title": "Vulnerable to Manipulation",
+          "description": "Data in legacy systems can be altered without a trace. Reports can be falsified and revised at will.",
+          "stat": "Rp 182 T",
+          "statLabel": "State losses due to corruption (2015–2023)"
+        },
+        {
+          "icon": "⏰",
+          "title": "Delayed Audits",
+          "description": "Problems are only discovered months later — too late to prevent financial losses.",
+          "stat": "6–12 months",
+          "statLabel": "Average audit turnaround"
+        }
+      ]
+    },
+    "solution": {
+      "title": "The Solution: Blockchain for Transparency",
+      "subtitle": "Blockchain technology acts like a {notary} that no one can erase or alter",
+      "notaryText": "permanent digital notary stamp",
+      "pillars": [
+        {
+          "icon": "🔒",
+          "title": "Immutable",
+          "subtitle": "(Immutable)",
+          "description": "Every recorded transaction cannot be edited, deleted, or manipulated. Like writing carved in stone.",
+          "analogy": "Like a notary stamp that cannot be erased"
+        },
+        {
+          "icon": "🔍",
+          "title": "Verifiable by Anyone",
+          "subtitle": "(Transparent)",
+          "description": "Anyone can inspect the raw data on the blockchain. No need to trust a single party — the data can be checked independently.",
+          "analogy": "Like a cash ledger visible to everyone"
+        },
+        {
+          "icon": "⚡",
+          "title": "Real-Time",
+          "subtitle": "(Instant)",
+          "description": "Data is updated immediately when a transaction occurs. No waiting for end-of-month reports or annual audits.",
+          "analogy": "Like an instant bank notification"
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "How It Works (For Citizens)",
+      "subtitle": "Just 4 simple steps to monitor public spending",
+      "steps": [
+        {
+          "step": "1",
+          "title": "Open the Site & Search for a Project",
+          "description": "No login required. Search directly for projects you want to monitor by ministry or keyword.",
+          "icon": "🔍"
+        },
+        {
+          "step": "2",
+          "title": "View Budget Details",
+          "description": "See the total budget, how much has been released, and what each milestone covers.",
+          "icon": "📊"
+        },
+        {
+          "step": "3",
+          "title": "Verify on the Blockchain",
+          "description": "Click \"View on Blockchain\" to confirm that the displayed data matches what is recorded on Solana.",
+          "icon": "🔗"
+        },
+        {
+          "step": "4",
+          "title": "Track Progress & Leave a Rating",
+          "description": "Follow a project, leave comments, or report anything suspicious. Your trust score helps other citizens.",
+          "icon": "⭐"
+        }
+      ]
+    },
+    "featured": {
+      "title": "Latest Projects",
+      "subtitle": "Browse active budget projects that have been verified on the blockchain",
+      "loading": "Loading projects...",
+      "totalLabel": "Total",
+      "releasedLabel": "Released",
+      "createdLabel": "Created",
+      "viewAllButton": "View All Projects →"
+    },
+    "trust": {
+      "title": "Secure & Trustworthy",
+      "description": "Every transaction is permanently recorded on the Solana blockchain — the same technology used by global crypto companies.",
+      "bulletPoints": [
+        "Data cannot be deleted or altered",
+        "Verification is open to everyone",
+        "No party can manipulate the records",
+        "Automated, real-time auditing"
+      ],
+      "blockchainLabel": "Blockchain Verification",
+      "blockchainSubtext": "Every transaction has a unique ID you can check on Solana Explorer",
+      "liveLabel": "LIVE ON BLOCKCHAIN",
+      "txLabel": "TX",
+      "blockLabel": "Block",
+      "statusLabel": "Status",
+      "confirmedLabel": "Confirmed"
+    },
+    "cta": {
+      "title": "Let's Build a More Transparent Indonesia",
+      "subtitle": "Every citizen has the right to know where their tax money goes.\nStart monitoring public spending today!",
+      "exploreButton": "Explore All Projects",
+      "analyticsButton": "View Analytics",
+      "verifyButton": "Verify on Blockchain",
+      "builtFor": "Built for Garuda Spark 2025 🇮🇩",
+      "tagline": "Transparency for a Better Indonesia"
+    },
+    "internationalLink": "For international partners →"
+  },
+  "projects": {
+    "list": {
+      "breadcrumbHome": "Home",
+      "breadcrumbProjects": "Projects",
+      "title": "All Budget Projects",
+      "verifiedBadge": "Verified on Blockchain",
+      "subtitle": "Explore government budget transparency recorded permanently on the Solana blockchain. Every project is verifiable and tamper-proof.",
+      "statsProjects": "Total Projects",
+      "statsMinistries": "Ministries",
+      "searchLabel": "Search Projects",
+      "searchPlaceholder": "Search by project name or ministry...",
+      "ministryFilterLabel": "Ministry Filter",
+      "allMinistries": "All Ministries",
+      "showing": "Showing {count} projects",
+      "showingFiltered": "Showing {count} projects (filtered)",
+      "resetFilter": "Reset Filter",
+      "emptyTitle": "No projects found",
+      "emptySubtext": "Try adjusting your search or filter",
+      "emptyResetButton": "Reset Search"
+    },
+    "card": {
+      "totalBudget": "Total Budget:",
+      "released": "Released:",
+      "progress": "Progress",
+      "verified": "Verified",
+      "viewDetails": "View Details",
+      "created": "Created"
+    },
+    "detail": {
+      "breadcrumbHome": "Home",
+      "breadcrumbProjects": "Projects",
+      "breadcrumbDetail": "Detail",
+      "notFoundTitle": "Project Not Found",
+      "notFoundMessage": "The project you are looking for does not exist",
+      "loadingMessage": "Loading project...",
+      "totalBudget": "Total Budget",
+      "realized": "Realised",
+      "achieved": "achieved",
+      "budgetSummaryTitle": "Budget Summary",
+      "totalBudgetCard": "Total Budget",
+      "totalReleasedCard": "Amount Released",
+      "progressCard": "Progress",
+      "progressLabel": "Budget Realisation",
+      "progressSuffix": "of total",
+      "verifiedTitle": "Verified on Blockchain",
+      "verifiedDesc": "This project is permanently recorded on the Solana blockchain",
+      "verifyExplorer": "Verify on Solana Explorer",
+      "milestonesTitle": "Realisation Milestones",
+      "milestoneLabel": "Milestone",
+      "releasedBadge": "Released",
+      "pendingBadge": "Pending",
+      "amountLabel": "Amount",
+      "releasedOnLabel": "Released on",
+      "verifyTx": "Verify Transaction",
+      "viewProof": "View Proof Document",
+      "noMilestones": "No milestones for this project yet",
+      "backToHome": "Back to Home"
+    }
+  },
+  "engagement": {
+    "comments": {
+      "title": "Questions & Comments",
+      "formTitle": "Ask a Question",
+      "nameLabel": "Your Name",
+      "namePlaceholder": "Full name",
+      "emailLabel": "Your Email",
+      "emailPlaceholder": "email@example.com",
+      "contentLabel": "Comment or Question",
+      "contentPlaceholder": "Write your question or comment...",
+      "characterCount": "{count}/1000 characters",
+      "submitButton": "Submit Comment",
+      "submitting": "Submitting...",
+      "listTitle": "{count} Comments",
+      "loading": "Loading comments...",
+      "empty": "No comments yet. Be the first to ask!",
+      "ministryResponse": "Official Response",
+      "replies": "{count} replies",
+      "allFieldsRequired": "All fields are required",
+      "tooLong": "Comment must not exceed 1000 characters",
+      "submitError": "Failed to submit comment",
+      "networkError": "An error occurred while submitting your comment",
+      "submitSuccess": "Comment submitted successfully!"
+    },
+    "ratings": {
+      "title": "Community Trust Score",
+      "from": "From {count} {suffix}",
+      "ratingSuffix": "rating",
+      "ratingsSuffix": "ratings",
+      "rateButton": "Rate This Project",
+      "formTitle": "Leave Your Rating",
+      "nameLabel": "Your Name",
+      "emailLabel": "Your Email",
+      "starsLabel": "Rating (1–5 stars)",
+      "starsSuffix": "{count} stars",
+      "starsPlaceholder": "Select a rating",
+      "commentLabel": "Comment (optional)",
+      "commentPlaceholder": "Tell us about your experience...",
+      "characterCount": "{count}/500 characters",
+      "submitButton": "Submit Rating",
+      "submitting": "Submitting...",
+      "cancelButton": "Cancel",
+      "requiredError": "Name, email, and rating are required",
+      "submitError": "Failed to submit rating",
+      "networkError": "An error occurred while submitting your rating",
+      "submitSuccess": "Rating submitted successfully!"
+    },
+    "watchlist": {
+      "subscribeButton": "Follow This Project",
+      "modal": {
+        "title": "Follow Project",
+        "subtitle": "Receive email notifications when there are updates to:",
+        "nameLabel": "Your Name",
+        "namePlaceholder": "Full name",
+        "emailLabel": "Your Email",
+        "emailPlaceholder": "email@example.com",
+        "frequencyLabel": "Notification Frequency",
+        "submitButton": "Follow Project",
+        "submitting": "Saving...",
+        "cancelButton": "Cancel"
+      },
+      "frequency": {
+        "instant": "Immediate (every update)",
+        "daily": "Daily (daily digest)",
+        "weekly": "Weekly (weekly digest)"
+      },
+      "requiredError": "Name and email are required",
+      "submitError": "Failed to add to watchlist",
+      "networkError": "An error occurred while adding to watchlist",
+      "submitSuccess": "Successfully added to watchlist! You will receive email notifications."
+    },
+    "issues": {
+      "reportButton": "Report an Issue",
+      "modal": {
+        "title": "Report Suspicious Issue",
+        "projectLabel": "Project",
+        "milestoneLabel": "Milestone",
+        "nameLabel": "Your Name",
+        "namePlaceholder": "Full name",
+        "emailLabel": "Your Email",
+        "emailPlaceholder": "email@example.com",
+        "typeLabel": "Issue Type",
+        "types": {
+          "budget_mismatch": "Budget Discrepancy",
+          "missing_proof": "Missing Proof Document",
+          "delayed_release": "Delayed Fund Release",
+          "fraudulent_claim": "Suspected Fraudulent Claim",
+          "other": "Other"
+        },
+        "severityLabel": "Severity",
+        "severity": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High",
+          "critical": "Critical"
+        },
+        "titleLabel": "Issue Title",
+        "titlePlaceholder": "Brief summary of the problem",
+        "descriptionLabel": "Detailed Description",
+        "descriptionPlaceholder": "Describe in detail what you found to be suspicious...",
+        "characterCount": "{count}/2000 characters",
+        "submitButton": "Report Issue",
+        "submitting": "Submitting...",
+        "cancelButton": "Cancel"
+      },
+      "allFieldsRequired": "All fields are required",
+      "descriptionLength": "Description must be between 10 and 2000 characters",
+      "submitError": "Failed to report issue",
+      "networkError": "An error occurred while reporting the issue",
+      "submitSuccess": "Issue reported successfully! Our team will follow up promptly."
+    }
+  },
+  "analytics": {
+    "breadcrumbHome": "Home",
+    "title": "Analytics & Intelligence Dashboard",
+    "subtitle": "Deep insights from government budget transparency data",
+    "statsMinistries": "Total Ministries",
+    "statsAnomalies": "Anomalies Detected",
+    "loading": "Loading analytics...",
+    "leaderboard": {
+      "title": "Project Performance Leaderboard",
+      "sortLabel": "Sort by",
+      "columns": {
+        "rank": "Rank",
+        "project": "Project",
+        "ministry": "Ministry",
+        "completion": "Completion",
+        "budgetAccuracy": "Budget Accuracy",
+        "trustScore": "Trust Score",
+        "overallScore": "Overall Score"
+      },
+      "sortOptions": {
+        "overall_score": "Overall Score",
+        "completion_rate": "Completion Rate",
+        "budget_accuracy": "Budget Accuracy",
+        "avg_trust_score": "Trust Score"
+      }
+    },
+    "trends": {
+      "title": "Spending Trends",
+      "chartBudget": "Total Budget",
+      "chartReleased": "Total Released"
+    },
+    "anomalies": {
+      "title": "Anomaly Detection",
+      "countLabel": "{count} detected",
+      "subtitle": "Suspicious spending patterns detected automatically by the system",
+      "empty": "No anomalies detected",
+      "budgetLabel": "Budget",
+      "releaseRateLabel": "Release Rate"
+    }
+  },
+  "apiDocs": {
+    "title": "API Documentation",
+    "subtitle": "Complete OpenBudget.ID REST API reference",
+    "baseUrlLabel": "Base URL",
+    "versionLabel": "Version",
+    "formatLabel": "Format",
+    "auth": {
+      "title": "Authentication",
+      "sessionTitle": "Session-Based (Admin)",
+      "sessionDesc": "Ministry officials log in with Google OAuth. Session cookies are automatically included in requests.",
+      "walletTitle": "Wallet Signature (Blockchain)",
+      "walletDesc": "For blockchain operations, transactions must be signed with a connected Solana wallet (Phantom/Solflare)."
+    },
+    "filter": {
+      "allLabel": "All Endpoints"
+    },
+    "endpoint": {
+      "requestBodyTitle": "Request Body",
+      "fieldColumn": "Field",
+      "typeColumn": "Type",
+      "requiredColumn": "Required",
+      "descriptionColumn": "Description",
+      "requiredYes": "Yes",
+      "requiredNo": "No",
+      "exampleRequestTitle": "Example Request",
+      "exampleResponseTitle": "Example Response (200 OK)"
+    },
+    "errors": {
+      "title": "Error Handling",
+      "formatTitle": "Error Response Format:"
+    },
+    "rateLimiting": {
+      "title": "Rate Limiting & Best Practices",
+      "limitsTitle": "Rate Limits",
+      "limits": [
+        "Public endpoints: 100 requests/minute",
+        "Authenticated: 300 requests/minute",
+        "Blockchain operations: 10 transactions/minute"
+      ],
+      "practicesTitle": "Best Practices",
+      "practices": [
+        "Cache responses when possible",
+        "Use pagination for large datasets",
+        "Handle errors gracefully with retries"
+      ]
+    }
   }
 }

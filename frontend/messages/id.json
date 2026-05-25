@@ -24,5 +24,393 @@
     },
     "copyright": "© {year} OpenBudget.ID - Garuda Spark Hackathon",
     "builtWith": "Dibuat dengan Solana, Next.js, dan kebanggaan Indonesia 🇮🇩"
+  },
+  "home": {
+    "hero": {
+      "headline": "Transparansi Anggaran Negara,\nDi Ujung Jari Anda",
+      "headlineHighlight": "Di Ujung Jari Anda",
+      "subhead": "Lihat setiap rupiah anggaran pemerintah secara real-time.\nTeknologi blockchain memastikan setiap transaksi tercatat permanen dan tidak bisa diubah.",
+      "exploreButton": "Jelajahi Proyek",
+      "learnButton": "Pelajari Cara Kerja"
+    },
+    "problem": {
+      "title": "Mengapa Kita Butuh Transparansi?",
+      "subtitle": "Tanpa transparansi, sulit untuk memastikan anggaran negara digunakan dengan benar",
+      "cards": [
+        {
+          "icon": "🕵️",
+          "title": "Sulit Dipantau",
+          "description": "Masyarakat tidak tahu kemana uang pajak mereka pergi. Data anggaran sulit diakses dan dipahami.",
+          "stat": "72%",
+          "statLabel": "Warga tidak percaya pengelolaan APBN"
+        },
+        {
+          "icon": "✏️",
+          "title": "Bisa Dimanipulasi",
+          "description": "Data di sistem lama bisa diubah tanpa jejak. Laporan bisa dipalsukan dan direvisi sesuka hati.",
+          "stat": "Rp 182 T",
+          "statLabel": "Kerugian negara akibat korupsi (2015-2023)"
+        },
+        {
+          "icon": "⏰",
+          "title": "Audit Terlambat",
+          "description": "Masalah baru ketahuan setelah berbulan-bulan. Terlambat untuk mencegah kerugian negara.",
+          "stat": "6-12 bulan",
+          "statLabel": "Waktu audit rata-rata"
+        }
+      ]
+    },
+    "solution": {
+      "title": "Solusi: Blockchain untuk Transparansi",
+      "subtitle": "Teknologi blockchain seperti {notary} yang tidak bisa dihapus atau diubah siapa pun",
+      "notaryText": "cap notaris digital",
+      "pillars": [
+        {
+          "icon": "🔒",
+          "title": "Tidak Bisa Diubah",
+          "subtitle": "(Immutable)",
+          "description": "Setiap transaksi yang sudah tercatat tidak bisa diedit, dihapus, atau dimanipulasi. Seperti tulisan di batu yang permanen.",
+          "analogy": "Seperti cap notaris yang tidak bisa dihapus"
+        },
+        {
+          "icon": "🔍",
+          "title": "Bisa Diverifikasi Siapa Saja",
+          "subtitle": "(Transparent)",
+          "description": "Setiap orang bisa memeriksa data asli di blockchain. Tidak perlu percaya pada satu pihak, data bisa dicek sendiri.",
+          "analogy": "Seperti buku kas yang bisa dilihat semua orang"
+        },
+        {
+          "icon": "⚡",
+          "title": "Real-Time",
+          "subtitle": "(Instant)",
+          "description": "Data diperbarui langsung saat transaksi terjadi. Tidak perlu menunggu laporan akhir bulan atau audit tahunan.",
+          "analogy": "Seperti notifikasi bank yang langsung masuk"
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "Cara Kerja (Untuk Warga)",
+      "subtitle": "Hanya 4 langkah sederhana untuk memantau anggaran negara",
+      "steps": [
+        {
+          "step": "1",
+          "title": "Buka Website & Cari Proyek",
+          "description": "Tidak perlu login. Langsung cari proyek yang ingin dipantau berdasarkan kementerian atau kata kunci.",
+          "icon": "🔍"
+        },
+        {
+          "step": "2",
+          "title": "Lihat Detail Anggaran",
+          "description": "Lihat berapa total anggaran, sudah berapa yang dicairkan, dan untuk apa saja milestone-nya.",
+          "icon": "📊"
+        },
+        {
+          "step": "3",
+          "title": "Verifikasi di Blockchain",
+          "description": "Klik link \"Lihat di Blockchain\" untuk memastikan data yang ditampilkan sama dengan yang tercatat di blockchain Solana.",
+          "icon": "🔗"
+        },
+        {
+          "step": "4",
+          "title": "Pantau Progress & Beri Rating",
+          "description": "Ikuti proyek, beri komentar, atau laporkan jika ada yang mencurigakan. Trust score Anda membantu warga lain.",
+          "icon": "⭐"
+        }
+      ]
+    },
+    "featured": {
+      "title": "Proyek Terbaru",
+      "subtitle": "Lihat proyek anggaran yang sedang berjalan dan sudah diverifikasi di blockchain",
+      "loading": "Memuat proyek...",
+      "totalLabel": "Total:",
+      "releasedLabel": "Dicairkan:",
+      "createdLabel": "Dibuat:",
+      "viewAllButton": "Lihat Semua Proyek →"
+    },
+    "trust": {
+      "title": "Aman & Terpercaya",
+      "description": "Setiap transaksi tercatat permanen di blockchain Solana — teknologi yang sama dengan yang dipakai perusahaan crypto global.",
+      "bulletPoints": [
+        "Data tidak bisa dihapus atau diubah",
+        "Verifikasi bisa dilakukan siapa saja",
+        "Tidak ada pihak yang bisa manipulasi",
+        "Audit otomatis dan real-time"
+      ],
+      "blockchainLabel": "Blockchain Verification",
+      "blockchainSubtext": "Setiap transaksi memiliki ID unik yang bisa Anda cek di Solana Explorer",
+      "liveLabel": "LIVE ON BLOCKCHAIN",
+      "txLabel": "TX",
+      "blockLabel": "Block",
+      "statusLabel": "Status",
+      "confirmedLabel": "Confirmed"
+    },
+    "cta": {
+      "title": "Mari Wujudkan Indonesia yang Lebih Transparan",
+      "subtitle": "Setiap warga negara berhak tahu kemana uang pajak mereka pergi.\nMulai pantau anggaran negara hari ini!",
+      "exploreButton": "Jelajahi Semua Proyek",
+      "analyticsButton": "Lihat Analitik",
+      "verifyButton": "Verifikasi di Blockchain",
+      "builtFor": "Built for Garuda Spark 2025 🇮🇩",
+      "tagline": "Transparansi untuk Indonesia yang Lebih Baik"
+    },
+    "internationalLink": "Untuk mitra internasional →"
+  },
+  "projects": {
+    "list": {
+      "breadcrumbHome": "Beranda",
+      "breadcrumbProjects": "Proyek",
+      "title": "Semua Proyek Anggaran",
+      "verifiedBadge": "Verified on Blockchain",
+      "subtitle": "Jelajahi transparansi anggaran negara yang tercatat secara permanen di blockchain Solana. Setiap proyek dapat diverifikasi dan tidak dapat dimanipulasi.",
+      "statsProjects": "Total Proyek",
+      "statsMinistries": "Kementerian",
+      "searchLabel": "Cari Proyek",
+      "searchPlaceholder": "Cari berdasarkan nama proyek atau kementerian...",
+      "ministryFilterLabel": "Filter Kementerian",
+      "allMinistries": "Semua Kementerian",
+      "showing": "Menampilkan {count} proyek",
+      "showingFiltered": "Menampilkan {count} proyek (terfilter)",
+      "resetFilter": "Reset Filter",
+      "emptyTitle": "Tidak ada proyek ditemukan",
+      "emptySubtext": "Coba ubah kata kunci pencarian atau filter yang Anda gunakan",
+      "emptyResetButton": "Reset Pencarian"
+    },
+    "card": {
+      "totalBudget": "Total Anggaran:",
+      "released": "Telah Direalisasikan:",
+      "progress": "Progress",
+      "verified": "Verified",
+      "viewDetails": "Lihat Detail",
+      "created": "Dibuat"
+    },
+    "detail": {
+      "breadcrumbHome": "Beranda",
+      "breadcrumbProjects": "Proyek",
+      "breadcrumbDetail": "Detail",
+      "notFoundTitle": "Proyek Tidak Ditemukan",
+      "notFoundMessage": "Proyek yang Anda cari tidak ada",
+      "loadingMessage": "Memuat proyek...",
+      "totalBudget": "Total Anggaran",
+      "realized": "Direalisasikan",
+      "achieved": "tercapai",
+      "budgetSummaryTitle": "Ringkasan Anggaran",
+      "totalBudgetCard": "Total Anggaran",
+      "totalReleasedCard": "Telah Direalisasikan",
+      "progressCard": "Progress",
+      "progressLabel": "Realisasi Anggaran",
+      "progressSuffix": "dari total",
+      "verifiedTitle": "Terverifikasi di Blockchain",
+      "verifiedDesc": "Proyek ini tercatat secara permanen di Solana blockchain",
+      "verifyExplorer": "Verifikasi di Solana Explorer",
+      "milestonesTitle": "Milestone Realisasi",
+      "milestoneLabel": "Milestone",
+      "releasedBadge": "Direalisasikan",
+      "pendingBadge": "Pending",
+      "amountLabel": "Jumlah",
+      "releasedOnLabel": "Direalisasikan pada",
+      "verifyTx": "Verifikasi Transaksi",
+      "viewProof": "Lihat Dokumen Bukti",
+      "noMilestones": "Belum ada milestone untuk proyek ini",
+      "backToHome": "Kembali ke Beranda"
+    }
+  },
+  "engagement": {
+    "comments": {
+      "title": "Pertanyaan & Komentar",
+      "formTitle": "Ajukan Pertanyaan",
+      "nameLabel": "Nama Anda",
+      "namePlaceholder": "Nama lengkap",
+      "emailLabel": "Email Anda",
+      "emailPlaceholder": "email@example.com",
+      "contentLabel": "Komentar atau Pertanyaan",
+      "contentPlaceholder": "Tulis pertanyaan atau komentar Anda...",
+      "characterCount": "{count}/1000 karakter",
+      "submitButton": "Kirim Komentar",
+      "submitting": "Mengirim...",
+      "listTitle": "{count} Komentar",
+      "loading": "Memuat komentar...",
+      "empty": "Belum ada komentar. Jadilah yang pertama bertanya!",
+      "ministryResponse": "Respons Resmi",
+      "replies": "{count} balasan",
+      "allFieldsRequired": "Semua field harus diisi",
+      "tooLong": "Komentar maksimal 1000 karakter",
+      "submitError": "Gagal mengirim komentar",
+      "networkError": "Terjadi kesalahan saat mengirim komentar",
+      "submitSuccess": "Komentar berhasil dikirim!"
+    },
+    "ratings": {
+      "title": "Skor Kepercayaan Komunitas",
+      "from": "Dari {count} {suffix}",
+      "ratingSuffix": "rating",
+      "ratingsSuffix": "ratings",
+      "rateButton": "Berikan Rating untuk Proyek Ini",
+      "formTitle": "Berikan Rating Anda",
+      "nameLabel": "Nama Anda",
+      "emailLabel": "Email Anda",
+      "starsLabel": "Rating (1-5 bintang)",
+      "starsSuffix": "{count} bintang",
+      "starsPlaceholder": "Pilih rating",
+      "commentLabel": "Komentar (opsional)",
+      "commentPlaceholder": "Ceritakan pengalaman Anda...",
+      "characterCount": "{count}/500 karakter",
+      "submitButton": "Kirim Rating",
+      "submitting": "Mengirim...",
+      "cancelButton": "Batal",
+      "requiredError": "Nama, email, dan rating harus diisi",
+      "submitError": "Gagal mengirim rating",
+      "networkError": "Terjadi kesalahan saat mengirim rating",
+      "submitSuccess": "Rating berhasil dikirim!"
+    },
+    "watchlist": {
+      "subscribeButton": "Ikuti Proyek Ini",
+      "modal": {
+        "title": "Ikuti Proyek",
+        "subtitle": "Dapatkan notifikasi email saat ada update pada proyek:",
+        "nameLabel": "Nama Anda",
+        "namePlaceholder": "Nama lengkap",
+        "emailLabel": "Email Anda",
+        "emailPlaceholder": "email@example.com",
+        "frequencyLabel": "Frekuensi Notifikasi",
+        "submitButton": "Ikuti Proyek",
+        "submitting": "Menyimpan...",
+        "cancelButton": "Batal"
+      },
+      "frequency": {
+        "instant": "Segera (setiap update)",
+        "daily": "Harian (ringkasan harian)",
+        "weekly": "Mingguan (ringkasan mingguan)"
+      },
+      "requiredError": "Nama dan email harus diisi",
+      "submitError": "Gagal menambahkan ke watchlist",
+      "networkError": "Terjadi kesalahan saat menambahkan ke watchlist",
+      "submitSuccess": "Berhasil ditambahkan ke watchlist! Anda akan menerima notifikasi email."
+    },
+    "issues": {
+      "reportButton": "Laporkan Isu",
+      "modal": {
+        "title": "Laporkan Isu Mencurigakan",
+        "projectLabel": "Proyek",
+        "milestoneLabel": "Milestone",
+        "nameLabel": "Nama Anda",
+        "namePlaceholder": "Nama lengkap",
+        "emailLabel": "Email Anda",
+        "emailPlaceholder": "email@example.com",
+        "typeLabel": "Jenis Isu",
+        "types": {
+          "budget_mismatch": "Ketidaksesuaian Anggaran",
+          "missing_proof": "Dokumen Bukti Hilang",
+          "delayed_release": "Keterlambatan Pencairan",
+          "fraudulent_claim": "Dugaan Klaim Palsu",
+          "other": "Lainnya"
+        },
+        "severityLabel": "Tingkat Keparahan",
+        "severity": {
+          "low": "Rendah",
+          "medium": "Sedang",
+          "high": "Tinggi",
+          "critical": "Kritis"
+        },
+        "titleLabel": "Judul Isu",
+        "titlePlaceholder": "Ringkasan singkat masalah",
+        "descriptionLabel": "Deskripsi Detail",
+        "descriptionPlaceholder": "Jelaskan secara detail apa yang Anda temukan mencurigakan...",
+        "characterCount": "{count}/2000 karakter",
+        "submitButton": "Laporkan Isu",
+        "submitting": "Mengirim...",
+        "cancelButton": "Batal"
+      },
+      "allFieldsRequired": "Semua field harus diisi",
+      "descriptionLength": "Deskripsi harus antara 10-2000 karakter",
+      "submitError": "Gagal melaporkan isu",
+      "networkError": "Terjadi kesalahan saat melaporkan isu",
+      "submitSuccess": "Isu berhasil dilaporkan! Tim kami akan menindaklanjuti segera."
+    }
+  },
+  "analytics": {
+    "breadcrumbHome": "Beranda",
+    "title": "Analytics & Intelligence Dashboard",
+    "subtitle": "Insights mendalam dari data transparansi anggaran pemerintah",
+    "statsMinistries": "Total Kementerian",
+    "statsAnomalies": "Anomali Terdeteksi",
+    "loading": "Memuat analytics...",
+    "leaderboard": {
+      "title": "Project Performance Leaderboard",
+      "sortLabel": "Urutkan berdasarkan",
+      "columns": {
+        "rank": "Rank",
+        "project": "Project",
+        "ministry": "Ministry",
+        "completion": "Completion",
+        "budgetAccuracy": "Budget Accuracy",
+        "trustScore": "Trust Score",
+        "overallScore": "Overall Score"
+      },
+      "sortOptions": {
+        "overall_score": "Overall Score",
+        "completion_rate": "Completion Rate",
+        "budget_accuracy": "Budget Accuracy",
+        "avg_trust_score": "Trust Score"
+      }
+    },
+    "trends": {
+      "title": "Spending Trends",
+      "chartBudget": "Total Budget",
+      "chartReleased": "Total Released"
+    },
+    "anomalies": {
+      "title": "Anomaly Detection",
+      "countLabel": "{count} terdeteksi",
+      "subtitle": "Pola pengeluaran yang mencurigakan terdeteksi otomatis oleh sistem",
+      "empty": "Tidak ada anomali terdeteksi",
+      "budgetLabel": "Budget",
+      "releaseRateLabel": "Release Rate"
+    }
+  },
+  "apiDocs": {
+    "title": "API Documentation",
+    "subtitle": "Dokumentasi lengkap OpenBudget.ID REST API",
+    "baseUrlLabel": "Base URL",
+    "versionLabel": "Version",
+    "formatLabel": "Format",
+    "auth": {
+      "title": "Authentication",
+      "sessionTitle": "Session-Based (Admin)",
+      "sessionDesc": "Ministry officials login with Google OAuth. Session cookies are automatically included in requests.",
+      "walletTitle": "Wallet Signature (Blockchain)",
+      "walletDesc": "For blockchain operations, transactions must be signed with connected Solana wallet (Phantom/Solflare)."
+    },
+    "filter": {
+      "allLabel": "All Endpoints"
+    },
+    "endpoint": {
+      "requestBodyTitle": "Request Body",
+      "fieldColumn": "Field",
+      "typeColumn": "Type",
+      "requiredColumn": "Required",
+      "descriptionColumn": "Description",
+      "requiredYes": "Yes",
+      "requiredNo": "No",
+      "exampleRequestTitle": "Example Request",
+      "exampleResponseTitle": "Example Response (200 OK)"
+    },
+    "errors": {
+      "title": "Error Handling",
+      "formatTitle": "Error Response Format:"
+    },
+    "rateLimiting": {
+      "title": "Rate Limiting & Best Practices",
+      "limitsTitle": "⚡ Rate Limits",
+      "limits": [
+        "Public endpoints: 100 requests/minute",
+        "Authenticated: 300 requests/minute",
+        "Blockchain ops: 10 transactions/minute"
+      ],
+      "practicesTitle": "✅ Best Practices",
+      "practices": [
+        "Cache responses when possible",
+        "Use pagination for large datasets",
+        "Handle errors gracefully with retries"
+      ]
+    }
   }
 }

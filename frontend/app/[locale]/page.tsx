@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -41,6 +42,8 @@ const FLOATING_ICONS = [
 ];
 
 export default function MarketingHomePage() {
+  const t = useTranslations('home');
+  const locale = useLocale();
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,6 +79,33 @@ export default function MarketingHomePage() {
     if (totalNum === 0) return 0;
     return Math.round((releasedNum / totalNum) * 100);
   };
+
+  const problemCards = t.raw('problem.cards') as Array<{
+    icon: string;
+    title: string;
+    description: string;
+    stat: string;
+    statLabel: string;
+  }>;
+
+  const solutionPillars = t.raw('solution.pillars') as Array<{
+    icon: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    analogy: string;
+  }>;
+
+  const howItWorksSteps = t.raw('howItWorks.steps') as Array<{
+    step: string;
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+
+  const trustBullets = t.raw('trust.bulletPoints') as string[];
+
+  const stepColors = ['blue', 'green', 'purple', 'yellow'];
 
   return (
     <>
@@ -130,9 +160,9 @@ export default function MarketingHomePage() {
               animate={{ scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              Transparansi Anggaran Negara,
+              {t('hero.headline').split('\n')[0]}
               <br />
-              <span className="text-yellow-300">Di Ujung Jari Anda</span>
+              <span className="text-yellow-300">{t('hero.headlineHighlight')}</span>
             </motion.h1>
 
             <motion.p
@@ -141,9 +171,9 @@ export default function MarketingHomePage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              Lihat setiap rupiah anggaran pemerintah secara real-time.
+              {t('hero.subhead').split('\n')[0]}
               <br />
-              Teknologi blockchain memastikan setiap transaksi tercatat permanen dan tidak bisa diubah.
+              {t('hero.subhead').split('\n')[1]}
             </motion.p>
 
             <motion.div
@@ -158,7 +188,7 @@ export default function MarketingHomePage() {
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold rounded-xl shadow-lg transition-all"
                 >
-                  🔍 Jelajahi Proyek
+                  🔍 {t('hero.exploreButton')}
                 </motion.button>
               </Link>
               <Link href="#how-it-works">
@@ -167,7 +197,7 @@ export default function MarketingHomePage() {
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl border-2 border-white/30 transition-all"
                 >
-                  📚 Pelajari Cara Kerja
+                  📚 {t('hero.learnButton')}
                 </motion.button>
               </Link>
             </motion.div>
@@ -207,43 +237,15 @@ export default function MarketingHomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              💔 Mengapa Kita Butuh Transparansi?
+              💔 {t('problem.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Tanpa transparansi, sulit untuk memastikan anggaran negara digunakan dengan benar
+              {t('problem.subtitle')}
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: '🕵️',
-                title: 'Sulit Dipantau',
-                description:
-                  'Masyarakat tidak tahu kemana uang pajak mereka pergi. Data anggaran sulit diakses dan dipahami.',
-                stat: '72%',
-                statLabel: 'Warga tidak percaya pengelolaan APBN',
-                color: 'red',
-              },
-              {
-                icon: '✏️',
-                title: 'Bisa Dimanipulasi',
-                description:
-                  'Data di sistem lama bisa diubah tanpa jejak. Laporan bisa dipalsukan dan direvisi sesuka hati.',
-                stat: 'Rp 182 T',
-                statLabel: 'Kerugian negara akibat korupsi (2015-2023)',
-                color: 'orange',
-              },
-              {
-                icon: '⏰',
-                title: 'Audit Terlambat',
-                description:
-                  'Masalah baru ketahuan setelah berbulan-bulan. Terlambat untuk mencegah kerugian negara.',
-                stat: '6-12 bulan',
-                statLabel: 'Waktu audit rata-rata',
-                color: 'yellow',
-              },
-            ].map((problem, index) => (
+            {problemCards.map((problem, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
@@ -262,8 +264,8 @@ export default function MarketingHomePage() {
                 </motion.div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">{problem.title}</h3>
                 <p className="text-gray-600 mb-6">{problem.description}</p>
-                <div className={`bg-${problem.color}-50 rounded-lg p-4 border border-${problem.color}-200`}>
-                  <div className={`text-3xl font-bold text-${problem.color}-900`}>{problem.stat}</div>
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <div className="text-3xl font-bold text-red-900">{problem.stat}</div>
                   <div className="text-sm text-gray-700 mt-1">{problem.statLabel}</div>
                 </div>
               </motion.div>
@@ -292,43 +294,17 @@ export default function MarketingHomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              ✨ Solusi: Blockchain untuk Transparansi
+              ✨ {t('solution.title')}
             </h2>
             <p className="text-xl text-blue-100 max-w-4xl mx-auto">
-              Teknologi blockchain seperti <span className="text-yellow-300 font-semibold">cap notaris digital</span> yang tidak bisa dihapus atau diubah siapa pun
+              {t('solution.subtitle', { notary: '' }).split('{notary}')[0]}
+              <span className="text-yellow-300 font-semibold">{t('solution.notaryText')}</span>
+              {t('solution.subtitle', { notary: '' }).split('{notary}')[1] ?? ''}
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: '🔒',
-                title: 'Tidak Bisa Diubah',
-                subtitle: '(Immutable)',
-                description:
-                  'Setiap transaksi yang sudah tercatat tidak bisa diedit, dihapus, atau dimanipulasi. Seperti tulisan di batu yang permanen.',
-                analogy: 'Seperti cap notaris yang tidak bisa dihapus',
-                color: 'green',
-              },
-              {
-                icon: '🔍',
-                title: 'Bisa Diverifikasi Siapa Saja',
-                subtitle: '(Transparent)',
-                description:
-                  'Setiap orang bisa memeriksa data asli di blockchain. Tidak perlu percaya pada satu pihak, data bisa dicek sendiri.',
-                analogy: 'Seperti buku kas yang bisa dilihat semua orang',
-                color: 'blue',
-              },
-              {
-                icon: '⚡',
-                title: 'Real-Time',
-                subtitle: '(Instant)',
-                description:
-                  'Data diperbarui langsung saat transaksi terjadi. Tidak perlu menunggu laporan akhir bulan atau audit tahunan.',
-                analogy: 'Seperti notifikasi bank yang langsung masuk',
-                color: 'purple',
-              },
-            ].map((pillar, index) => (
+            {solutionPillars.map((pillar, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 30 }}
@@ -346,7 +322,7 @@ export default function MarketingHomePage() {
                   {pillar.icon}
                 </motion.div>
                 <h3 className="text-2xl font-bold mb-1 text-center">{pillar.title}</h3>
-                <p className="text-yellow-300 text-sm mb-4 text-center font-semibold">
+                <p className={`text-yellow-300 text-sm mb-4 text-center font-semibold`}>
                   {pillar.subtitle}
                 </p>
                 <p className="text-blue-100 mb-4 text-center">{pillar.description}</p>
@@ -372,48 +348,15 @@ export default function MarketingHomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              🚀 Cara Kerja (Untuk Warga)
+              🚀 {t('howItWorks.title')}
             </h2>
             <p className="text-xl text-gray-600">
-              Hanya 4 langkah sederhana untuk memantau anggaran negara
+              {t('howItWorks.subtitle')}
             </p>
           </motion.div>
 
           <div className="space-y-8">
-            {[
-              {
-                step: '1',
-                title: 'Buka Website & Cari Proyek',
-                description:
-                  'Tidak perlu login. Langsung cari proyek yang ingin dipantau berdasarkan kementerian atau kata kunci.',
-                icon: '🔍',
-                color: 'blue',
-              },
-              {
-                step: '2',
-                title: 'Lihat Detail Anggaran',
-                description:
-                  'Lihat berapa total anggaran, sudah berapa yang dicairkan, dan untuk apa saja milestone-nya.',
-                icon: '📊',
-                color: 'green',
-              },
-              {
-                step: '3',
-                title: 'Verifikasi di Blockchain',
-                description:
-                  'Klik link "Lihat di Blockchain" untuk memastikan data yang ditampilkan sama dengan yang tercatat di blockchain Solana.',
-                icon: '🔗',
-                color: 'purple',
-              },
-              {
-                step: '4',
-                title: 'Pantau Progress & Beri Rating',
-                description:
-                  'Ikuti proyek, beri komentar, atau laporkan jika ada yang mencurigakan. Trust score Anda membantu warga lain.',
-                icon: '⭐',
-                color: 'yellow',
-              },
-            ].map((step, index) => (
+            {howItWorksSteps.map((step, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
@@ -424,7 +367,7 @@ export default function MarketingHomePage() {
                 className="flex items-start gap-6 bg-gray-50 rounded-2xl p-8 hover:shadow-xl transition-all cursor-pointer border-2 border-gray-100 hover:border-blue-300"
               >
                 <motion.div
-                  className={`flex-shrink-0 w-16 h-16 bg-${step.color}-500 text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg`}
+                  className={`flex-shrink-0 w-16 h-16 bg-${stepColors[index]}-500 text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg`}
                   whileHover={{ rotate: 360, scale: 1.2 }}
                   transition={{ duration: 0.6 }}
                 >
@@ -460,17 +403,17 @@ export default function MarketingHomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              📋 Proyek Terbaru
+              📋 {t('featured.title')}
             </h2>
             <p className="text-xl text-gray-600">
-              Lihat proyek anggaran yang sedang berjalan dan sudah diverifikasi di blockchain
+              {t('featured.subtitle')}
             </p>
           </motion.div>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Memuat proyek...</p>
+              <p className="text-gray-600">{t('featured.loading')}</p>
             </div>
           ) : (
             <>
@@ -510,13 +453,13 @@ export default function MarketingHomePage() {
 
                       <div className="space-y-2 mb-4">
                         <div className="text-sm text-gray-600">
-                          <span className="font-semibold">Total:</span>{' '}
+                          <span className="font-semibold">{t('featured.totalLabel')}</span>{' '}
                           <span className="text-blue-600 font-bold">
                             {formatRupiah(project.total_amount)}
                           </span>
                         </div>
                         <div className="text-sm text-gray-600">
-                          <span className="font-semibold">Dicairkan:</span>{' '}
+                          <span className="font-semibold">{t('featured.releasedLabel')}</span>{' '}
                           <span className="text-green-600 font-bold">
                             {formatRupiah(project.total_released)}
                           </span>
@@ -544,7 +487,7 @@ export default function MarketingHomePage() {
                       </div>
 
                       <div className="text-xs text-gray-500 mt-4">
-                        Dibuat: {new Date(project.created_at).toLocaleDateString('id-ID')}
+                        {t('featured.createdLabel')} {new Date(project.created_at).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-GB')}
                       </div>
                     </Link>
                   </motion.div>
@@ -564,7 +507,7 @@ export default function MarketingHomePage() {
                     whileTap={{ scale: 0.95 }}
                     className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all"
                   >
-                    Lihat Semua Proyek →
+                    {t('featured.viewAllButton')}
                   </motion.button>
                 </Link>
               </motion.div>
@@ -592,7 +535,7 @@ export default function MarketingHomePage() {
                   transition={{ duration: 0.8 }}
                   viewport={{ once: true }}
                 >
-                  🔐 Aman & Terpercaya
+                  🔐 {t('trust.title')}
                 </motion.h2>
                 <motion.p
                   className="text-xl text-gray-700 mb-6"
@@ -601,7 +544,7 @@ export default function MarketingHomePage() {
                   transition={{ delay: 0.2, duration: 0.8 }}
                   viewport={{ once: true }}
                 >
-                  Setiap transaksi tercatat permanen di blockchain Solana — teknologi yang sama dengan yang dipakai perusahaan crypto global.
+                  {t('trust.description')}
                 </motion.p>
                 <motion.ul
                   className="space-y-4"
@@ -610,12 +553,7 @@ export default function MarketingHomePage() {
                   transition={{ delay: 0.4, duration: 0.8 }}
                   viewport={{ once: true }}
                 >
-                  {[
-                    'Data tidak bisa dihapus atau diubah',
-                    'Verifikasi bisa dilakukan siapa saja',
-                    'Tidak ada pihak yang bisa manipulasi',
-                    'Audit otomatis dan real-time',
-                  ].map((item, index) => (
+                  {trustBullets.map((item, index) => (
                     <motion.li
                       key={index}
                       className="flex items-center gap-3"
@@ -659,9 +597,9 @@ export default function MarketingHomePage() {
                     🔒
                   </motion.div>
 
-                  <h4 className="text-2xl font-bold text-center mb-4">Blockchain Verification</h4>
+                  <h4 className="text-2xl font-bold text-center mb-4">{t('trust.blockchainLabel')}</h4>
                   <p className="text-center text-blue-100 mb-6">
-                    Setiap transaksi memiliki ID unik yang bisa Anda cek di Solana Explorer
+                    {t('trust.blockchainSubtext')}
                   </p>
 
                   <motion.div
@@ -677,12 +615,12 @@ export default function MarketingHomePage() {
                       >
                         ●
                       </motion.span>
-                      <span className="text-xs text-blue-200">LIVE ON BLOCKCHAIN</span>
+                      <span className="text-xs text-blue-200">{t('trust.liveLabel')}</span>
                     </div>
                     <div className="text-xs text-white/70">
-                      TX: 5x7Hy...9kL3 <br />
-                      Block: 245,892,103 <br />
-                      Status: ✅ Confirmed
+                      {t('trust.txLabel')}: 5x7Hy...9kL3 <br />
+                      {t('trust.blockLabel')}: 245,892,103 <br />
+                      {t('trust.statusLabel')}: ✅ {t('trust.confirmedLabel')}
                     </div>
                   </motion.div>
                 </div>
@@ -711,12 +649,12 @@ export default function MarketingHomePage() {
             viewport={{ once: true }}
           >
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Mari Wujudkan Indonesia yang Lebih Transparan
+              {t('cta.title')}
             </h2>
             <p className="text-xl md:text-2xl text-gray-800 mb-8">
-              Setiap warga negara berhak tahu kemana uang pajak mereka pergi.
+              {t('cta.subtitle').split('\n')[0]}
               <br />
-              Mulai pantau anggaran negara hari ini!
+              {t('cta.subtitle').split('\n')[1]}
             </p>
 
             <div className="flex flex-wrap justify-center gap-4">
@@ -726,7 +664,7 @@ export default function MarketingHomePage() {
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                  🔍 Jelajahi Semua Proyek
+                  🔍 {t('cta.exploreButton')}
                 </motion.button>
               </Link>
               <Link href="/analytics">
@@ -735,7 +673,7 @@ export default function MarketingHomePage() {
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                  📊 Lihat Analitik
+                  📊 {t('cta.analyticsButton')}
                 </motion.button>
               </Link>
               <a
@@ -748,7 +686,7 @@ export default function MarketingHomePage() {
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg transition-all"
                 >
-                  🔗 Verifikasi di Blockchain
+                  🔗 {t('cta.verifyButton')}
                 </motion.button>
               </a>
             </div>
@@ -761,12 +699,30 @@ export default function MarketingHomePage() {
               viewport={{ once: true }}
             >
               <p className="text-lg font-semibold mb-2">
-                ✨ Built for Garuda Spark 2025 🇮🇩
+                ✨ {t('cta.builtFor')}
               </p>
               <p className="text-sm">
-                Transparansi untuk Indonesia yang Lebih Baik
+                {t('cta.tagline')}
               </p>
             </motion.div>
+
+            {/* English-only: international partners link */}
+            {locale === 'en' && (
+              <motion.div
+                className="mt-8"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ delay: 0.7, duration: 0.8 }}
+                viewport={{ once: true }}
+              >
+                <Link
+                  href="/international"
+                  className="text-gray-700 hover:text-gray-900 text-sm font-medium underline underline-offset-4 transition-colors"
+                >
+                  {t('internationalLink')}
+                </Link>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
