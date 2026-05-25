@@ -2,10 +2,12 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 export default function AdminHeader() {
   const { data: session } = useSession();
+  const t = useTranslations('admin');
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -26,11 +28,11 @@ export default function AdminHeader() {
               <h1 className="text-xl font-bold text-gray-900">
                 Open<span className="text-blue-600">Budget</span>
               </h1>
-              <p className="text-xs text-gray-500 font-medium tracking-wide">ADMIN PANEL</p>
+              <p className="text-xs text-gray-500 font-medium tracking-wide">{t('layout.panel')}</p>
             </div>
           </div>
           <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-            Ministry
+            {t('layout.ministryBadge')}
           </span>
         </div>
 
@@ -57,13 +59,13 @@ export default function AdminHeader() {
                   {session.user.name}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {session.user.ministryName || 'Ministry Official'}
+                  {session.user.ministryName || t('header.ministryOfficial')}
                 </span>
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
                 className="ml-2 px-3 py-1.5 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
-                title="Sign out"
+                title={t('header.signOut')}
               >
                 <svg
                   className="w-5 h-5"

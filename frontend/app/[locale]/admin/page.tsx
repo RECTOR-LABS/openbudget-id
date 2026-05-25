@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import DashboardStats from '@/components/admin/DashboardStats';
 import RecentActivity from '@/components/admin/RecentActivity';
@@ -15,6 +16,7 @@ import HelpResources from '@/components/admin/HelpResources';
 export default function AdminDashboard() {
   const { data: session } = useSession();
   const { connected } = useWallet();
+  const t = useTranslations('admin.dashboard');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true); // Will be loaded from API
 
@@ -47,48 +49,48 @@ export default function AdminDashboard() {
     {
       href: '/admin/projects/new',
       icon: '📝',
-      title: 'Buat Proyek Baru',
-      description: 'Mulai proyek anggaran transparan',
+      title: t('actions.newProject.title'),
+      description: t('actions.newProject.description'),
       color: 'green',
       requiresWallet: true,
     },
     {
       href: '/admin/projects',
       icon: '📋',
-      title: 'Kelola Proyek',
-      description: 'Lihat dan edit proyek yang ada',
+      title: t('actions.manageProjects.title'),
+      description: t('actions.manageProjects.description'),
       color: 'blue',
       requiresWallet: false,
     },
     {
       href: '/admin/settings',
       icon: '⚙️',
-      title: 'Pengaturan',
-      description: 'Update informasi kementerian',
+      title: t('actions.settings.title'),
+      description: t('actions.settings.description'),
       color: 'gray',
       requiresWallet: false,
     },
     {
       href: '/analytics',
       icon: '📊',
-      title: 'Analytics',
-      description: 'Lihat leaderboard dan trends',
+      title: t('actions.analytics.title'),
+      description: t('actions.analytics.description'),
       color: 'purple',
       requiresWallet: false,
     },
     {
       href: '/pitch-deck',
       icon: '🎯',
-      title: 'Pitch Deck',
-      description: 'Pelajari tentang platform',
+      title: t('actions.pitchDeck.title'),
+      description: t('actions.pitchDeck.description'),
       color: 'yellow',
       requiresWallet: false,
     },
     {
       href: '/api-docs',
       icon: '🔌',
-      title: 'API Docs',
-      description: 'Dokumentasi API lengkap',
+      title: t('actions.apiDocs.title'),
+      description: t('actions.apiDocs.description'),
       color: 'indigo',
       requiresWallet: false,
     },
@@ -128,7 +130,7 @@ export default function AdminDashboard() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                Selamat Datang, {session?.user?.name || 'Ministry Official'}! 👋
+                {t('welcome', { name: session?.user?.name || 'Ministry Official' })} 👋
               </motion.h1>
               <motion.p
                 className="text-blue-100 text-lg"
@@ -136,7 +138,7 @@ export default function AdminDashboard() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                {session?.user?.ministryName || 'Unassigned Ministry'} • Dashboard Transparansi Anggaran
+                {session?.user?.ministryName || t('unassignedMinistry')} • {t('dashboardSubtitle')}
               </motion.p>
             </div>
 
@@ -147,7 +149,7 @@ export default function AdminDashboard() {
                 whileTap={{ scale: 0.95 }}
                 className="px-6 py-3 bg-white text-blue-600 font-bold rounded-lg shadow-lg hover:shadow-xl transition-all"
               >
-                🎯 Start Tour
+                🎯 {t('startTour')}
               </motion.button>
             )}
           </div>
@@ -171,8 +173,8 @@ export default function AdminDashboard() {
           transition={{ delay: 0.5 }}
         >
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Statistik Kementerian</h2>
-            <p className="text-gray-600">Ringkasan performa transparansi anggaran Anda</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('statsTitle')}</h2>
+            <p className="text-gray-600">{t('statsSubtitle')}</p>
           </div>
           <DashboardStats />
         </motion.div>
@@ -184,8 +186,8 @@ export default function AdminDashboard() {
           transition={{ delay: 0.6 }}
         >
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
-            <p className="text-gray-600">Akses cepat ke fitur-fitur utama</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('quickActionsTitle')}</h2>
+            <p className="text-gray-600">{t('quickActionsSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -218,7 +220,7 @@ export default function AdminDashboard() {
                       <p className="text-sm text-gray-600">{action.description}</p>
                       {action.requiresWallet && !connected && (
                         <span className="inline-block mt-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                          Requires Wallet
+                          {t('requiresWallet')}
                         </span>
                       )}
                     </div>
@@ -245,8 +247,8 @@ export default function AdminDashboard() {
           transition={{ delay: 0.8 }}
         >
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Bantuan & Panduan</h2>
-            <p className="text-gray-600">FAQ, guide, dan tutorial untuk membantu Anda</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('helpTitle')}</h2>
+            <p className="text-gray-600">{t('helpSubtitle')}</p>
           </div>
           <HelpResources />
         </motion.div>
@@ -259,10 +261,10 @@ export default function AdminDashboard() {
           className="bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-xl p-8 text-center shadow-lg"
         >
           <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Siap Membuat Anggaran Lebih Transparan?
+            {t('ctaTitle')}
           </h3>
           <p className="text-gray-800 mb-6 max-w-2xl mx-auto">
-            Mulai dengan membuat proyek baru atau publish proyek yang sudah ada ke blockchain Solana.
+            {t('ctaSubtitle')}
           </p>
           <div className="flex justify-center gap-4">
             <Link href="/admin/projects/new">
@@ -272,7 +274,7 @@ export default function AdminDashboard() {
                 className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all"
                 disabled={!connected}
               >
-                📝 Buat Proyek Baru
+                📝 {t('ctaNewProject')}
               </motion.button>
             </Link>
             <Link href="/admin/projects">
@@ -281,7 +283,7 @@ export default function AdminDashboard() {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg transition-all"
               >
-                📋 Kelola Proyek Existing
+                📋 {t('ctaManageProjects')}
               </motion.button>
             </Link>
           </div>

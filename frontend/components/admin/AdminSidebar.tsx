@@ -3,14 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslations } from 'next-intl';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { connected } = useWallet();
+  const t = useTranslations('admin.sidebar');
 
   const navigation = [
     {
-      name: 'Public Homepage',
+      name: t('publicHomepage'),
       href: '/',
       icon: (
         <svg
@@ -29,7 +31,7 @@ export default function AdminSidebar() {
       ),
     },
     {
-      name: 'Dashboard',
+      name: t('dashboard'),
       href: '/admin',
       icon: (
         <svg
@@ -48,7 +50,7 @@ export default function AdminSidebar() {
       ),
     },
     {
-      name: 'Projects',
+      name: t('projects'),
       href: '/admin/projects',
       icon: (
         <svg
@@ -67,7 +69,7 @@ export default function AdminSidebar() {
       ),
     },
     {
-      name: 'Create Project',
+      name: t('createProject'),
       href: '/admin/projects/new',
       icon: (
         <svg
@@ -87,7 +89,7 @@ export default function AdminSidebar() {
       requiresWallet: true,
     },
     {
-      name: 'Settings',
+      name: t('settings'),
       href: '/admin/settings',
       icon: (
         <svg
@@ -112,7 +114,7 @@ export default function AdminSidebar() {
       ),
     },
     {
-      name: 'System Insights',
+      name: t('systemInsights'),
       href: '/admin/system-insights',
       icon: (
         <svg
@@ -210,12 +212,12 @@ export default function AdminSidebar() {
             }`}
           ></div>
           <span className="text-xs text-gray-600">
-            {connected ? 'Wallet Connected' : 'Wallet Disconnected'}
+            {connected ? t('walletConnected') : t('walletDisconnected')}
           </span>
         </div>
         {!connected && (
           <p className="mt-2 text-xs text-gray-500 px-4">
-            Connect your wallet to publish projects to blockchain
+            {t('walletConnectHint')}
           </p>
         )}
       </div>
