@@ -1,27 +1,35 @@
+import createIntlMiddleware from 'next-intl/middleware';
 import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
+import { defineRouting } from 'next-intl/routing';
+import { locales, defaultLocale } from './i18n';
+import { NextRequest, NextResponse } from 'next/server';
 
-export default withAuth(
-  function middleware(req) {
-    // Additional custom logic can go here
-    return NextResponse.next();
+const routing = defineRouting({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed',
+});
+
+const handleI18nRouting = createIntlMiddleware(routing);
+
+const authMiddleware = withAuth(
+  function onSuccess(req) {
+    return handleI18nRouting(req);
   },
   {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        // Protect all /admin routes
-        if (req.nextUrl.pathname.startsWith('/admin')) {
-          return !!token;
-        }
-        return true;
-      },
-    },
-    pages: {
-      signIn: '/auth/signin',
-    },
+    callbacks: { authorized: ({ token }) => token != null },
+    pages: { signIn: '/auth/signin' },
   }
 );
 
+export default function middleware(req: NextRequest): Response | NextResponse {
+  const isAdminRoute = /^(\/(en|id))?\/admin(\/|$)/.test(req.nextUrl.pathname);
+  if (isAdminRoute) {
+    return (authMiddleware as unknown as (r: NextRequest) => Response | NextResponse)(req);
+  }
+  return handleI18nRouting(req);
+}
+
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
 };
