@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 interface GitInfo {
   commit: string;
@@ -12,6 +13,7 @@ interface GitInfo {
 
 export default function Footer() {
   const [gitInfo, setGitInfo] = useState<GitInfo | null>(null);
+  const t = useTranslations('footer');
 
   useEffect(() => {
     fetch('/api/git-info')
@@ -60,13 +62,12 @@ export default function Footer() {
                   Open<span className="text-yellow-400">Budget</span>
                 </h3>
                 <p className="text-xs text-gray-400 font-medium tracking-wide">
-                  TRANSPARANSI BLOCKCHAIN
+                  {t('tagline')}
                 </p>
               </div>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Platform transparansi anggaran pemerintah berbasis blockchain Solana. Memastikan
-              akuntabilitas dan kepercayaan publik melalui teknologi terdesentralisasi.
+              {t('description')}
             </p>
           </div>
 
@@ -86,7 +87,7 @@ export default function Footer() {
                   d="M13 10V3L4 14h7v7l9-11h-7z"
                 />
               </svg>
-              Navigasi Cepat
+              {t('quickNav')}
             </h4>
             <ul className="space-y-2">
               <li>
@@ -95,7 +96,7 @@ export default function Footer() {
                   className="text-sm hover:text-yellow-400 transition-colors inline-flex items-center cursor-pointer"
                 >
                   <span className="mr-2">→</span>
-                  Beranda
+                  {t('links.home')}
                 </Link>
               </li>
               <li>
@@ -104,7 +105,7 @@ export default function Footer() {
                   className="text-sm hover:text-yellow-400 transition-colors inline-flex items-center cursor-pointer"
                 >
                   <span className="mr-2">→</span>
-                  Daftar Proyek
+                  {t('links.projects')}
                 </Link>
               </li>
               <li>
@@ -113,7 +114,7 @@ export default function Footer() {
                   className="text-sm hover:text-yellow-400 transition-colors inline-flex items-center cursor-pointer"
                 >
                   <span className="mr-2">→</span>
-                  Dokumentasi API
+                  {t('links.apiDocs')}
                 </Link>
               </li>
               <li>
@@ -122,7 +123,7 @@ export default function Footer() {
                   className="text-sm hover:text-yellow-400 transition-colors inline-flex items-center cursor-pointer"
                 >
                   <span className="mr-2">→</span>
-                  Pitch Deck
+                  {t('links.pitchDeck')}
                 </Link>
               </li>
               <li>
@@ -131,7 +132,7 @@ export default function Footer() {
                   className="text-sm hover:text-yellow-400 transition-colors inline-flex items-center cursor-pointer"
                 >
                   <span className="mr-2">→</span>
-                  Panel Admin Kementerian
+                  {t('links.adminPanel')}
                 </Link>
               </li>
             </ul>
@@ -251,10 +252,10 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <div className="text-sm text-gray-400 text-center md:text-left">
             <p>
-              © {currentYear} OpenBudget.ID - Garuda Spark Hackathon
+              {t('copyright', { year: currentYear })}
             </p>
             <p className="text-xs mt-1">
-              Built with Solana, Next.js, and Indonesian pride 🇮🇩
+              {t('builtWith')}
             </p>
           </div>
 

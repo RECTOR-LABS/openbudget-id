@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { LanguageToggle } from './LanguageToggle';
 
 export default function Header() {
@@ -11,6 +12,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const isBypassedRoute = /^\/(international|auth)(\/|$)/.test(pathname);
+  const t = useTranslations('header');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,11 +24,11 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { name: 'Beranda', href: '/', icon: '🏠' },
-    { name: 'Proyek', href: '/#projects', icon: '📊' },
-    { name: 'Analytics', href: '/analytics', icon: '📈' },
-    { name: 'API Docs', href: '/api-docs', icon: '📚' },
-    { name: 'Pitch Deck', href: '/pitch-deck', icon: '🎯' },
+    { name: t('nav.home'), href: '/', icon: '🏠' },
+    { name: t('nav.projects'), href: '/#projects', icon: '📊' },
+    { name: t('nav.analytics'), href: '/analytics', icon: '📈' },
+    { name: t('nav.apiDocs'), href: '/api-docs', icon: '📚' },
+    { name: t('nav.pitchDeck'), href: '/pitch-deck', icon: '🎯' },
   ];
 
   const isActive = (href: string) => {
@@ -80,7 +82,7 @@ export default function Header() {
                   scrolled ? 'text-gray-600' : 'text-blue-100'
                 }`}
               >
-                TRANSPARANSI BLOCKCHAIN
+                {t('tagline')}
               </div>
             </div>
           </Link>
@@ -140,7 +142,7 @@ export default function Header() {
                     d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
                   />
                 </svg>
-                Ministry Login
+                {t('adminLogin')}
               </span>
             </Link>
           </div>
@@ -149,7 +151,7 @@ export default function Header() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg transition-colors duration-200 cursor-pointer"
-            aria-label="Toggle menu"
+            aria-label={t('toggleMenuAria')}
           >
             <svg
               className={`w-6 h-6 ${scrolled ? 'text-gray-700' : 'text-white'}`}
@@ -225,7 +227,7 @@ export default function Header() {
                   d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
                 />
               </svg>
-              Ministry Login
+              {t('adminLogin')}
             </Link>
           </div>
         )}

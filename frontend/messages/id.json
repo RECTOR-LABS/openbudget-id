@@ -1,1 +1,28 @@
-{}
+{
+  "header": {
+    "tagline": "TRANSPARANSI BLOCKCHAIN",
+    "nav": {
+      "home": "Beranda",
+      "projects": "Proyek",
+      "analytics": "Analytics",
+      "apiDocs": "API Docs",
+      "pitchDeck": "Pitch Deck"
+    },
+    "adminLogin": "Ministry Login",
+    "toggleMenuAria": "Toggle menu"
+  },
+  "footer": {
+    "tagline": "TRANSPARANSI BLOCKCHAIN",
+    "description": "Platform transparansi anggaran pemerintah berbasis blockchain Solana. Memastikan akuntabilitas dan kepercayaan publik melalui teknologi terdesentralisasi.",
+    "quickNav": "Navigasi Cepat",
+    "links": {
+      "home": "Beranda",
+      "projects": "Daftar Proyek",
+      "apiDocs": "Dokumentasi API",
+      "pitchDeck": "Pitch Deck",
+      "adminPanel": "Panel Admin Kementerian"
+    },
+    "copyright": "© {year} OpenBudget.ID - Garuda Spark Hackathon",
+    "builtWith": "Dibuat dengan Solana, Next.js, dan kebanggaan Indonesia 🇮🇩"
+  }
+}

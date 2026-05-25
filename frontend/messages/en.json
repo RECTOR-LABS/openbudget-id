@@ -1,1 +1,28 @@
-{}
+{
+  "header": {
+    "tagline": "BLOCKCHAIN TRANSPARENCY",
+    "nav": {
+      "home": "Home",
+      "projects": "Projects",
+      "analytics": "Analytics",
+      "apiDocs": "API Docs",
+      "pitchDeck": "Pitch Deck"
+    },
+    "adminLogin": "Ministry Login",
+    "toggleMenuAria": "Toggle menu"
+  },
+  "footer": {
+    "tagline": "BLOCKCHAIN TRANSPARENCY",
+    "description": "A blockchain-based government budget transparency platform built on Solana. Ensuring accountability and public trust through decentralised technology.",
+    "quickNav": "Quick Navigation",
+    "links": {
+      "home": "Home",
+      "projects": "Project List",
+      "apiDocs": "API Documentation",
+      "pitchDeck": "Pitch Deck",
+      "adminPanel": "Ministry Admin Panel"
+    },
+    "copyright": "© {year} OpenBudget.ID - Garuda Spark Hackathon",
+    "builtWith": "Built with Solana, Next.js, and Indonesian pride 🇮🇩"
+  }
+}
