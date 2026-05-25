@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface IssueReportModalProps {
   projectId: string;
@@ -15,6 +16,7 @@ export default function IssueReportModal({
   milestoneId,
   milestoneTitle,
 }: IssueReportModalProps) {
+  const t = useTranslations('engagement.issues');
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -34,12 +36,12 @@ export default function IssueReportModal({
     setSuccess('');
 
     if (!name || !email || !title || !description) {
-      setError('Semua field harus diisi');
+      setError(t('allFieldsRequired'));
       return;
     }
 
     if (description.length < 10 || description.length > 2000) {
-      setError('Deskripsi harus antara 10-2000 karakter');
+      setError(t('descriptionLength'));
       return;
     }
 
@@ -64,11 +66,11 @@ export default function IssueReportModal({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Gagal melaporkan isu');
+        setError(data.error || t('submitError'));
         return;
       }
 
-      setSuccess('Isu berhasil dilaporkan! Tim kami akan menindaklanjuti segera.');
+      setSuccess(t('submitSuccess'));
       setTimeout(() => {
         setShowModal(false);
         setSuccess('');
@@ -81,18 +83,18 @@ export default function IssueReportModal({
         setSeverity('medium');
       }, 2000);
     } catch {
-      setError('Terjadi kesalahan saat melaporkan isu');
+      setError(t('networkError'));
     } finally {
       setSubmitting(false);
     }
   };
 
   const issueTypes = [
-    { value: 'budget_mismatch', label: 'Ketidaksesuaian Anggaran' },
-    { value: 'missing_proof', label: 'Dokumen Bukti Hilang' },
-    { value: 'delayed_release', label: 'Keterlambatan Pencairan' },
-    { value: 'fraudulent_claim', label: 'Dugaan Klaim Palsu' },
-    { value: 'other', label: 'Lainnya' },
+    { value: 'budget_mismatch', label: t('modal.types.budget_mismatch') },
+    { value: 'missing_proof', label: t('modal.types.missing_proof') },
+    { value: 'delayed_release', label: t('modal.types.delayed_release') },
+    { value: 'fraudulent_claim', label: t('modal.types.fraudulent_claim') },
+    { value: 'other', label: t('modal.types.other') },
   ];
 
   return (
@@ -109,7 +111,7 @@ export default function IssueReportModal({
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        Laporkan Isu
+        {t('reportButton')}
       </button>
 
       {/* Modal */}
@@ -131,14 +133,14 @@ export default function IssueReportModal({
             </button>
 
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              🚨 Laporkan Isu Mencurigakan
+              🚨 {t('modal.title')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Proyek: <strong>{projectTitle}</strong>
+              {t('modal.projectLabel')}: <strong>{projectTitle}</strong>
               {milestoneTitle && (
                 <>
                   {' '}
-                  | Milestone: <strong>{milestoneTitle}</strong>
+                  | {t('modal.milestoneLabel')}: <strong>{milestoneTitle}</strong>
                 </>
               )}
             </p>
@@ -159,28 +161,28 @@ export default function IssueReportModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Anda
+                    {t('modal.nameLabel')}
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="Nama lengkap"
+                    placeholder={t('modal.namePlaceholder')}
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Anda
+                    {t('modal.emailLabel')}
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    placeholder="email@example.com"
+                    placeholder={t('modal.emailPlaceholder')}
                     required
                   />
                 </div>
@@ -189,7 +191,7 @@ export default function IssueReportModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Jenis Isu
+                    {t('modal.typeLabel')}
                   </label>
                   <select
                     value={issueType}
@@ -206,24 +208,24 @@ export default function IssueReportModal({
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tingkat Keparahan
+                    {t('modal.severityLabel')}
                   </label>
                   <select
                     value={severity}
                     onChange={(e) => setSeverity(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent cursor-pointer"
                   >
-                    <option value="low">Rendah</option>
-                    <option value="medium">Sedang</option>
-                    <option value="high">Tinggi</option>
-                    <option value="critical">Kritis</option>
+                    <option value="low">{t('modal.severity.low')}</option>
+                    <option value="medium">{t('modal.severity.medium')}</option>
+                    <option value="high">{t('modal.severity.high')}</option>
+                    <option value="critical">{t('modal.severity.critical')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Judul Isu
+                  {t('modal.titleLabel')}
                 </label>
                 <input
                   type="text"
@@ -231,14 +233,14 @@ export default function IssueReportModal({
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="Ringkasan singkat masalah"
+                  placeholder={t('modal.titlePlaceholder')}
                   required
                 />
               </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Deskripsi Detail
+                  {t('modal.descriptionLabel')}
                 </label>
                 <textarea
                   value={description}
@@ -247,11 +249,11 @@ export default function IssueReportModal({
                   minLength={10}
                   maxLength={2000}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  placeholder="Jelaskan secara detail apa yang Anda temukan mencurigakan..."
+                  placeholder={t('modal.descriptionPlaceholder')}
                   required
                 />
                 <div className="text-sm text-gray-500 mt-1 text-right">
-                  {description.length}/2000 karakter
+                  {t('modal.characterCount', { count: description.length })}
                 </div>
               </div>
 
@@ -261,14 +263,14 @@ export default function IssueReportModal({
                   disabled={submitting}
                   className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  {submitting ? 'Mengirim...' : 'Laporkan Isu'}
+                  {submitting ? t('modal.submitting') : t('modal.submitButton')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition cursor-pointer"
                 >
-                  Batal
+                  {t('modal.cancelButton')}
                 </button>
               </div>
             </form>

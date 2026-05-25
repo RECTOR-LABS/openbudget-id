@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface RatingStats {
   average_rating: number;
@@ -17,6 +18,7 @@ interface TrustScoreRatingProps {
 }
 
 export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
+  const t = useTranslations('engagement.ratings');
   const [stats, setStats] = useState<RatingStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -56,7 +58,7 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
     setSuccess('');
 
     if (!name || !email || !rating) {
-      setError('Nama, email, dan rating harus diisi');
+      setError(t('requiredError'));
       return;
     }
 
@@ -78,17 +80,17 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Gagal mengirim rating');
+        setError(data.error || t('submitError'));
         return;
       }
 
-      setSuccess('Rating berhasil dikirim!');
+      setSuccess(t('submitSuccess'));
       setShowForm(false);
       setRating(0);
       setComment('');
       fetchRatings();
     } catch {
-      setError('Terjadi kesalahan saat mengirim rating');
+      setError(t('networkError'));
     } finally {
       setSubmitting(false);
     }
@@ -125,7 +127,7 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">⭐ Skor Kepercayaan Komunitas</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">⭐ {t('title')}</h2>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Average Rating Display */}
@@ -148,7 +150,10 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
             ))}
           </div>
           <p className="text-gray-600">
-            Dari {totalRatings} {totalRatings === 1 ? 'rating' : 'ratings'}
+            {t('from', {
+              count: totalRatings,
+              suffix: totalRatings === 1 ? t('ratingSuffix') : t('ratingsSuffix'),
+            })}
           </p>
         </div>
 
@@ -183,14 +188,14 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
           onClick={() => setShowForm(true)}
           className="mt-6 w-full px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition cursor-pointer"
         >
-          Berikan Rating untuk Proyek Ini
+          {t('rateButton')}
         </button>
       )}
 
       {/* Rating Form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="mt-6 bg-yellow-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Berikan Rating Anda</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('formTitle')}</h3>
 
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -206,7 +211,7 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Anda</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('nameLabel')}</label>
               <input
                 type="text"
                 value={name}
@@ -216,7 +221,7 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Anda</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('emailLabel')}</label>
               <input
                 type="email"
                 value={email}
@@ -229,7 +234,7 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Rating (1-5 bintang)
+              {t('starsLabel')}
             </label>
             <div className="flex gap-2 items-center">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -253,14 +258,14 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
                 </button>
               ))}
               <span className="ml-2 text-sm text-gray-600">
-                {rating > 0 ? `${rating} bintang` : 'Pilih rating'}
+                {rating > 0 ? t('starsSuffix', { count: rating }) : t('starsPlaceholder')}
               </span>
             </div>
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Komentar (opsional)
+              {t('commentLabel')}
             </label>
             <textarea
               value={comment}
@@ -268,10 +273,10 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
               rows={3}
               maxLength={500}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-              placeholder="Ceritakan pengalaman Anda..."
+              placeholder={t('commentPlaceholder')}
             />
             <div className="text-sm text-gray-500 mt-1 text-right">
-              {comment.length}/500 karakter
+              {t('characterCount', { count: comment.length })}
             </div>
           </div>
 
@@ -281,14 +286,14 @@ export default function TrustScoreRating({ projectId }: TrustScoreRatingProps) {
               disabled={submitting || rating === 0}
               className="flex-1 px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
             >
-              {submitting ? 'Mengirim...' : 'Kirim Rating'}
+              {submitting ? t('submitting') : t('submitButton')}
             </button>
             <button
               type="button"
               onClick={() => setShowForm(false)}
               className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition cursor-pointer"
             >
-              Batal
+              {t('cancelButton')}
             </button>
           </div>
         </form>

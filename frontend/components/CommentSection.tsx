@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { formatRelativeTime } from '@/lib/utils';
 
 interface Comment {
@@ -27,6 +28,7 @@ export default function CommentSection({
   milestoneId,
   milestoneTitle,
 }: CommentSectionProps) {
+  const t = useTranslations('engagement.comments');
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -67,12 +69,12 @@ export default function CommentSection({
     setSuccess('');
 
     if (!name || !email || !content) {
-      setError('Semua field harus diisi');
+      setError(t('allFieldsRequired'));
       return;
     }
 
     if (content.length > 1000) {
-      setError('Komentar maksimal 1000 karakter');
+      setError(t('tooLong'));
       return;
     }
 
@@ -94,15 +96,15 @@ export default function CommentSection({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Gagal mengirim komentar');
+        setError(data.error || t('submitError'));
         return;
       }
 
-      setSuccess('Komentar berhasil dikirim!');
+      setSuccess(t('submitSuccess'));
       setContent('');
       fetchComments();
     } catch {
-      setError('Terjadi kesalahan saat mengirim komentar');
+      setError(t('networkError'));
     } finally {
       setSubmitting(false);
     }
@@ -111,12 +113,12 @@ export default function CommentSection({
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        💬 Pertanyaan & Komentar {milestoneTitle && `- ${milestoneTitle}`}
+        💬 {t('title')} {milestoneTitle && `- ${milestoneTitle}`}
       </h2>
 
       {/* Comment Form */}
       <form onSubmit={handleSubmit} className="mb-8 bg-gray-50 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Ajukan Pertanyaan</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('formTitle')}</h3>
 
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -133,27 +135,27 @@ export default function CommentSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nama Anda
+              {t('nameLabel')}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nama lengkap"
+              placeholder={t('namePlaceholder')}
               required
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Anda
+              {t('emailLabel')}
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="email@example.com"
+              placeholder={t('emailPlaceholder')}
               required
             />
           </div>
@@ -161,7 +163,7 @@ export default function CommentSection({
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Komentar atau Pertanyaan
+            {t('contentLabel')}
           </label>
           <textarea
             value={content}
@@ -169,11 +171,11 @@ export default function CommentSection({
             rows={4}
             maxLength={1000}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Tulis pertanyaan atau komentar Anda..."
+            placeholder={t('contentPlaceholder')}
             required
           />
           <div className="text-sm text-gray-500 mt-1 text-right">
-            {content.length}/1000 karakter
+            {t('characterCount', { count: content.length })}
           </div>
         </div>
 
@@ -182,18 +184,18 @@ export default function CommentSection({
           disabled={submitting}
           className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
         >
-          {submitting ? 'Mengirim...' : 'Kirim Komentar'}
+          {submitting ? t('submitting') : t('submitButton')}
         </button>
       </form>
 
       {/* Comments List */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          {comments.length} Komentar
+          {t('listTitle', { count: comments.length })}
         </h3>
 
         {loading ? (
-          <div className="text-center py-8 text-gray-500">Memuat komentar...</div>
+          <div className="text-center py-8 text-gray-500">{t('loading')}</div>
         ) : comments.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <svg
@@ -209,7 +211,7 @@ export default function CommentSection({
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            <p>Belum ada komentar. Jadilah yang pertama bertanya!</p>
+            <p>{t('empty')}</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -226,7 +228,7 @@ export default function CommentSection({
                       </span>
                       {comment.is_ministry_response && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                          Respons Resmi
+                          {t('ministryResponse')}
                         </span>
                       )}
                     </div>
@@ -238,7 +240,7 @@ export default function CommentSection({
                 <p className="text-gray-700">{comment.content}</p>
                 {comment.reply_count > 0 && (
                   <div className="mt-2 text-sm text-blue-600">
-                    {comment.reply_count} balasan
+                    {t('replies', { count: comment.reply_count })}
                   </div>
                 )}
               </div>

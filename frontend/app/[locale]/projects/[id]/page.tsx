@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { getExplorerUrl } from '@/lib/solana';
 import { formatRupiah } from '@/lib/utils';
@@ -15,7 +16,7 @@ import IssueReportModal from '@/components/IssueReportModal';
 interface Milestone {
   id: string;
   project_id: string;
-  index: number; // Changed from milestone_index to index for consistency
+  index: number;
   description: string;
   amount: string;
   is_released: boolean;
@@ -43,6 +44,8 @@ interface Project {
 }
 
 export default function ProjectDetailPage() {
+  const t = useTranslations('projects.detail');
+  const locale = useLocale();
   const params = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,14 +58,14 @@ export default function ProjectDetailPage() {
         const data = await res.json();
         setProject(data.project);
       } else {
-        setError('Proyek tidak ditemukan');
+        setError(t('notFoundMessage'));
       }
     } catch {
-      setError('Gagal memuat proyek');
+      setError(t('loadingMessage'));
     } finally {
       setLoading(false);
     }
-  }, [params.id]);
+  }, [params.id, t]);
 
   useEffect(() => {
     fetchProject();
@@ -73,7 +76,7 @@ export default function ProjectDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Memuat proyek...</p>
+          <p className="text-gray-600">{t('loadingMessage')}</p>
         </div>
       </div>
     );
@@ -96,13 +99,13 @@ export default function ProjectDetailPage() {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Proyek Tidak Ditemukan</h2>
-          <p className="text-gray-600 mb-6">{error || 'Proyek yang Anda cari tidak ada'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('notFoundTitle')}</h2>
+          <p className="text-gray-600 mb-6">{error || t('notFoundMessage')}</p>
           <Link
             href="/"
             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
-            Kembali ke Beranda
+            {t('backToHome')}
           </Link>
         </div>
       </div>
@@ -116,6 +119,8 @@ export default function ProjectDetailPage() {
   const progress = totalBudget > 0n
     ? (Number(totalReleased) / Number(totalBudget)) * 100
     : 0;
+
+  const dateLocale = locale === 'id' ? 'id-ID' : 'en-GB';
 
   return (
     <>
@@ -138,14 +143,14 @@ export default function ProjectDetailPage() {
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
               <Link href="/" className="hover:text-white transition">
-                🏠 Beranda
+                🏠 {t('breadcrumbHome')}
               </Link>
               <span>/</span>
               <Link href="/projects" className="hover:text-white transition">
-                Proyek
+                {t('breadcrumbProjects')}
               </Link>
               <span>/</span>
-              <span className="text-white font-medium">Detail</span>
+              <span className="text-white font-medium">{t('breadcrumbDetail')}</span>
             </div>
 
             {/* Main Header */}
@@ -200,16 +205,16 @@ export default function ProjectDetailPage() {
               {/* Quick Stats */}
               <div className="flex flex-col gap-3 lg:min-w-[280px]">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                  <div className="text-sm text-blue-100 mb-1">Total Anggaran</div>
+                  <div className="text-sm text-blue-100 mb-1">{t('totalBudget')}</div>
                   <div className="text-2xl font-bold">{formatRupiah(totalBudget)}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
-                  <div className="text-sm text-blue-100 mb-1">Direalisasikan</div>
+                  <div className="text-sm text-blue-100 mb-1">{t('realized')}</div>
                   <div className="text-2xl font-bold text-green-300">{formatRupiah(totalReleased)}</div>
                   <div className="mt-2 bg-white/20 rounded-full h-2 overflow-hidden">
                     <div className="bg-green-400 h-full transition-all" style={{ width: `${Math.min(progress, 100)}%` }}></div>
                   </div>
-                  <div className="text-xs text-blue-100 mt-1">{progress.toFixed(1)}% tercapai</div>
+                  <div className="text-xs text-blue-100 mt-1">{progress.toFixed(1)}% {t('achieved')}</div>
                 </div>
               </div>
             </div>
@@ -219,22 +224,22 @@ export default function ProjectDetailPage() {
         <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Budget Overview Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Ringkasan Anggaran</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">{t('budgetSummaryTitle')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-blue-600 mb-1">Total Anggaran</h3>
+              <h3 className="text-sm font-medium text-blue-600 mb-1">{t('totalBudgetCard')}</h3>
               <p className="text-2xl font-bold text-blue-900">
                 {formatRupiah(totalBudget)}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-green-600 mb-1">Telah Direalisasikan</h3>
+              <h3 className="text-sm font-medium text-green-600 mb-1">{t('totalReleasedCard')}</h3>
               <p className="text-2xl font-bold text-green-900">
                 {formatRupiah(totalReleased)}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-600 mb-1">Progress</h3>
+              <h3 className="text-sm font-medium text-gray-600 mb-1">{t('progressCard')}</h3>
               <p className="text-3xl font-bold text-gray-900">{progress.toFixed(1)}%</p>
             </div>
           </div>
@@ -242,8 +247,8 @@ export default function ProjectDetailPage() {
           {/* Progress Bar */}
           <div className="mt-6">
             <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Realisasi Anggaran</span>
-              <span>{progress.toFixed(1)}% dari total</span>
+              <span>{t('progressLabel')}</span>
+              <span>{progress.toFixed(1)}% {t('progressSuffix')}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
               <div
@@ -258,9 +263,9 @@ export default function ProjectDetailPage() {
             <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-1">Terverifikasi di Blockchain</h3>
+                  <h3 className="font-semibold text-gray-900 mb-1">{t('verifiedTitle')}</h3>
                   <p className="text-sm text-gray-600">
-                    Proyek ini tercatat secara permanen di Solana blockchain
+                    {t('verifiedDesc')}
                   </p>
                 </div>
                 <a
@@ -269,7 +274,7 @@ export default function ProjectDetailPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
                 >
-                  Verifikasi di Solana Explorer
+                  {t('verifyExplorer')}
                   <svg
                     className="w-4 h-4 ml-2"
                     fill="none"
@@ -291,7 +296,7 @@ export default function ProjectDetailPage() {
 
         {/* Milestones */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Milestone Realisasi</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('milestonesTitle')}</h2>
 
           {project.milestones && project.milestones.length > 0 ? (
             <div className="space-y-4">
@@ -316,15 +321,15 @@ export default function ProjectDetailPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-medium text-gray-500">
-                            Milestone #{milestone.index + 1}
+                            {t('milestoneLabel')} #{milestone.index + 1}
                           </span>
                           {milestone.is_released ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Direalisasikan
+                              {t('releasedBadge')}
                             </span>
                           ) : (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                              Pending
+                              {t('pendingBadge')}
                             </span>
                           )}
                         </div>
@@ -332,12 +337,12 @@ export default function ProjectDetailPage() {
                           {milestone.description}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          Jumlah: <span className="font-semibold">{formatRupiah(milestoneAmount)}</span>
+                          {t('amountLabel')}: <span className="font-semibold">{formatRupiah(milestoneAmount)}</span>
                         </p>
                         {milestone.is_released && milestone.released_at && (
                           <p className="text-sm text-green-600 mt-1">
-                            Direalisasikan pada{' '}
-                            {new Date(milestone.released_at).toLocaleDateString('id-ID', {
+                            {t('releasedOnLabel')}{' '}
+                            {new Date(milestone.released_at).toLocaleDateString(dateLocale, {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
@@ -368,7 +373,7 @@ export default function ProjectDetailPage() {
                               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          Verifikasi Transaksi
+                          {t('verifyTx')}
                         </a>
                       )}
 
@@ -392,7 +397,7 @@ export default function ProjectDetailPage() {
                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                             />
                           </svg>
-                          Lihat Dokumen Bukti
+                          {t('viewProof')}
                         </a>
                       )}
                     </div>
@@ -415,7 +420,7 @@ export default function ProjectDetailPage() {
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                 />
               </svg>
-              <p>Belum ada milestone untuk proyek ini</p>
+              <p>{t('noMilestones')}</p>
             </div>
           )}
         </div>
