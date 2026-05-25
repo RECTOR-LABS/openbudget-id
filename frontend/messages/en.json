@@ -710,5 +710,189 @@
         "Handle errors gracefully with retries"
       ]
     }
+  },
+  "pitchDeck": {
+    "hero": {
+      "subhead": "Blockchain-Powered Government Budget Transparency",
+      "badge1": "Garuda Spark 2025",
+      "badge2": "Cypherpunk Colosseum",
+      "badge3": "Digital Indonesia 2045",
+      "description": "Every rupiah of public spending can be tracked, audited, and verified by any citizen — powered by the Solana blockchain."
+    },
+    "problem": {
+      "title": "The Problem We Face",
+      "subtitle": "Corruption and misuse of public funds erode citizens' trust in government",
+      "cards": [
+        {
+          "icon": "🕵️",
+          "title": "Lack of Transparency",
+          "description": "Citizens cannot access detailed data on government budget allocations in real time",
+          "stat": "72%",
+          "statLabel": "Citizens distrust national budget management"
+        },
+        {
+          "icon": "📝",
+          "title": "Data Can Be Manipulated",
+          "description": "Traditional record-keeping systems are vulnerable to retroactive changes and document falsification",
+          "stat": "Rp 182 T",
+          "statLabel": "State losses due to corruption (2015–2023)"
+        },
+        {
+          "icon": "⏰",
+          "title": "Slow & Costly Audits",
+          "description": "Manual audit processes take months and require significant resources",
+          "stat": "6–12 months",
+          "statLabel": "Average audit turnaround time"
+        }
+      ]
+    },
+    "solution": {
+      "title": "The Solution: OpenBudget.ID",
+      "subtextBefore": "Blockchain as invisible infrastructure — making every budget transaction",
+      "subtextMid1": "(immutable, unable to be altered),",
+      "subtextMid2": "(verifiable by anyone), and",
+      "howTitle": "How Does It Work?",
+      "steps": [
+        {
+          "step": "1",
+          "title": "Ministry Registers a Project",
+          "desc": "Log in with Google OAuth, create a draft budget project in the database"
+        },
+        {
+          "step": "2",
+          "title": "Publish to the Solana Blockchain",
+          "desc": "The project is published to the blockchain as an immutable record via wallet signature"
+        },
+        {
+          "step": "3",
+          "title": "Add Spending Milestones",
+          "desc": "Every fund disbursement is recorded as an on-chain milestone with proof documentation"
+        },
+        {
+          "step": "4",
+          "title": "Citizens Verify in Real Time",
+          "desc": "The public can view, search, and verify every transaction via Solana Explorer"
+        }
+      ],
+      "archTitle": "Hybrid Architecture",
+      "archOnChain": "Immutable spending records — Source of Truth that no one can alter",
+      "archOffChain": "Searchable metadata & cache — Fast queries for optimal UX",
+      "archBridge": "Coordinates DB ↔ Blockchain with self-healing auto-sync"
+    },
+    "features": {
+      "title": "Key Features",
+      "subtitle": "Advanced technology for maximum transparency",
+      "items": [
+        {
+          "icon": "🏛️",
+          "title": "Ministry Admin Dashboard",
+          "features": [
+            "Google OAuth login",
+            "Wallet integration (Phantom/Solflare)",
+            "Real-time blockchain publish",
+            "Milestone management"
+          ],
+          "color": "blue"
+        },
+        {
+          "icon": "👥",
+          "title": "Public Citizen Dashboard",
+          "features": [
+            "No login required",
+            "Real-time search & filter",
+            "Blockchain verification links",
+            "Indonesian localization"
+          ],
+          "color": "green"
+        },
+        {
+          "icon": "🔄",
+          "title": "Self-Healing System",
+          "features": [
+            "Auto-sync DB ↔ Blockchain",
+            "Manual verify/sync buttons",
+            "Database can be rebuilt",
+            "Production-ready resilience"
+          ],
+          "color": "purple"
+        }
+      ]
+    },
+    "techStack": {
+      "title": "Technical Stack",
+      "subtitle": "Built with cutting-edge technology",
+      "perfTitle": "Performance Metrics",
+      "metrics": [
+        { "label": "Database Queries", "value": "< 1ms", "icon": "⚡" },
+        { "label": "Pages Compiled", "value": "11/11", "icon": "📄" },
+        { "label": "Test Coverage", "value": "14/14", "icon": "✅" },
+        { "label": "Build Time", "value": "< 30s", "icon": "🚀" }
+      ]
+    },
+    "smartContract": {
+      "title": "Solana Smart Contract Architecture",
+      "subtitle": "Immutable, auditable, and transparent — built with the Anchor Framework on Solana"
+    },
+    "team": {
+      "title": "Meet the Developer",
+      "subtitle": "A solo developer passionate about blockchain transparency",
+      "role": "Lead Developer & Blockchain Architect",
+      "quote": "Building for eternity",
+      "repositories": "Repositories",
+      "followers": "Followers",
+      "following": "Following",
+      "bio": "RECTOR is a full-stack blockchain developer specialising in Solana and Web3 applications. With expertise in Rust, Anchor, TypeScript, and Next.js, he builds production-ready decentralised applications that prioritise user experience and real-world impact. OpenBudget.ID represents his commitment to leveraging blockchain technology for social good and government transparency."
+    },
+    "hackathon": {
+      "title": "Hackathon Alignment",
+      "subtitle": "Designed to excel across every evaluation criterion",
+      "criteria": [
+        {
+          "criteria": "Impact Potential (35%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Addresses corruption & transparency — a critical national challenge",
+            "Perfectly aligned with Indonesia's Digital 2045 vision",
+            "Scalable to all ministries and regional governments"
+          ]
+        },
+        {
+          "criteria": "Technical Feasibility (25%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Fully functional MVP deployed on Solana devnet",
+            "Solid hybrid architecture (on-chain + off-chain)",
+            "Production-ready with self-healing capabilities"
+          ]
+        },
+        {
+          "criteria": "Innovation (20%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Novel self-healing DB ↔ blockchain sync system",
+            "Blockchain as invisible infrastructure (UX-first)",
+            "Design language inspired by Indonesian batik"
+          ]
+        },
+        {
+          "criteria": "Business Feasibility (20%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Clear adoption path: pilot with 1 ministry → scale nationally",
+            "Government as primary user — strong sustainability model",
+            "Open API for NGO/media integration"
+          ]
+        }
+      ]
+    },
+    "cta": {
+      "headline": "Let's Build a More Transparent Indonesia",
+      "subhead": "OpenBudget.ID is more than an application — it is a movement toward more accountable and trustworthy governance.",
+      "publicDashboard": "View Public Dashboard",
+      "adminPanel": "Ministry Admin Panel",
+      "verifyExplorer": "Verify on Solana Explorer",
+      "builtFor": "Built for Garuda Spark 2025",
+      "organizers": "Superteam Indonesia × Ministry of Communication and Digital Affairs × Ministry of Creative Economy"
+    }
   }
 }

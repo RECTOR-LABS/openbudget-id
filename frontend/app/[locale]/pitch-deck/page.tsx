@@ -5,9 +5,10 @@ import { useRef } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Image from 'next/image';
-import VideoCarousel from '@/components/VideoCarousel';
+import { useTranslations } from 'next-intl';
 
 export default function PitchDeckPage() {
+  const t = useTranslations('pitchDeck');
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -49,22 +50,21 @@ export default function PitchDeckPage() {
                 Open<span className="text-yellow-300">Budget</span>.ID
               </h1>
               <p className="text-2xl md:text-3xl font-light mb-8 text-blue-100">
-                Transparansi Anggaran Pemerintah Berbasis Blockchain
+                {t('hero.subhead')}
               </p>
               <div className="flex flex-wrap justify-center gap-4 mb-8">
                 <span className="px-6 py-2 bg-green-600 text-white rounded-full font-semibold">
-                  🏆 Garuda Spark 2025
+                  🏆 {t('hero.badge1')}
                 </span>
                 <span className="px-6 py-2 bg-purple-600 text-white rounded-full font-semibold">
-                  ⚡ Cypherpunk Colosseum
+                  ⚡ {t('hero.badge2')}
                 </span>
                 <span className="px-6 py-2 bg-yellow-600 text-white rounded-full font-semibold">
-                  🇮🇩 Digital Indonesia 2045
+                  🇮🇩 {t('hero.badge3')}
                 </span>
               </div>
               <p className="text-lg text-blue-200 max-w-3xl mx-auto">
-                Setiap rupiah anggaran publik dapat dilacak, diaudit, dan diverifikasi oleh warga
-                negara — didukung oleh Solana Blockchain.
+                {t('hero.description')}
               </p>
             </motion.div>
 
@@ -101,40 +101,14 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold text-gray-900 mb-6">💔 Masalah yang Dihadapi</h2>
+              <h2 className="text-5xl font-bold text-gray-900 mb-6">💔 {t('problem.title')}</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Korupsi dan penyalahgunaan anggaran publik merusak kepercayaan rakyat terhadap
-                pemerintah
+                {t('problem.subtitle')}
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: '🕵️',
-                  title: 'Kurangnya Transparansi',
-                  description:
-                    'Masyarakat tidak dapat mengakses data detail penggunaan anggaran pemerintah secara real-time',
-                  stat: '72%',
-                  statLabel: 'Warga tidak percaya pengelolaan APBN',
-                },
-                {
-                  icon: '📝',
-                  title: 'Data Dapat Dimanipulasi',
-                  description:
-                    'Sistem pencatatan tradisional rentan terhadap perubahan retroaktif dan pemalsuan dokumen',
-                  stat: 'Rp 182 T',
-                  statLabel: 'Kerugian negara akibat korupsi (2015-2023)',
-                },
-                {
-                  icon: '⏰',
-                  title: 'Audit Lambat & Mahal',
-                  description:
-                    'Proses audit manual memakan waktu berbulan-bulan dan membutuhkan biaya besar',
-                  stat: '6-12 bulan',
-                  statLabel: 'Waktu audit rata-rata',
-                },
-              ].map((problem, index) => (
+              {(t.raw('problem.cards') as Array<{ icon: string; title: string; description: string; stat: string; statLabel: string }>).map((problem, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 30 }}
@@ -175,13 +149,13 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-6">✨ Solusi: OpenBudget.ID</h2>
+              <h2 className="text-5xl font-bold mb-6">✨ {t('solution.title')}</h2>
               <p className="text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
-                Blockchain sebagai infrastruktur invisible yang membuat setiap transaksi anggaran
+                {t('solution.subtextBefore')}
                 <span className="text-yellow-300 font-semibold"> immutable </span>
-                (tidak dapat diubah),
+                {t('solution.subtextMid1')}
                 <span className="text-yellow-300 font-semibold"> transparent </span>
-                (dapat diverifikasi siapa saja), dan
+                {t('solution.subtextMid2')}
                 <span className="text-yellow-300 font-semibold"> real-time</span>.
               </p>
             </motion.div>
@@ -193,30 +167,9 @@ export default function PitchDeckPage() {
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
               >
-                <h3 className="text-3xl font-bold mb-6">Bagaimana Cara Kerjanya?</h3>
+                <h3 className="text-3xl font-bold mb-6">{t('solution.howTitle')}</h3>
                 <div className="space-y-4">
-                  {[
-                    {
-                      step: '1',
-                      title: 'Kementerian Mendaftarkan Proyek',
-                      desc: 'Login dengan Google OAuth, buat proyek anggaran draft di database',
-                    },
-                    {
-                      step: '2',
-                      title: 'Publikasi ke Blockchain Solana',
-                      desc: 'Proyek di-publish ke blockchain menjadi record immutable dengan Wallet signature',
-                    },
-                    {
-                      step: '3',
-                      title: 'Tambahkan Milestone Realisasi',
-                      desc: 'Setiap pencairan dana dicatat sebagai milestone on-chain dengan bukti dokumen',
-                    },
-                    {
-                      step: '4',
-                      title: 'Warga Verifikasi Real-Time',
-                      desc: 'Publik dapat melihat, mencari, dan memverifikasi setiap transaksi via Solana Explorer',
-                    },
-                  ].map((item) => (
+                  {(t.raw('solution.steps') as Array<{ step: string; title: string; desc: string }>).map((item) => (
                     <div key={item.step} className="flex gap-4">
                       <div className="flex-shrink-0 w-12 h-12 bg-yellow-400 text-blue-900 rounded-full flex items-center justify-center font-bold text-lg">
                         {item.step}
@@ -237,12 +190,12 @@ export default function PitchDeckPage() {
                 viewport={{ once: true }}
                 className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20"
               >
-                <h4 className="text-2xl font-bold mb-6 text-center">Hybrid Architecture</h4>
+                <h4 className="text-2xl font-bold mb-6 text-center">{t('solution.archTitle')}</h4>
                 <div className="space-y-4 text-sm">
                   <div className="bg-blue-900/50 rounded-lg p-4 border border-blue-400">
                     <div className="font-bold mb-2 text-yellow-300">🔗 On-Chain (Solana)</div>
                     <div className="text-blue-100">
-                      Immutable spending records — Source of Truth yang tidak bisa diubah siapa pun
+                      {t('solution.archOnChain')}
                     </div>
                   </div>
                   <div className="text-center">
@@ -263,7 +216,7 @@ export default function PitchDeckPage() {
                   <div className="bg-blue-900/50 rounded-lg p-4 border border-green-400">
                     <div className="font-bold mb-2 text-yellow-300">💾 Off-Chain (PostgreSQL)</div>
                     <div className="text-blue-100">
-                      Searchable metadata & cache — Fast queries untuk UX yang optimal
+                      {t('solution.archOffChain')}
                     </div>
                   </div>
                   <div className="text-center">
@@ -284,65 +237,12 @@ export default function PitchDeckPage() {
                   <div className="bg-purple-900/50 rounded-lg p-4 border border-purple-400">
                     <div className="font-bold mb-2 text-yellow-300">🌉 Bridge (Next.js API)</div>
                     <div className="text-blue-100">
-                      Koordinasi DB ↔ Blockchain dengan self-healing auto-sync
+                      {t('solution.archBridge')}
                     </div>
                   </div>
                 </div>
               </motion.div>
             </div>
-          </div>
-        </section>
-
-        {/* Video Demo Section - Interactive Carousel */}
-        <section className="py-20 bg-gradient-to-br from-gray-900 to-gray-800 relative overflow-hidden">
-          {/* Animated background particles */}
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(20)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-yellow-400 rounded-full opacity-30"
-                initial={{
-                  x: Math.random() * 100 + '%',
-                  y: Math.random() * 100 + '%',
-                }}
-                animate={{
-                  y: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-                  opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{
-                  duration: Math.random() * 5 + 5,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="relative z-10 max-w-7xl mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-5xl font-bold text-white mb-4">🎥 Demo Video</h2>
-              <p className="text-xl text-gray-300 mb-2">
-                6 scene menampilkan full journey OpenBudget.ID
-              </p>
-              <p className="text-sm text-gray-400">
-                Dari overview publik hingga verifikasi on-chain di Solana Explorer
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-            >
-              <VideoCarousel />
-            </motion.div>
           </div>
         </section>
 
@@ -356,48 +256,14 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold text-gray-900 mb-4">⚡ Fitur Unggulan</h2>
+              <h2 className="text-5xl font-bold text-gray-900 mb-4">⚡ {t('features.title')}</h2>
               <p className="text-xl text-gray-600">
-                Teknologi canggih untuk transparansi maksimal
+                {t('features.subtitle')}
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: '🏛️',
-                  title: 'Ministry Admin Dashboard',
-                  features: [
-                    'Google OAuth login',
-                    'Wallet integration (Phantom/Solflare)',
-                    'Real-time blockchain publish',
-                    'Milestone management',
-                  ],
-                  color: 'blue',
-                },
-                {
-                  icon: '👥',
-                  title: 'Public Citizen Dashboard',
-                  features: [
-                    'No login required',
-                    'Real-time search & filter',
-                    'Blockchain verification links',
-                    'Indonesian localization',
-                  ],
-                  color: 'green',
-                },
-                {
-                  icon: '🔄',
-                  title: 'Self-Healing System',
-                  features: [
-                    'Auto-sync DB ↔ Blockchain',
-                    'Manual verify/sync buttons',
-                    'Database can be rebuilt',
-                    'Production-ready resilience',
-                  ],
-                  color: 'purple',
-                },
-              ].map((feature, index) => (
+              {(t.raw('features.items') as Array<{ icon: string; title: string; features: string[]; color: string }>).map((feature, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 30 }}
@@ -444,9 +310,9 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-4">🚀 Technical Stack</h2>
+              <h2 className="text-5xl font-bold mb-4">🚀 {t('techStack.title')}</h2>
               <p className="text-xl text-gray-400">
-                Built with cutting-edge technology
+                {t('techStack.subtitle')}
               </p>
             </motion.div>
 
@@ -493,14 +359,9 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="mt-8 bg-gradient-to-r from-green-900 to-green-700 rounded-xl p-8 border border-green-500"
             >
-              <h3 className="text-2xl font-bold mb-4 text-center">Performance Metrics</h3>
+              <h3 className="text-2xl font-bold mb-4 text-center">{t('techStack.perfTitle')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                {[
-                  { label: 'Database Queries', value: '< 1ms', icon: '⚡' },
-                  { label: 'Pages Compiled', value: '11/11', icon: '📄' },
-                  { label: 'Test Coverage', value: '14/14', icon: '✅' },
-                  { label: 'Build Time', value: '< 30s', icon: '🚀' },
-                ].map((metric, i) => (
+                {(t.raw('techStack.metrics') as Array<{ label: string; value: string; icon: string }>).map((metric, i) => (
                   <div key={i}>
                     <div className="text-4xl mb-2">{metric.icon}</div>
                     <div className="text-3xl font-bold text-yellow-300">{metric.value}</div>
@@ -531,9 +392,9 @@ export default function PitchDeckPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-4">⛓️ Arsitektur Solana Smart Contract</h2>
+              <h2 className="text-5xl font-bold mb-4">⛓️ {t('smartContract.title')}</h2>
               <p className="text-xl text-blue-200 max-w-4xl mx-auto">
-                Immutable, dapat diaudit, dan transparan — dibangun dengan Anchor Framework di Solana
+                {t('smartContract.subtitle')}
               </p>
             </motion.div>
 
@@ -776,9 +637,9 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold text-gray-900 mb-4">👨‍💻 Kenali Developer-nya</h2>
+              <h2 className="text-5xl font-bold text-gray-900 mb-4">👨‍💻 {t('team.title')}</h2>
               <p className="text-xl text-gray-600">
-                Developer solo yang bersemangat tentang transparansi blockchain
+                {t('team.subtitle')}
               </p>
             </motion.div>
 
@@ -816,22 +677,22 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
                   <div className="flex-1 text-center md:text-left">
                     <h3 className="text-3xl font-bold text-gray-900 mb-2">Thę Rēct◎r</h3>
                     <p className="text-lg text-blue-600 font-semibold mb-3">
-                      Lead Developer & Blockchain Architect
+                      {t('team.role')}
                     </p>
-                    <p className="text-gray-700 italic mb-4">&quot;Membangun untuk keabadian&quot;</p>
+                    <p className="text-gray-700 italic mb-4">&quot;{t('team.quote')}&quot;</p>
 
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
                       <div className="bg-white rounded-lg px-4 py-2 shadow">
                         <div className="text-2xl font-bold text-blue-600">24</div>
-                        <div className="text-xs text-gray-600">Repositories</div>
+                        <div className="text-xs text-gray-600">{t('team.repositories')}</div>
                       </div>
                       <div className="bg-white rounded-lg px-4 py-2 shadow">
                         <div className="text-2xl font-bold text-green-600">19</div>
-                        <div className="text-xs text-gray-600">Followers</div>
+                        <div className="text-xs text-gray-600">{t('team.followers')}</div>
                       </div>
                       <div className="bg-white rounded-lg px-4 py-2 shadow">
                         <div className="text-2xl font-bold text-purple-600">84</div>
-                        <div className="text-xs text-gray-600">Following</div>
+                        <div className="text-xs text-gray-600">{t('team.following')}</div>
                       </div>
                     </div>
 
@@ -907,11 +768,7 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               className="mt-12 text-center"
             >
               <p className="text-gray-600 max-w-3xl mx-auto">
-                <strong>RECTOR</strong> is a full-stack blockchain developer specializing in Solana
-                and Web3 applications. With expertise in Rust, Anchor, TypeScript, and Next.js, he
-                builds production-ready decentralized applications that prioritize user experience
-                and real-world impact. OpenBudget.ID represents his commitment to leveraging
-                blockchain technology for social good and government transparency.
+                {t('team.bio')}
               </p>
             </motion.div>
           </div>
@@ -927,51 +784,14 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-5xl font-bold mb-4">🏆 Kesesuaian Hackathon</h2>
+              <h2 className="text-5xl font-bold mb-4">🏆 {t('hackathon.title')}</h2>
               <p className="text-xl text-purple-100">
-                Dirancang untuk unggul di setiap kriteria evaluasi
+                {t('hackathon.subtitle')}
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {[
-                {
-                  criteria: 'Potensi Dampak (35%)',
-                  score: '⭐⭐⭐⭐⭐',
-                  points: [
-                    'Mengatasi korupsi & transparansi — masalah nasional kritis',
-                    'Selaras sempurna dengan visi Digital Indonesia 2045',
-                    'Dapat diskalakan ke semua kementerian & pemerintah daerah',
-                  ],
-                },
-                {
-                  criteria: 'Kelayakan Teknis (25%)',
-                  score: '⭐⭐⭐⭐⭐',
-                  points: [
-                    'MVP yang sepenuhnya fungsional di-deploy di Solana devnet',
-                    'Hybrid architecture yang solid (on-chain + off-chain)',
-                    'Siap produksi dengan kemampuan self-healing',
-                  ],
-                },
-                {
-                  criteria: 'Innovation (20%)',
-                  score: '⭐⭐⭐⭐⭐',
-                  points: [
-                    'Sistem sinkronisasi self-healing DB ↔ blockchain yang baru',
-                    'Blockchain sebagai infrastruktur invisible (UX-first)',
-                    'Bahasa desain yang terinspirasi batik Indonesia',
-                  ],
-                },
-                {
-                  criteria: 'Kelayakan Bisnis (20%)',
-                  score: '⭐⭐⭐⭐⭐',
-                  points: [
-                    'Jalur adopsi yang jelas: pilot dengan 1 kementerian → skalakan secara nasional',
-                    'Pemerintah sebagai pengguna utama — keberlanjutan yang kuat',
-                    'Open API untuk integrasi NGO/media',
-                  ],
-                },
-              ].map((item, index) => (
+              {(t.raw('hackathon.criteria') as Array<{ criteria: string; score: string; points: string[] }>).map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -1014,11 +834,10 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
               viewport={{ once: true }}
             >
               <h2 className="text-5xl font-bold text-gray-900 mb-6">
-                Mari Wujudkan Indonesia yang Lebih Transparan
+                {t('cta.headline')}
               </h2>
               <p className="text-2xl text-gray-800 mb-8">
-                OpenBudget.ID bukan hanya aplikasi — ini adalah gerakan menuju pemerintahan yang
-                lebih akuntabel dan dapat dipercaya.
+                {t('cta.subhead')}
               </p>
 
               <div className="flex flex-wrap justify-center gap-4">
@@ -1026,13 +845,13 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
                   href="/"
                   className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 >
-                  🏠 Lihat Dashboard Publik
+                  🏠 {t('cta.publicDashboard')}
                 </a>
                 <a
                   href="/admin"
                   className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 >
-                  🏛️ Panel Admin Kementerian
+                  🏛️ {t('cta.adminPanel')}
                 </a>
                 <a
                   href="https://explorer.solana.com/address/RECtBgp43nvj5inPVW7qo1YN95RwXaYDxLX4dvuJXFY?cluster=devnet"
@@ -1040,17 +859,16 @@ const [milestonePda] = PublicKey.findProgramAddressSync(
                   rel="noopener noreferrer"
                   className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                 >
-                  🔗 Verifikasi di Solana Explorer
+                  🔗 {t('cta.verifyExplorer')}
                 </a>
               </div>
 
               <div className="mt-12 text-gray-800">
                 <p className="text-lg font-semibold mb-2">
-                  Built for Garuda Spark 2025 🇮🇩
+                  {t('cta.builtFor')} 🇮🇩
                 </p>
                 <p className="text-sm">
-                  Superteam Indonesia × Ministry of Communication and Digital Affairs × Ministry of
-                  Creative Economy
+                  {t('cta.organizers')}
                 </p>
               </div>
             </motion.div>

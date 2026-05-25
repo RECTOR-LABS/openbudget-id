@@ -710,5 +710,189 @@
         "Handle errors gracefully with retries"
       ]
     }
+  },
+  "pitchDeck": {
+    "hero": {
+      "subhead": "Transparansi Anggaran Pemerintah Berbasis Blockchain",
+      "badge1": "Garuda Spark 2025",
+      "badge2": "Cypherpunk Colosseum",
+      "badge3": "Digital Indonesia 2045",
+      "description": "Setiap rupiah anggaran publik dapat dilacak, diaudit, dan diverifikasi oleh warga negara — didukung oleh Solana Blockchain."
+    },
+    "problem": {
+      "title": "Masalah yang Dihadapi",
+      "subtitle": "Korupsi dan penyalahgunaan anggaran publik merusak kepercayaan rakyat terhadap pemerintah",
+      "cards": [
+        {
+          "icon": "🕵️",
+          "title": "Kurangnya Transparansi",
+          "description": "Masyarakat tidak dapat mengakses data detail penggunaan anggaran pemerintah secara real-time",
+          "stat": "72%",
+          "statLabel": "Warga tidak percaya pengelolaan APBN"
+        },
+        {
+          "icon": "📝",
+          "title": "Data Dapat Dimanipulasi",
+          "description": "Sistem pencatatan tradisional rentan terhadap perubahan retroaktif dan pemalsuan dokumen",
+          "stat": "Rp 182 T",
+          "statLabel": "Kerugian negara akibat korupsi (2015-2023)"
+        },
+        {
+          "icon": "⏰",
+          "title": "Audit Lambat & Mahal",
+          "description": "Proses audit manual memakan waktu berbulan-bulan dan membutuhkan biaya besar",
+          "stat": "6-12 bulan",
+          "statLabel": "Waktu audit rata-rata"
+        }
+      ]
+    },
+    "solution": {
+      "title": "Solusi: OpenBudget.ID",
+      "subtextBefore": "Blockchain sebagai infrastruktur invisible yang membuat setiap transaksi anggaran",
+      "subtextMid1": "(tidak dapat diubah),",
+      "subtextMid2": "(dapat diverifikasi siapa saja), dan",
+      "howTitle": "Bagaimana Cara Kerjanya?",
+      "steps": [
+        {
+          "step": "1",
+          "title": "Kementerian Mendaftarkan Proyek",
+          "desc": "Login dengan Google OAuth, buat proyek anggaran draft di database"
+        },
+        {
+          "step": "2",
+          "title": "Publikasi ke Blockchain Solana",
+          "desc": "Proyek di-publish ke blockchain menjadi record immutable dengan Wallet signature"
+        },
+        {
+          "step": "3",
+          "title": "Tambahkan Milestone Realisasi",
+          "desc": "Setiap pencairan dana dicatat sebagai milestone on-chain dengan bukti dokumen"
+        },
+        {
+          "step": "4",
+          "title": "Warga Verifikasi Real-Time",
+          "desc": "Publik dapat melihat, mencari, dan memverifikasi setiap transaksi via Solana Explorer"
+        }
+      ],
+      "archTitle": "Hybrid Architecture",
+      "archOnChain": "Immutable spending records — Source of Truth yang tidak bisa diubah siapa pun",
+      "archOffChain": "Searchable metadata & cache — Fast queries untuk UX yang optimal",
+      "archBridge": "Koordinasi DB ↔ Blockchain dengan self-healing auto-sync"
+    },
+    "features": {
+      "title": "Fitur Unggulan",
+      "subtitle": "Teknologi canggih untuk transparansi maksimal",
+      "items": [
+        {
+          "icon": "🏛️",
+          "title": "Ministry Admin Dashboard",
+          "features": [
+            "Google OAuth login",
+            "Wallet integration (Phantom/Solflare)",
+            "Real-time blockchain publish",
+            "Milestone management"
+          ],
+          "color": "blue"
+        },
+        {
+          "icon": "👥",
+          "title": "Public Citizen Dashboard",
+          "features": [
+            "No login required",
+            "Real-time search & filter",
+            "Blockchain verification links",
+            "Indonesian localization"
+          ],
+          "color": "green"
+        },
+        {
+          "icon": "🔄",
+          "title": "Self-Healing System",
+          "features": [
+            "Auto-sync DB ↔ Blockchain",
+            "Manual verify/sync buttons",
+            "Database can be rebuilt",
+            "Production-ready resilience"
+          ],
+          "color": "purple"
+        }
+      ]
+    },
+    "techStack": {
+      "title": "Technical Stack",
+      "subtitle": "Built with cutting-edge technology",
+      "perfTitle": "Performance Metrics",
+      "metrics": [
+        { "label": "Database Queries", "value": "< 1ms", "icon": "⚡" },
+        { "label": "Pages Compiled", "value": "11/11", "icon": "📄" },
+        { "label": "Test Coverage", "value": "14/14", "icon": "✅" },
+        { "label": "Build Time", "value": "< 30s", "icon": "🚀" }
+      ]
+    },
+    "smartContract": {
+      "title": "Arsitektur Solana Smart Contract",
+      "subtitle": "Immutable, dapat diaudit, dan transparan — dibangun dengan Anchor Framework di Solana"
+    },
+    "team": {
+      "title": "Kenali Developer-nya",
+      "subtitle": "Developer solo yang bersemangat tentang transparansi blockchain",
+      "role": "Lead Developer & Blockchain Architect",
+      "quote": "Membangun untuk keabadian",
+      "repositories": "Repositories",
+      "followers": "Followers",
+      "following": "Following",
+      "bio": "RECTOR adalah full-stack blockchain developer yang mengkhususkan diri dalam aplikasi Solana dan Web3. Dengan keahlian di Rust, Anchor, TypeScript, dan Next.js, ia membangun aplikasi terdesentralisasi siap produksi yang mengutamakan pengalaman pengguna dan dampak nyata. OpenBudget.ID mewakili komitmennya untuk memanfaatkan teknologi blockchain demi kebaikan sosial dan transparansi pemerintah."
+    },
+    "hackathon": {
+      "title": "Kesesuaian Hackathon",
+      "subtitle": "Dirancang untuk unggul di setiap kriteria evaluasi",
+      "criteria": [
+        {
+          "criteria": "Potensi Dampak (35%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Mengatasi korupsi & transparansi — masalah nasional kritis",
+            "Selaras sempurna dengan visi Digital Indonesia 2045",
+            "Dapat diskalakan ke semua kementerian & pemerintah daerah"
+          ]
+        },
+        {
+          "criteria": "Kelayakan Teknis (25%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "MVP yang sepenuhnya fungsional di-deploy di Solana devnet",
+            "Hybrid architecture yang solid (on-chain + off-chain)",
+            "Siap produksi dengan kemampuan self-healing"
+          ]
+        },
+        {
+          "criteria": "Innovation (20%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Sistem sinkronisasi self-healing DB ↔ blockchain yang baru",
+            "Blockchain sebagai infrastruktur invisible (UX-first)",
+            "Bahasa desain yang terinspirasi batik Indonesia"
+          ]
+        },
+        {
+          "criteria": "Kelayakan Bisnis (20%)",
+          "score": "⭐⭐⭐⭐⭐",
+          "points": [
+            "Jalur adopsi yang jelas: pilot dengan 1 kementerian → skalakan secara nasional",
+            "Pemerintah sebagai pengguna utama — keberlanjutan yang kuat",
+            "Open API untuk integrasi NGO/media"
+          ]
+        }
+      ]
+    },
+    "cta": {
+      "headline": "Mari Wujudkan Indonesia yang Lebih Transparan",
+      "subhead": "OpenBudget.ID bukan hanya aplikasi — ini adalah gerakan menuju pemerintahan yang lebih akuntabel dan dapat dipercaya.",
+      "publicDashboard": "Lihat Dashboard Publik",
+      "adminPanel": "Panel Admin Kementerian",
+      "verifyExplorer": "Verifikasi di Solana Explorer",
+      "builtFor": "Built for Garuda Spark 2025",
+      "organizers": "Superteam Indonesia × Ministry of Communication and Digital Affairs × Ministry of Creative Economy"
+    }
   }
 }
