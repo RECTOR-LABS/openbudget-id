@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -718,6 +719,7 @@ const endpoints: Endpoint[] = [
 const categories = Array.from(new Set(endpoints.map((e) => e.category)));
 
 export default function ApiDocsPage() {
+  const t = useTranslations('apiDocs');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedEndpoint, setExpandedEndpoint] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<'curl' | 'javascript' | 'typescript'>(
@@ -818,6 +820,9 @@ const data = await response.json();`;
     return '';
   };
 
+  const rateLimits = t.raw('rateLimiting.limits') as string[];
+  const bestPractices = t.raw('rateLimiting.practices') as string[];
+
   return (
     <>
       <Header />
@@ -837,20 +842,20 @@ const data = await response.json();`;
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-5xl font-bold mb-4">📚 API Documentation</h1>
+              <h1 className="text-5xl font-bold mb-4">📚 {t('title')}</h1>
               <p className="text-xl text-blue-100 mb-6">
-                Dokumentasi lengkap OpenBudget.ID REST API
+                {t('subtitle')}
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm">
                 <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg">
-                  <span className="text-yellow-300 font-semibold">Base URL:</span>{' '}
+                  <span className="text-yellow-300 font-semibold">{t('baseUrlLabel')}:</span>{' '}
                   {process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}
                 </div>
                 <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg">
-                  <span className="text-yellow-300 font-semibold">Version:</span> v1
+                  <span className="text-yellow-300 font-semibold">{t('versionLabel')}:</span> v1
                 </div>
                 <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-lg">
-                  <span className="text-yellow-300 font-semibold">Format:</span> JSON
+                  <span className="text-yellow-300 font-semibold">{t('formatLabel')}:</span> JSON
                 </div>
               </div>
             </motion.div>
@@ -879,17 +884,16 @@ const data = await response.json();`;
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                 />
               </svg>
-              Authentication
+              {t('auth.title')}
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6">
                 <h3 className="text-xl font-semibold text-orange-900 mb-3">
-                  🔐 Session-Based (Admin)
+                  🔐 {t('auth.sessionTitle')}
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  Ministry officials login with Google OAuth. Session cookies are automatically
-                  included in requests.
+                  {t('auth.sessionDesc')}
                 </p>
                 <div className="bg-white rounded p-3 border border-orange-300">
                   <code className="text-sm text-gray-800">Cookie: next-auth.session-token</code>
@@ -898,11 +902,10 @@ const data = await response.json();`;
 
               <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-6">
                 <h3 className="text-xl font-semibold text-purple-900 mb-3">
-                  👛 Wallet Signature (Blockchain)
+                  👛 {t('auth.walletTitle')}
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  For blockchain operations, transactions must be signed with connected Solana
-                  wallet (Phantom/Solflare).
+                  {t('auth.walletDesc')}
                 </p>
                 <div className="bg-white rounded p-3 border border-purple-300">
                   <code className="text-sm text-gray-800">
@@ -929,7 +932,7 @@ const data = await response.json();`;
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                All Endpoints ({endpoints.length})
+                {t('filter.allLabel')} ({endpoints.length})
               </button>
               {categories.map((category) => (
                 <button
@@ -1017,16 +1020,16 @@ const data = await response.json();`;
                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                             />
                           </svg>
-                          Request Body
+                          {t('endpoint.requestBodyTitle')}
                         </h4>
                         <div className="bg-white rounded-lg p-4 border border-gray-300">
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b">
-                                <th className="text-left py-2 px-3 text-gray-700">Field</th>
-                                <th className="text-left py-2 px-3 text-gray-700">Type</th>
-                                <th className="text-left py-2 px-3 text-gray-700">Required</th>
-                                <th className="text-left py-2 px-3 text-gray-700">Description</th>
+                                <th className="text-left py-2 px-3 text-gray-700">{t('endpoint.fieldColumn')}</th>
+                                <th className="text-left py-2 px-3 text-gray-700">{t('endpoint.typeColumn')}</th>
+                                <th className="text-left py-2 px-3 text-gray-700">{t('endpoint.requiredColumn')}</th>
+                                <th className="text-left py-2 px-3 text-gray-700">{t('endpoint.descriptionColumn')}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -1041,9 +1044,9 @@ const data = await response.json();`;
                                     </td>
                                     <td className="py-2 px-3">
                                       {value.required ? (
-                                        <span className="text-red-600 font-semibold">Yes</span>
+                                        <span className="text-red-600 font-semibold">{t('endpoint.requiredYes')}</span>
                                       ) : (
-                                        <span className="text-gray-400">No</span>
+                                        <span className="text-gray-400">{t('endpoint.requiredNo')}</span>
                                       )}
                                     </td>
                                     <td className="py-2 px-3 text-gray-600">
@@ -1075,7 +1078,7 @@ const data = await response.json();`;
                               d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                             />
                           </svg>
-                          Example Request
+                          {t('endpoint.exampleRequestTitle')}
                         </h4>
                         <div className="flex gap-2">
                           {(['curl', 'javascript', 'typescript'] as const).map((lang) => (
@@ -1121,7 +1124,7 @@ const data = await response.json();`;
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
                           />
                         </svg>
-                        Example Response (200 OK)
+                        {t('endpoint.exampleResponseTitle')}
                       </h4>
                       <CodeBlock code={endpoint.exampleResponse} language="json" />
                     </div>
@@ -1152,7 +1155,7 @@ const data = await response.json();`;
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              Error Handling
+              {t('errors.title')}
             </h2>
 
             <div className="space-y-4">
@@ -1183,7 +1186,7 @@ const data = await response.json();`;
             </div>
 
             <div className="mt-6 bg-yellow-50 border-2 border-yellow-300 rounded-lg p-6">
-              <h4 className="font-semibold text-yellow-900 mb-2">Error Response Format:</h4>
+              <h4 className="font-semibold text-yellow-900 mb-2">{t('errors.formatTitle')}</h4>
               <CodeBlock
                 code={`{
   "error": {
@@ -1218,23 +1221,23 @@ const data = await response.json();`;
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Rate Limiting & Best Practices
+              {t('rateLimiting.title')}
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white/10 backdrop-blur-md rounded-lg p-6">
-                <h3 className="text-xl font-semibold mb-3">⚡ Rate Limits</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('rateLimiting.limitsTitle')}</h3>
                 <ul className="space-y-2 text-blue-100">
-                  <li>• Public endpoints: 100 requests/minute</li>
-                  <li>• Authenticated: 300 requests/minute</li>
-                  <li>• Blockchain ops: 10 transactions/minute</li>
+                  {rateLimits.map((limit, i) => (
+                    <li key={i}>• {limit}</li>
+                  ))}
                 </ul>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-lg p-6">
-                <h3 className="text-xl font-semibold mb-3">✅ Best Practices</h3>
+                <h3 className="text-xl font-semibold mb-3">{t('rateLimiting.practicesTitle')}</h3>
                 <ul className="space-y-2 text-blue-100">
-                  <li>• Cache responses when possible</li>
-                  <li>• Use pagination for large datasets</li>
-                  <li>• Handle errors gracefully with retries</li>
+                  {bestPractices.map((practice, i) => (
+                    <li key={i}>• {practice}</li>
+                  ))}
                 </ul>
               </div>
             </div>
