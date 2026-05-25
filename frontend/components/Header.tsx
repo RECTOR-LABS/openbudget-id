@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { LanguageToggle } from './LanguageToggle';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -107,6 +108,7 @@ export default function Header() {
 
           {/* Ministry Login Button */}
           <div className="hidden lg:flex items-center space-x-4">
+            <LanguageToggle scrolled={scrolled} />
             <Link
               href="/admin"
               className={`group relative px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 overflow-hidden cursor-pointer ${
@@ -195,6 +197,9 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
+            <div className="px-4 py-2">
+              <LanguageToggle scrolled={scrolled} />
+            </div>
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}
