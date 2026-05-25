@@ -136,9 +136,10 @@ Schema additions (single migration):
 
 | Table | New column | Type | Example |
 |---|---|---|---|
-| `ministry_accounts` | `name_en` | `TEXT` | `"Ministry of Finance"` (vs existing `name = "Kementerian Keuangan"`) |
-| `projects` | `title_en` | `TEXT` | `"National School Digitalization Program 2025"` |
+| `ministry_accounts` | `ministry_name_en` | `VARCHAR(255)` | `"Ministry of Finance"` (vs existing `ministry_name = "Kementerian Keuangan"`) |
+| `projects` | `title_en` | `VARCHAR(255)` | `"National School Digitalization Program 2025"` |
 | `projects` | `description_en` | `TEXT` | (full English description) |
+| `projects` | `recipient_name_en` | `VARCHAR(255)` | English recipient name (the `ministry_performance` materialized view groups by `recipient_name`, so analytics needs this) |
 | `milestones` | `description_en` | `TEXT` | English milestone description |
 | `comments` | `content_en` | `TEXT` | English version of demo comments (NULL for real user content) |
 | `issues` | `description_en` | `TEXT` | English version of demo issue reports (NULL for real reports) |
@@ -151,12 +152,12 @@ Schema additions (single migration):
 - The SQL `SELECT` picks `title_en` vs `title` (etc.) based on locale.
 - Fallback: `COALESCE(title_en, title)` for English requests means partial translations still render rather than returning NULL. Reverse for `id`.
 - Endpoints affected: `/api/projects`, `/api/projects/[id]`, `/api/milestones`, `/api/comments`, `/api/issues`, `/api/ratings`, `/api/analytics/leaderboard`, `/api/analytics/trends`, `/api/analytics/anomalies`.
-- **Note on `ministry_performance` materialized view:** The view does not need schema changes. The leaderboard API JOINs `ministry_accounts` post-query to fetch `name_en`. This keeps the view's refresh cost unchanged.
+- **Note on `ministry_performance` materialized view:** The view groups by `projects.recipient_name`. To support English leaderboard rows, the view definition is rebuilt to also project `recipient_name_en` (passed through via `MAX(recipient_name_en) AS ministry_en`). This requires `DROP MATERIALIZED VIEW ... CASCADE` and re-creation as part of the migration. Refresh cost is unchanged. Alternative considered (post-query JOIN on `ministry_accounts.ministry_name_en`) was rejected because the view doesn't preserve `ministry_id`, only `recipient_name`.
 
 ### Ministry name translations (curated)
-The 10 ministries in `ministry_accounts` get hand-curated English names — not auto-translated, because these are real government entity names and accuracy matters.
+The 10 ministries in `ministry_accounts` get hand-curated English names — not auto-translated, because these are real government entity names and accuracy matters. The same English mappings are applied to `projects.recipient_name_en` for the 30 demo projects (since each project's `recipient_name` mirrors one of the 10 ministry names).
 
-| Indonesian (existing `name`) | English (new `name_en`) |
+| Indonesian (existing `ministry_name`) | English (new `ministry_name_en`) |
 |---|---|
 | Kementerian Keuangan | Ministry of Finance |
 | Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi | Ministry of Education, Culture, Research, and Technology |
@@ -271,7 +272,7 @@ File: `frontend/components/Footer.tsx`
 ### Admin routes
 - All admin pages live under `[locale]/admin/*`. Ministry users see the toggle and can switch on demand.
 - All admin UI strings extracted into `admin.*` namespace.
-- The 10 hardcoded ministry names in `app/[locale]/admin/settings/page.tsx` get refactored — the page should query the `ministry_accounts` table instead of hardcoding. This was already a latent improvement; doing it now lets `name_en` flow through naturally.
+- The 10 hardcoded ministry names in `app/[locale]/admin/settings/page.tsx` get refactored — the page should query the `ministry_accounts` table instead of hardcoding. This was already a latent improvement; doing it now lets `ministry_name_en` flow through naturally.
 
 ### `/international` and `/international/brief`
 - **No changes this session.** They stay outside `[locale]/` as dedicated English pitch artifacts.
