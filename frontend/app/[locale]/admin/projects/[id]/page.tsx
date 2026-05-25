@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, web3, BN } from '@coral-xyz/anchor';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getExplorerUrl, getPlatformPda, getProjectPda, getMilestonePda } from '@/lib/solana';
 import idlJson from '@/idl/openbudget.json';
@@ -41,6 +42,7 @@ export default function ProjectDetailPage() {
   const { publicKey } = useWallet();
   const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
+  const t = useTranslations('admin.projects.detail');
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +93,7 @@ export default function ProjectDetailPage() {
 
   const handlePublish = async () => {
     if (!anchorWallet) {
-      alert('Please connect your wallet first');
+      alert(t('connectWallet'));
       return;
     }
 
@@ -161,7 +163,7 @@ export default function ProjectDetailPage() {
       });
 
       if (response.ok) {
-        alert('Project published to blockchain successfully!');
+        alert(t('publishSuccess'));
         fetchProject();
       } else {
         const data = await response.json();
@@ -172,7 +174,7 @@ export default function ProjectDetailPage() {
 
       // Check if transaction was already processed (likely successful)
       if (error instanceof Error && error.message.includes('already been processed')) {
-        alert('Transaction may have succeeded! Please refresh the page to check.');
+        alert(t('publishMayHaveSucceeded'));
         fetchProject();
       } else {
         setError(error instanceof Error ? error.message : 'Failed to publish project');
@@ -194,7 +196,7 @@ export default function ProjectDetailPage() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading project...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </AdminLayout>
@@ -205,7 +207,7 @@ export default function ProjectDetailPage() {
     return (
       <AdminLayout>
         <div className="text-center py-12">
-          <p className="text-red-600">Project not found</p>
+          <p className="text-red-600">{t('notFound')}</p>
         </div>
       </AdminLayout>
     );
@@ -231,7 +233,7 @@ export default function ProjectDetailPage() {
                 {project.status}
               </span>
             </div>
-            <p className="text-gray-600">{project.description || 'No description'}</p>
+            <p className="text-gray-600">{project.description || t('noDescription')}</p>
           </div>
           {project.status === 'draft' && (
             <button
@@ -242,14 +244,14 @@ export default function ProjectDetailPage() {
               {publishing ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Publishing...
+                  {t('publishing')}
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  Publish to Blockchain
+                  {t('publishButton')}
                 </>
               )}
             </button>
@@ -265,20 +267,20 @@ export default function ProjectDetailPage() {
         {/* Project Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="font-semibold text-gray-900 mb-4">Project Information</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">{t('projectInfo')}</h2>
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-gray-500">Recipient</dt>
+                <dt className="text-gray-500">{t('recipient')}</dt>
                 <dd className="text-gray-900 font-medium">{project.recipient_name}</dd>
               </div>
               {project.recipient_type && (
                 <div>
-                  <dt className="text-gray-500">Type</dt>
+                  <dt className="text-gray-500">{t('type')}</dt>
                   <dd className="text-gray-900 font-medium capitalize">{project.recipient_type}</dd>
                 </div>
               )}
               <div>
-                <dt className="text-gray-500">Created</dt>
+                <dt className="text-gray-500">{t('created')}</dt>
                 <dd className="text-gray-900 font-medium">
                   {new Date(project.created_at).toLocaleDateString('id-ID', {
                     year: 'numeric',
@@ -291,22 +293,22 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="font-semibold text-gray-900 mb-4">Budget Tracking</h2>
+            <h2 className="font-semibold text-gray-900 mb-4">{t('budgetTracking')}</h2>
             <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-gray-500">Total Budget</dt>
+                <dt className="text-gray-500">{t('totalBudget')}</dt>
                 <dd className="text-2xl font-bold text-gray-900">{formatAmount(project.total_amount)}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Allocated to Milestones</dt>
+                <dt className="text-gray-500">{t('allocatedToMilestones')}</dt>
                 <dd className="text-lg font-semibold text-blue-600">{formatAmount(project.total_allocated || '0')}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Released</dt>
+                <dt className="text-gray-500">{t('released')}</dt>
                 <dd className="text-lg font-semibold text-green-600">{formatAmount(project.total_released || '0')}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Remaining</dt>
+                <dt className="text-gray-500">{t('remaining')}</dt>
                 <dd className="text-lg font-semibold text-gray-600">
                   {formatAmount((BigInt(project.total_amount) - BigInt(project.total_allocated || '0')).toString())}
                 </dd>
@@ -322,15 +324,15 @@ export default function ProjectDetailPage() {
               <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
               </svg>
-              On-Chain Information
+              {t('onChainInfo')}
             </h2>
             <dl className="space-y-2 text-sm">
               <div>
-                <dt className="text-gray-600">Blockchain ID</dt>
+                <dt className="text-gray-600">{t('blockchainId')}</dt>
                 <dd className="font-mono text-gray-900">{project.blockchain_id}</dd>
               </div>
               <div>
-                <dt className="text-gray-600">Solana Account</dt>
+                <dt className="text-gray-600">{t('solanaAccount')}</dt>
                 <dd>
                   <a
                     href={getExplorerUrl(project.solana_account, 'address')}
@@ -344,7 +346,7 @@ export default function ProjectDetailPage() {
               </div>
               {project.creation_tx && (
                 <div>
-                  <dt className="text-gray-600">Creation Transaction</dt>
+                  <dt className="text-gray-600">{t('creationTx')}</dt>
                   <dd>
                     <a
                       href={getExplorerUrl(project.creation_tx, 'tx')}
@@ -365,7 +367,7 @@ export default function ProjectDetailPage() {
         {project.status === 'published' && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Milestones</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('milestonesTitle')}</h2>
               <button
                 onClick={() => setShowMilestoneForm(!showMilestoneForm)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
@@ -373,7 +375,7 @@ export default function ProjectDetailPage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Add Milestone
+                {t('addMilestone')}
               </button>
             </div>
 
@@ -403,7 +405,7 @@ export default function ProjectDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No milestones yet. Add your first milestone above.</p>
+              <p className="text-gray-500 text-center py-8">{t('noMilestones')}</p>
             )}
           </div>
         )}
@@ -430,6 +432,7 @@ function MilestoneForm({
 }) {
   const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
+  const t = useTranslations('admin.projects.detail.milestone');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     index: milestoneCount, // Auto-increment based on existing milestones
@@ -455,18 +458,18 @@ function MilestoneForm({
     e.preventDefault();
 
     if (!anchorWallet) {
-      setError('Please connect your wallet');
+      setError(t('connectWallet'));
       return;
     }
 
     if (!blockchainId) {
-      setError('Project must be published to blockchain first');
+      setError(t('mustBePublished'));
       return;
     }
 
     // Validate amount
     if (!formData.amount || formData.amount.trim() === '') {
-      setError('Please enter milestone amount');
+      setError(t('enterAmount'));
       return;
     }
 
@@ -477,12 +480,12 @@ function MilestoneForm({
       const amountInRupiah = Math.floor(parseFloat(formData.amount)).toString();
 
       if (isNaN(parseFloat(amountInRupiah))) {
-        setError('Please enter a valid amount');
+        setError(t('invalidAmount'));
         return;
       }
 
       if (BigInt(amountInRupiah) > remainingBudget) {
-        setError(`Amount exceeds remaining budget of Rp ${Number(remainingBudget).toLocaleString('id-ID')}`);
+        setError(t('exceedsBudget', { amount: `Rp ${Number(remainingBudget).toLocaleString('id-ID')}` }));
         return;
       }
 
@@ -541,7 +544,7 @@ function MilestoneForm({
 
       if (response.ok) {
         setError('');
-        alert(`✅ Milestone added successfully!\n\nTransaction: ${tx}\n\nView on Solana Explorer: ${getExplorerUrl(tx, 'tx')}`);
+        alert(t('addSuccess', { tx, url: getExplorerUrl(tx, 'tx') }));
         onSuccess();
       } else {
         const data = await response.json();
@@ -553,7 +556,7 @@ function MilestoneForm({
       // Check if error is "already processed" - this means SUCCESS
       if (error instanceof Error && error.message.includes('already been processed')) {
         setError('');
-        alert('✅ Milestone added successfully! The transaction has been confirmed on the blockchain.');
+        alert(t('addSuccessAlreadyProcessed'));
         onSuccess();
       } else {
         setError(error instanceof Error ? error.message : 'Failed to add milestone');
@@ -573,19 +576,19 @@ function MilestoneForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Milestone Index (Auto)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('indexLabel')}</label>
           <input
             type="number"
             value={formData.index}
             disabled
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-            title="Automatically assigned based on milestone count"
+            title={t('indexHint')}
           />
-          <p className="text-xs text-gray-500 mt-1">Auto-incremented, cannot be edited</p>
+          <p className="text-xs text-gray-500 mt-1">{t('indexHint')}</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Amount (Rupiah)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">{t('amountLabel')}</label>
           <input
             type="text"
             value={displayAmount}
@@ -600,13 +603,13 @@ function MilestoneForm({
             required
           />
           <p className="text-xs text-gray-500 mt-1">
-            Remaining: Rp {Number(remainingBudget).toLocaleString('id-ID')}
+            {t('remainingBudget', { amount: `Rp ${Number(remainingBudget).toLocaleString('id-ID')}` })}
           </p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('descriptionLabel')}</label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -622,14 +625,14 @@ function MilestoneForm({
           disabled={loading}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Adding...' : 'Add Milestone'}
+          {loading ? t('adding') : t('addButton')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          Cancel
+          {t('cancelButton')}
         </button>
       </div>
     </form>
@@ -648,6 +651,7 @@ function MilestoneCard({
 }) {
   const anchorWallet = useAnchorWallet();
   const { connection } = useConnection();
+  const t = useTranslations('admin.projects.detail.milestone');
   const [releasing, setReleasing] = useState(false);
   const [showReleaseForm, setShowReleaseForm] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
@@ -757,14 +761,14 @@ function MilestoneCard({
 
     if (!anchorWallet) {
       logToStorage('❌ No wallet connected');
-      alert('Please connect your wallet');
+      alert(t('connectWallet'));
       isProcessingRef.current = false; // Release lock
       return;
     }
 
     if (!proofUrl.trim()) {
       logToStorage('❌ No proof URL');
-      setError('Please upload a file or enter a proof document URL');
+      setError(t('proofRequired'));
       isProcessingRef.current = false; // Release lock
       return;
     }
@@ -838,7 +842,7 @@ function MilestoneCard({
           if (response.ok) {
             dbUpdateSuccess = true;
             console.log('✅ Database updated successfully');
-            alert('✅ Success! Funds released on blockchain and database updated.');
+            alert(t('releaseSuccess'));
             onRelease();
             return; // Exit early on success
           } else {
@@ -866,7 +870,7 @@ function MilestoneCard({
       // If we get here, all retries failed
       // But blockchain succeeded, so we MUST inform the user clearly
       if (!dbUpdateSuccess) {
-        const errorMsg = `⚠️ IMPORTANT: The funds were successfully released on the blockchain (Transaction: ${tx.slice(0, 8)}...)\n\nHowever, the database could not be updated after ${maxRetries} attempts.\n\nPlease manually refresh the page to see the updated status.\n\nTransaction ID: ${tx}`;
+        const errorMsg = t('dbSyncFailed', { txShort: tx.slice(0, 8), retries: maxRetries, tx });
         console.error('Database sync failed:', lastError);
         setError(errorMsg);
         alert(errorMsg);
@@ -880,7 +884,7 @@ function MilestoneCard({
 
       // Check if error is "already processed" - this means SUCCESS
       if (error instanceof Error && error.message.includes('already been processed')) {
-        alert('✅ Funds released successfully! The transaction has been confirmed on the blockchain.');
+        alert(t('releaseAlreadyProcessed'));
         onRelease();
       }
       // Check if milestone already released on blockchain
@@ -897,7 +901,7 @@ function MilestoneCard({
           const signatures = await connection.getSignaturesForAddress(milestonePda, { limit: 10 });
 
           if (signatures.length === 0) {
-            throw new Error('No transactions found for milestone account');
+            throw new Error(t('selfHealNoTx'));
           }
 
           // Find the ReleaseFunds transaction (most recent one should be it)
@@ -922,7 +926,7 @@ function MilestoneCard({
           }
 
           if (!releaseTxSignature) {
-            throw new Error('Could not find ReleaseFunds transaction');
+            throw new Error(t('selfHealNoReleaseTx'));
           }
 
           console.log('✅ Found release transaction:', releaseTxSignature);
@@ -946,7 +950,7 @@ function MilestoneCard({
           console.log('✅ Database synced successfully!');
           logToStorage('✅ Database synced successfully');
 
-          alert('✅ Funds released successfully!\n\nThe transaction was already confirmed on the blockchain.\nDatabase has been synced automatically.');
+          alert(t('selfHealSuccess'));
 
           // Refresh project data
           onRelease();
@@ -955,7 +959,8 @@ function MilestoneCard({
           console.error('❌ Self-healing failed:', healingError);
           logToStorage(`❌ Self-healing failed: ${healingError instanceof Error ? healingError.message : 'Unknown error'}`);
 
-          const errorMessage = `⚠️ This milestone was already released on the blockchain.\n\nAutomatic database sync failed: ${healingError instanceof Error ? healingError.message : 'Unknown error'}\n\nPlease manually refresh the page (Cmd+R or F5).`;
+          const healErrorMsg = healingError instanceof Error ? healingError.message : 'Unknown error';
+          const errorMessage = t('selfHealAlreadyReleased', { error: healErrorMsg });
           setError(errorMessage);
           alert(errorMessage);
         }
@@ -994,7 +999,7 @@ function MilestoneCard({
       const accountInfo = await connection.getAccountInfo(milestonePda);
 
       if (!accountInfo) {
-        setError('Milestone account not found on blockchain');
+        setError(t('verifyAccount'));
         setVerificationStatus('out-of-sync');
         return;
       }
@@ -1029,7 +1034,10 @@ function MilestoneCard({
       } else {
         setVerificationStatus('out-of-sync');
         console.log('⚠️ Verification failed: Database out of sync with blockchain');
-        setError(`Database shows ${dbIsReleased ? 'released' : 'not released'}, but blockchain shows ${blockchainIsReleased ? 'released' : 'not released'}`);
+        setError(t('verifyOutOfSync', {
+          db: dbIsReleased ? 'released' : 'not released',
+          chain: blockchainIsReleased ? 'released' : 'not released',
+        }));
       }
     } catch (error) {
       console.error('Error verifying milestone:', error);
@@ -1056,7 +1064,7 @@ function MilestoneCard({
       const accountInfo = await connection.getAccountInfo(milestonePda);
 
       if (!accountInfo) {
-        throw new Error('Milestone account not found on blockchain');
+        throw new Error(t('syncNotFound'));
       }
 
       // Parse is_released status
@@ -1096,7 +1104,7 @@ function MilestoneCard({
         }
 
         if (!releaseTxSignature) {
-          throw new Error('Could not find release transaction on blockchain');
+          throw new Error(t('syncNoTx'));
         }
 
         // Update database
@@ -1114,20 +1122,20 @@ function MilestoneCard({
           throw new Error(errorData.error || 'Failed to update database');
         }
 
-        alert('✅ Database synced successfully from blockchain!');
+        alert(t('syncSuccess'));
         setVerificationStatus('synced');
         onRelease(); // Refresh project data
       } else if (!blockchainIsReleased && milestone.is_released) {
-        alert('⚠️ Warning: Database shows released but blockchain shows not released.\n\nThis should not happen. Database may have incorrect data.');
+        alert(t('syncWarning'));
         setVerificationStatus('out-of-sync');
       } else {
-        alert('✅ Database already in sync with blockchain!');
+        alert(t('syncAlreadySynced'));
         setVerificationStatus('synced');
       }
     } catch (error) {
       console.error('Error syncing from blockchain:', error);
       setError(error instanceof Error ? error.message : 'Failed to sync');
-      alert(`❌ Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(t('syncFailed', { error: error instanceof Error ? error.message : 'Unknown error' }));
     } finally {
       setVerifying(false);
     }
@@ -1145,14 +1153,14 @@ function MilestoneCard({
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded">
-              Milestone #{milestone.index + 1}
+              {t('milestoneTag', { num: milestone.index + 1 })}
             </span>
             {milestone.is_released && (
               <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded flex items-center gap-1">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                Released
+                {t('released')}
               </span>
             )}
           </div>
@@ -1160,7 +1168,7 @@ function MilestoneCard({
           <p className="text-lg font-semibold text-gray-900">{formatAmount(milestone.amount)}</p>
           {milestone.is_released && milestone.released_at && (
             <p className="text-sm text-gray-500 mt-2">
-              Released on {new Date(milestone.released_at).toLocaleDateString('id-ID')}
+              {t('releasedOn', { date: new Date(milestone.released_at).toLocaleDateString('id-ID') })}
             </p>
           )}
           {milestone.proof_url && (
@@ -1170,7 +1178,7 @@ function MilestoneCard({
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-700 mt-2 inline-block"
             >
-              View Proof Document →
+              {t('viewProof')}
             </a>
           )}
         </div>
@@ -1182,7 +1190,7 @@ function MilestoneCard({
               onClick={() => setShowReleaseForm(!showReleaseForm)}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
             >
-              Release Funds
+              {t('releaseFunds')}
             </button>
           )}
 
@@ -1199,13 +1207,13 @@ function MilestoneCard({
             } disabled:opacity-50`}
           >
             {verifying ? (
-              '⏳ Verifying...'
+              `⏳ ${t('verifying')}`
             ) : verificationStatus === 'synced' ? (
-              <>✓ Synced</>
+              <>✓ {t('synced')}</>
             ) : verificationStatus === 'out-of-sync' ? (
-              <>⚠ Out of Sync</>
+              <>⚠ {t('outOfSync')}</>
             ) : (
-              <>🔍 Verify</>
+              <>🔍 {t('verify')}</>
             )}
           </button>
 
@@ -1216,7 +1224,7 @@ function MilestoneCard({
               disabled={verifying}
               className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm disabled:opacity-50"
             >
-              {verifying ? '⏳ Syncing...' : '🔄 Sync'}
+              {verifying ? `⏳ ${t('syncing')}` : `🔄 ${t('sync')}`}
             </button>
           )}
         </div>
@@ -1232,9 +1240,9 @@ function MilestoneCard({
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-yellow-800">Transaction in Progress</p>
+                  <p className="text-sm font-semibold text-yellow-800">{t('transactionWarning')}</p>
                   <p className="text-xs text-yellow-700 mt-1">
-                    Do not close this page or navigate away. The blockchain transaction is being confirmed and database is being updated.
+                    {t('transactionWarningDetail')}
                   </p>
                 </div>
               </div>
@@ -1250,7 +1258,7 @@ function MilestoneCard({
           {/* File Upload Option */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Proof Document
+              {t('uploadProof')}
             </label>
             <div className="flex items-center gap-3">
               <label className="cursor-pointer">
@@ -1265,7 +1273,7 @@ function MilestoneCard({
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
-                  {uploading ? 'Uploading...' : 'Choose File'}
+                  {uploading ? t('uploading') : t('chooseFile')}
                 </span>
               </label>
               {uploadedFile && (
@@ -1278,7 +1286,7 @@ function MilestoneCard({
               )}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Max 5MB • Accepted: PDF, JPG, PNG, WebP
+              {t('fileLimit')}
             </p>
           </div>
 
@@ -1288,14 +1296,14 @@ function MilestoneCard({
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">OR</span>
+              <span className="px-2 bg-white text-gray-500">{t('orSeparator')}</span>
             </div>
           </div>
 
           {/* Manual URL Option */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Enter Proof Document URL
+              {t('proofUrlLabel')}
             </label>
             <input
               type="url"
@@ -1304,19 +1312,19 @@ function MilestoneCard({
                 setProofUrl(e.target.value);
                 setUploadedFile(null);
               }}
-              placeholder="https://example.com/proof-document.pdf"
+              placeholder={t('proofUrlPlaceholder')}
               disabled={uploading}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 disabled:bg-gray-100"
             />
             <p className="text-xs text-gray-500 mt-1">
-              If your document is already hosted elsewhere
+              {t('proofUrlHint')}
             </p>
           </div>
 
           {/* Production Note */}
           <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
             <p className="text-xs text-blue-700">
-              📝 <strong>Note:</strong> In production, files will be stored on IPFS (decentralized storage) for permanent, tamper-proof records.
+              📝 {t('ipfsNote')}
             </p>
           </div>
 
@@ -1328,7 +1336,7 @@ function MilestoneCard({
               disabled={releasing || uploading}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm"
             >
-              {releasing ? 'Releasing...' : 'Confirm Release'}
+              {releasing ? t('releasing') : t('confirmRelease')}
             </button>
             <button
               type="button"
@@ -1341,7 +1349,7 @@ function MilestoneCard({
               disabled={releasing || uploading}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm disabled:opacity-50"
             >
-              Cancel
+              {t('cancelRelease')}
             </button>
           </div>
         </div>

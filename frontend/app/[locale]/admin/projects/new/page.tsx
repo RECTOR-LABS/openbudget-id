@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 export default function NewProjectPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const t = useTranslations('admin.projects.new');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -37,21 +39,21 @@ export default function NewProjectPage() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Project title is required';
+      newErrors.title = t('titleRequired');
     } else if (formData.title.length > 255) {
-      newErrors.title = 'Title must be less than 255 characters';
+      newErrors.title = t('titleTooLong');
     }
 
     if (!formData.recipient_name.trim()) {
-      newErrors.recipient_name = 'Recipient name is required';
+      newErrors.recipient_name = t('recipientRequired');
     }
 
     if (!formData.total_amount) {
-      newErrors.total_amount = 'Total budget is required';
+      newErrors.total_amount = t('budgetRequired');
     } else {
       const amount = parseFloat(formData.total_amount);
       if (isNaN(amount) || amount <= 0) {
-        newErrors.total_amount = 'Budget must be a positive number';
+        newErrors.total_amount = t('budgetInvalid');
       }
     }
 
@@ -132,11 +134,10 @@ export default function NewProjectPage() {
       <div className="max-w-3xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">
-            Create New Project
+            {t('title')}
           </h1>
           <p className="text-gray-600 mt-1">
-            Draft a new budget transparency project. You can publish it to the
-            blockchain later.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -148,7 +149,7 @@ export default function NewProjectPage() {
                 htmlFor="title"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Project Title *
+                {t('titleLabel')}
               </label>
               <input
                 type="text"
@@ -159,7 +160,7 @@ export default function NewProjectPage() {
                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400 ${
                   errors.title ? 'border-red-300' : 'border-gray-300'
                 }`}
-                placeholder="e.g., Road Infrastructure Development 2025"
+                placeholder={t('titlePlaceholder')}
               />
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -172,7 +173,7 @@ export default function NewProjectPage() {
                 htmlFor="description"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Description
+                {t('descriptionLabel')}
               </label>
               <textarea
                 id="description"
@@ -181,7 +182,7 @@ export default function NewProjectPage() {
                 onChange={handleChange}
                 rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-400"
-                placeholder="Provide details about the project objectives, scope, and expected outcomes..."
+                placeholder={t('descriptionPlaceholder')}
               />
             </div>
 
@@ -191,7 +192,7 @@ export default function NewProjectPage() {
                 htmlFor="recipient_name"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Recipient / Implementing Entity *
+                {t('recipientLabel')}
               </label>
               <select
                 id="recipient_name"
@@ -202,9 +203,9 @@ export default function NewProjectPage() {
                   errors.recipient_name ? 'border-red-300' : 'border-gray-300'
                 }`}
               >
-                <option value="">Select recipient...</option>
+                <option value="">{t('recipientPlaceholder')}</option>
 
-                <optgroup label="Kementerian (Ministries)">
+                <optgroup label={t('recipientGroups.ministries')}>
                   <option value="Kementerian Keuangan">Kementerian Keuangan</option>
                   <option value="Kementerian Dalam Negeri">Kementerian Dalam Negeri</option>
                   <option value="Kementerian Luar Negeri">Kementerian Luar Negeri</option>
@@ -229,7 +230,7 @@ export default function NewProjectPage() {
                   <option value="Kementerian Investasi/BKPM">Kementerian Investasi/BKPM</option>
                 </optgroup>
 
-                <optgroup label="Lembaga (Agencies)">
+                <optgroup label={t('recipientGroups.agencies')}>
                   <option value="BPKP (Badan Pengawasan Keuangan dan Pembangunan)">BPKP</option>
                   <option value="BPS (Badan Pusat Statistik)">BPS</option>
                   <option value="BPOM (Badan Pengawas Obat dan Makanan)">BPOM</option>
@@ -240,7 +241,7 @@ export default function NewProjectPage() {
                   <option value="BRIN (Badan Riset dan Inovasi Nasional)">BRIN</option>
                 </optgroup>
 
-                <optgroup label="Universitas Negeri">
+                <optgroup label={t('recipientGroups.universities')}>
                   <option value="Universitas Indonesia">Universitas Indonesia</option>
                   <option value="Universitas Gadjah Mada">Universitas Gadjah Mada</option>
                   <option value="Institut Teknologi Bandung">Institut Teknologi Bandung</option>
@@ -250,7 +251,7 @@ export default function NewProjectPage() {
                   <option value="Universitas Padjadjaran">Universitas Padjadjaran</option>
                 </optgroup>
 
-                <optgroup label="Rumah Sakit">
+                <optgroup label={t('recipientGroups.hospitals')}>
                   <option value="RSUP Dr. Cipto Mangunkusumo">RSUP Dr. Cipto Mangunkusumo</option>
                   <option value="RSUP Dr. Sardjito">RSUP Dr. Sardjito</option>
                   <option value="RSUP Dr. Hasan Sadikin">RSUP Dr. Hasan Sadikin</option>
@@ -264,7 +265,7 @@ export default function NewProjectPage() {
                 </p>
               )}
               <p className="text-xs text-gray-500 mt-1">
-                Select the entity that will implement or receive this budget allocation
+                {t('recipientHint')}
               </p>
             </div>
 
@@ -274,7 +275,7 @@ export default function NewProjectPage() {
                 htmlFor="recipient_type"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Recipient Type
+                {t('recipientTypeLabel')}
               </label>
               <select
                 id="recipient_type"
@@ -283,12 +284,12 @@ export default function NewProjectPage() {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
               >
-                <option value="" className="text-gray-400">Select type...</option>
-                <option value="ministry">Ministry</option>
-                <option value="department">Department</option>
-                <option value="agency">Government Agency</option>
-                <option value="contractor">Contractor</option>
-                <option value="ngo">NGO Partner</option>
+                <option value="" className="text-gray-400">{t('recipientTypePlaceholder')}</option>
+                <option value="ministry">{t('recipientTypes.ministry')}</option>
+                <option value="department">{t('recipientTypes.department')}</option>
+                <option value="agency">{t('recipientTypes.agency')}</option>
+                <option value="contractor">{t('recipientTypes.contractor')}</option>
+                <option value="ngo">{t('recipientTypes.ngo')}</option>
               </select>
             </div>
 
@@ -298,7 +299,7 @@ export default function NewProjectPage() {
                 htmlFor="total_amount"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Total Budget (Rupiah) *
+                {t('budgetLabel')}
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-2 text-gray-500">
@@ -323,7 +324,7 @@ export default function NewProjectPage() {
                 </p>
               )}
               <p className="mt-1 text-sm text-gray-500">
-                Type amount and it will format automatically (e.g., 1,000,000 or 5,500,000,000)
+                {t('budgetHint')}
               </p>
             </div>
           </div>
@@ -342,7 +343,7 @@ export default function NewProjectPage() {
               onClick={() => router.back()}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              {t('cancelButton')}
             </button>
             <button
               type="submit"
@@ -352,19 +353,17 @@ export default function NewProjectPage() {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating...
+                  {t('submitting')}
                 </>
               ) : (
-                'Create Draft Project'
+                t('submitButton')
               )}
             </button>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> This will create a draft project in the
-              database. You&apos;ll need to connect your wallet and publish it to
-              the blockchain before adding milestones.
+              <strong>{t('noteTitle')}:</strong> {t('noteText')}
             </p>
           </div>
         </form>

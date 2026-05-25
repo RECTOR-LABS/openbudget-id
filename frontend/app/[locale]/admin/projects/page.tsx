@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getExplorerUrl } from '@/lib/solana';
 
@@ -20,6 +21,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  const t = useTranslations('admin.projects.list');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published'>('all');
@@ -73,10 +75,10 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Budget Projects
+              {t('title')}
             </h1>
             <p className="text-gray-600 mt-1">
-              Manage your transparency projects
+              {t('subtitle')}
             </p>
           </div>
           <Link
@@ -96,7 +98,7 @@ export default function ProjectsPage() {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            New Project
+            {t('newProject')}
           </Link>
         </div>
 
@@ -104,7 +106,7 @@ export default function ProjectsPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center gap-4">
             <label className="text-sm font-medium text-gray-700">
-              Status:
+              {t('statusLabel')}
             </label>
             <div className="flex gap-2">
               {(['all', 'draft', 'published'] as const).map((status) => (
@@ -117,7 +119,7 @@ export default function ProjectsPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {t(`status${status.charAt(0).toUpperCase() + status.slice(1)}` as 'statusAll' | 'statusDraft' | 'statusPublished')}
                 </button>
               ))}
             </div>
@@ -128,7 +130,7 @@ export default function ProjectsPage() {
         {loading ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading projects...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         ) : projects.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
@@ -146,12 +148,12 @@ export default function ProjectsPage() {
               />
             </svg>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No projects found
+              {t('emptyTitle')}
             </h3>
             <p className="text-gray-600 mb-6">
               {statusFilter === 'all'
-                ? 'Create your first budget project to get started'
-                : `No ${statusFilter} projects found`}
+                ? t('emptySubtextAll')
+                : t('emptySubtextFiltered', { status: statusFilter })}
             </p>
             <Link
               href="/admin/projects/new"
@@ -170,7 +172,7 @@ export default function ProjectsPage() {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Create Project
+              {t('createProject')}
             </Link>
           </div>
         ) : (
@@ -198,12 +200,12 @@ export default function ProjectsPage() {
                       </span>
                     </div>
                     <p className="text-gray-600 text-sm mb-3">
-                      {project.description || 'No description'}
+                      {project.description || t('noDescription')}
                     </p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>Recipient: {project.recipient_name}</span>
+                      <span>{t('recipient', { name: project.recipient_name })}</span>
                       <span>•</span>
-                      <span>Created: {formatDate(project.created_at)}</span>
+                      <span>{t('created', { date: formatDate(project.created_at) })}</span>
                     </div>
                   </div>
                   <div className="text-right">
@@ -212,12 +214,10 @@ export default function ProjectsPage() {
                     </div>
                     <div className="text-xs text-gray-500 space-y-1">
                       <div>
-                        Allocated:{' '}
-                        {formatAmount(project.total_allocated || '0')}
+                        {t('allocated', { amount: formatAmount(project.total_allocated || '0') })}
                       </div>
                       <div>
-                        Released:{' '}
-                        {formatAmount(project.total_released || '0')}
+                        {t('released', { amount: formatAmount(project.total_released || '0') })}
                       </div>
                     </div>
                   </div>
@@ -226,7 +226,7 @@ export default function ProjectsPage() {
                 {project.status === 'published' && project.solana_account && (
                   <div className="pt-4 border-t border-gray-200">
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-gray-500">On-chain:</span>
+                      <span className="text-gray-500">{t('onChain')}</span>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
