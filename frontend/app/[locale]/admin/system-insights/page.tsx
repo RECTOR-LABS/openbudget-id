@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
 
@@ -49,6 +50,7 @@ interface SystemStats {
 }
 
 export default function SystemInsightsPage() {
+  const t = useTranslations('admin.systemInsights');
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export default function SystemInsightsPage() {
           const data = await res.json();
           setStats(data);
         } else {
-          setError('Failed to load system statistics');
+          setError(t('error'));
         }
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -94,7 +96,7 @@ export default function SystemInsightsPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading system insights...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </AdminLayout>
@@ -105,7 +107,7 @@ export default function SystemInsightsPage() {
     return (
       <AdminLayout>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700">{error || 'No data available'}</p>
+          <p className="text-red-700">{error || t('noData')}</p>
         </div>
       </AdminLayout>
     );
@@ -121,36 +123,36 @@ export default function SystemInsightsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">System Insights</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
           <p className="text-gray-600">
-            Under the hood: Database (Off-Chain) vs Blockchain (On-Chain)
+            {t('subtitle')}
           </p>
         </div>
 
         {/* Why Hybrid Architecture */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <h2 className="text-lg font-semibold text-blue-900 mb-3">
-            Why Hybrid Architecture?
+            {t('whyHybrid')}
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-blue-800 mb-2">Database (PostgreSQL)</h3>
+              <h3 className="font-medium text-blue-800 mb-2">{t('dbTitle')}</h3>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>✓ Fast queries (&lt;{database.query_time_ms}ms)</li>
-                <li>✓ Full-text search</li>
-                <li>✓ Complex filtering</li>
-                <li>✓ Draft projects (pre-blockchain)</li>
-                <li>⚠ Centralized (can be tampered)</li>
+                <li>✓ {t('dbFeatures.0', { ms: database.query_time_ms })}</li>
+                <li>✓ {t('dbFeatures.1')}</li>
+                <li>✓ {t('dbFeatures.2')}</li>
+                <li>✓ {t('dbFeatures.3')}</li>
+                <li>⚠ {t('dbFeatures.4')}</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium text-blue-800 mb-2">Blockchain (Solana)</h3>
+              <h3 className="font-medium text-blue-800 mb-2">{t('chainTitle')}</h3>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>✓ Immutable proof</li>
-                <li>✓ Public verification</li>
-                <li>✓ Trustless transparency</li>
-                <li>✓ Permanent record</li>
-                <li>⚠ Slower queries (RPC limits)</li>
+                <li>✓ {t('chainFeatures.0')}</li>
+                <li>✓ {t('chainFeatures.1')}</li>
+                <li>✓ {t('chainFeatures.2')}</li>
+                <li>✓ {t('chainFeatures.3')}</li>
+                <li>⚠ {t('chainFeatures.4')}</li>
               </ul>
             </div>
           </div>
@@ -161,54 +163,54 @@ export default function SystemInsightsPage() {
           {/* Database Stats */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Database (Off-Chain)</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('dbOffChainTitle')}</h2>
               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                PostgreSQL
+                {t('dbBadge')}
               </span>
             </div>
 
             <div className="space-y-4">
               <div className="border-b border-gray-200 pb-3">
-                <p className="text-sm text-gray-600">Ministries</p>
+                <p className="text-sm text-gray-600">{t('ministriesLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">{database.ministries.total}</p>
               </div>
 
               <div className="border-b border-gray-200 pb-3">
-                <p className="text-sm text-gray-600">Projects</p>
+                <p className="text-sm text-gray-600">{t('projectsLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {database.projects.total}
                   <span className="text-sm font-normal text-gray-500 ml-2">
-                    ({database.projects.published} published, {database.projects.draft} draft)
+                    ({t('projectsDetail', { published: database.projects.published, draft: database.projects.draft })})
                   </span>
                 </p>
               </div>
 
               <div className="border-b border-gray-200 pb-3">
-                <p className="text-sm text-gray-600">Milestones</p>
+                <p className="text-sm text-gray-600">{t('milestonesLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {database.milestones.total}
                   <span className="text-sm font-normal text-gray-500 ml-2">
-                    ({database.milestones.released} released, {database.milestones.pending} pending)
+                    ({t('milestonesDetail', { released: database.milestones.released, pending: database.milestones.pending })})
                   </span>
                 </p>
               </div>
 
               <div className="border-b border-gray-200 pb-3">
-                <p className="text-sm text-gray-600">Total Budget Tracked</p>
+                <p className="text-sm text-gray-600">{t('totalBudgetLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatRupiah(database.projects.total_budget)}
                 </p>
               </div>
 
               <div className="border-b border-gray-200 pb-3">
-                <p className="text-sm text-gray-600">Total Released</p>
+                <p className="text-sm text-gray-600">{t('totalReleasedLabel')}</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatRupiah(database.projects.total_released)}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">Query Performance</p>
+                <p className="text-sm text-gray-600">{t('queryPerfLabel')}</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {database.query_time_ms}ms
                 </p>
@@ -219,54 +221,54 @@ export default function SystemInsightsPage() {
           {/* Blockchain Stats */}
           <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Blockchain (On-Chain)</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('chainOnChainTitle')}</h2>
               <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                Solana Devnet
+                {t('chainBadge')}
               </span>
             </div>
 
             <div className="space-y-4">
               <div className="border-b border-purple-200 pb-3">
-                <p className="text-sm text-gray-600">Published Projects</p>
+                <p className="text-sm text-gray-600">{t('publishedProjectsLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {database.projects.on_chain}
                   <span className="text-sm font-normal text-gray-500 ml-2">
-                    PDAs on Solana
+                    {t('publishedProjectsDetail')}
                   </span>
                 </p>
               </div>
 
               <div className="border-b border-purple-200 pb-3">
-                <p className="text-sm text-gray-600">Released Milestones</p>
+                <p className="text-sm text-gray-600">{t('releasedMilestonesLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {database.milestones.released}
                   <span className="text-sm font-normal text-gray-500 ml-2">
-                    with tx signatures
+                    {t('releasedMilestonesDetail')}
                   </span>
                 </p>
               </div>
 
               <div className="border-b border-purple-200 pb-3">
-                <p className="text-sm text-gray-600">On-Chain Budget</p>
+                <p className="text-sm text-gray-600">{t('onChainBudgetLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatRupiah(database.projects.total_budget)}
                 </p>
               </div>
 
               <div className="border-b border-purple-200 pb-3">
-                <p className="text-sm text-gray-600">Released Amount</p>
+                <p className="text-sm text-gray-600">{t('releasedAmountLabel')}</p>
                 <p className="text-2xl font-bold text-green-600">
                   {formatRupiah(database.milestones.released_amount || '0')}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">Verification</p>
+                <p className="text-sm text-gray-600">{t('verificationLabel')}</p>
                 <p className="text-lg font-bold text-purple-600 flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                   </svg>
-                  Immutable
+                  {t('immutable')}
                 </p>
               </div>
             </div>
@@ -276,26 +278,26 @@ export default function SystemInsightsPage() {
         {/* Published Projects List */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Published Projects (Database ↔ Blockchain)
+            {t('publishedProjectsTable')}
           </h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Title
+                    {t('colTitle')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    DB ID
+                    {t('colDbId')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Blockchain ID
+                    {t('colBlockchainId')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    On-Chain
+                    {t('colOnChain')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Budget
+                    {t('colBudget')}
                   </th>
                 </tr>
               </thead>
@@ -321,10 +323,10 @@ export default function SystemInsightsPage() {
                           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                           </svg>
-                          View PDA
+                          {t('viewPda')}
                         </Link>
                       ) : (
-                        <span className="text-gray-400 text-sm">Draft</span>
+                        <span className="text-gray-400 text-sm">{t('draftLabel')}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
@@ -340,26 +342,26 @@ export default function SystemInsightsPage() {
         {/* Milestones List */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Milestones (Database ↔ Blockchain Releases)
+            {t('milestonesTable')}
           </h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Project
+                    {t('colProject')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Description
+                    {t('colDescription')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Amount
+                    {t('colAmount')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
+                    {t('colStatus')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Blockchain TX
+                    {t('colBlockchainTx')}
                   </th>
                 </tr>
               </thead>
@@ -378,11 +380,11 @@ export default function SystemInsightsPage() {
                     <td className="px-4 py-3">
                       {milestone.is_released ? (
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded">
-                          Released
+                          {t('statusReleased')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-yellow-700 bg-yellow-100 rounded">
-                          Pending
+                          {t('statusPending')}
                         </span>
                       )}
                     </td>
@@ -411,20 +413,12 @@ export default function SystemInsightsPage() {
 
         {/* Footer Note */}
         <div className="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <h3 className="font-semibold text-gray-900 mb-2">How It Works</h3>
+          <h3 className="font-semibold text-gray-900 mb-2">{t('howItWorksTitle')}</h3>
           <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-            <li>
-              <strong>Draft → Database:</strong> Ministry creates project (stored in PostgreSQL, fast & searchable)
-            </li>
-            <li>
-              <strong>Publish → Blockchain:</strong> Ministry signs transaction, project immutably recorded on Solana
-            </li>
-            <li>
-              <strong>Database ← Blockchain:</strong> We store PDA address and tx signature in DB for quick lookups
-            </li>
-            <li>
-              <strong>Citizen Verifies:</strong> Click &ldquo;View on Explorer&rdquo; to verify DB data matches blockchain truth
-            </li>
+            <li>{t('howItWorksSteps.0')}</li>
+            <li>{t('howItWorksSteps.1')}</li>
+            <li>{t('howItWorksSteps.2')}</li>
+            <li>{t('howItWorksSteps.3')}</li>
           </ol>
         </div>
       </div>

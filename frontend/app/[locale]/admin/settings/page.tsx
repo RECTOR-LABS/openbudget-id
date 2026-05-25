@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { useTranslations } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 const INDONESIAN_MINISTRIES = [
@@ -21,6 +22,7 @@ const INDONESIAN_MINISTRIES = [
 export default function SettingsPage() {
   const { data: session } = useSession();
   const { publicKey } = useWallet();
+  const t = useTranslations('admin.settings');
   const [ministryName, setMinistryName] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -42,11 +44,11 @@ export default function SettingsPage() {
         } else {
           const errorData = await res.json();
           console.error('Failed to load account:', errorData);
-          setError(errorData.error || 'Failed to load account information');
+          setError(errorData.error || t('loadError'));
         }
       } catch (err) {
         console.error('Error loading account information:', err);
-        setError('Error loading account information');
+        setError(t('loadError'));
       } finally {
         setLoading(false);
       }
@@ -75,17 +77,17 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        setSuccess('Settings saved successfully!');
+        setSuccess(t('saveSuccess'));
         // Reload the page to update the session
         setTimeout(() => {
           window.location.reload();
         }, 1500);
       } else {
         const data = await res.json();
-        setError(data.error || 'Failed to save settings');
+        setError(data.error || t('saveError'));
       }
     } catch {
-      setError('Error saving settings');
+      setError(t('saveError'));
     } finally {
       setSaving(false);
     }
@@ -97,7 +99,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading settings...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
       </AdminLayout>
@@ -108,19 +110,19 @@ export default function SettingsPage() {
     <AdminLayout>
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
-          <p className="text-gray-600">Manage your profile and ministry assignment</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+          <p className="text-gray-600">{t('subtitle')}</p>
         </div>
 
       {/* Account Information Card */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('accountInfoTitle')}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email (Read-only) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
+              {t('emailLabel')}
             </label>
             <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
               <svg
@@ -138,7 +140,7 @@ export default function SettingsPage() {
               </svg>
               <span className="text-gray-700">{session?.user?.email}</span>
               <span className="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                Read-only
+                {t('emailReadOnly')}
               </span>
             </div>
           </div>
@@ -146,7 +148,7 @@ export default function SettingsPage() {
           {/* Ministry Assignment (Editable) */}
           <div>
             <label htmlFor="ministry" className="block text-sm font-medium text-gray-700 mb-2">
-              Ministry Assignment <span className="text-red-500">*</span>
+              {t('ministryLabel')} <span className="text-red-500">{t('ministryRequired')}</span>
             </label>
             <select
               id="ministry"
@@ -162,14 +164,14 @@ export default function SettingsPage() {
               ))}
             </select>
             <p className="mt-1 text-sm text-gray-500">
-              Select the ministry you represent
+              {t('ministryHint')}
             </p>
           </div>
 
           {/* Wallet Address (Read-only, if connected) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Connected Wallet
+              {t('walletLabel')}
             </label>
             {publicKey ? (
               <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg">
@@ -188,7 +190,7 @@ export default function SettingsPage() {
                   {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
                 </span>
                 <span className="ml-auto text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                  Connected
+                  {t('walletConnected')}
                 </span>
               </div>
             ) : (
@@ -206,11 +208,11 @@ export default function SettingsPage() {
                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                   />
                 </svg>
-                <span className="text-gray-500">No wallet connected</span>
+                <span className="text-gray-500">{t('walletDisconnected')}</span>
               </div>
             )}
             <p className="mt-1 text-sm text-gray-500">
-              Connect your wallet using the button in the header to publish projects
+              {t('walletHint')}
             </p>
           </div>
 
@@ -260,7 +262,7 @@ export default function SettingsPage() {
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
                 <>
@@ -277,7 +279,7 @@ export default function SettingsPage() {
                       d="M5 13l4 4L19 7"
                     />
                   </svg>
-                  Save Changes
+                  {t('saveButton')}
                 </>
               )}
             </button>
@@ -300,10 +302,9 @@ export default function SettingsPage() {
             />
           </svg>
           <div>
-            <h3 className="font-semibold text-blue-900 mb-1">Account Information</h3>
+            <h3 className="font-semibold text-blue-900 mb-1">{t('infoTitle')}</h3>
             <p className="text-sm text-blue-800">
-              Your ministry assignment will be displayed on all projects you create. Make sure to
-              select the correct ministry before publishing projects to the blockchain.
+              {t('infoText')}
             </p>
           </div>
         </div>
