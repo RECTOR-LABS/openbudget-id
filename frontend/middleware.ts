@@ -28,7 +28,7 @@ const adminRoutePattern = new RegExp(`^(/(${locales.join('|')}))?/admin(/|$)`);
 
 // Routes that are intentionally outside the bilingual [locale] system.
 // These are served directly by Next.js with no locale prefix.
-const bypassI18nPattern = /^\/international(\/|$)/;
+const bypassI18nPattern = /^\/(international|auth)(\/|$)/;
 
 export default function middleware(req: NextRequest): Response | NextResponse {
   const { pathname } = req.nextUrl;
