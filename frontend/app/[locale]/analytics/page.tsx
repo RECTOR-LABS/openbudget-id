@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { formatRupiah, abbreviateNumber } from '@/lib/utils';
@@ -36,12 +37,16 @@ interface Anomaly {
 }
 
 export default function AnalyticsPage() {
+  const t = useTranslations('analytics');
+  const locale = useLocale();
   const [leaderboard, setLeaderboard] = useState<Project[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('overall_score');
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [trends, setTrends] = useState<{ period: string; project_count: number; total_budget: string; total_released: string }[]>([]);
+
+  const dateLocale = locale === 'id' ? 'id-ID' : 'en-GB';
 
   useEffect(() => {
     fetchAnalytics();
@@ -130,7 +135,7 @@ export default function AnalyticsPage() {
         <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Memuat analytics...</p>
+            <p className="text-gray-600">{t('loading')}</p>
           </div>
         </div>
         <Footer />
@@ -160,7 +165,7 @@ export default function AnalyticsPage() {
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
               <a href="/" className="hover:text-white transition-colors">
-                🏠 Beranda
+                🏠 {t('breadcrumbHome')}
               </a>
               <span>/</span>
               <span className="text-white font-medium">Analytics</span>
@@ -176,10 +181,10 @@ export default function AnalyticsPage() {
 
                 <div>
                   <h1 className="text-3xl lg:text-4xl font-bold mb-2">
-                    Analytics & Intelligence Dashboard
+                    {t('title')}
                   </h1>
                   <p className="text-lg lg:text-xl text-blue-100 max-w-2xl">
-                    Insights mendalam dari data transparansi anggaran pemerintah
+                    {t('subtitle')}
                   </p>
                 </div>
               </div>
@@ -187,11 +192,11 @@ export default function AnalyticsPage() {
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-3">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 min-w-[120px]">
-                  <div className="text-sm text-blue-100 mb-1">Total Kementerian</div>
+                  <div className="text-sm text-blue-100 mb-1">{t('statsMinistries')}</div>
                   <div className="text-2xl font-bold">{leaderboard.length}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 min-w-[120px]">
-                  <div className="text-sm text-blue-100 mb-1">Anomali Terdeteksi</div>
+                  <div className="text-sm text-blue-100 mb-1">{t('statsAnomalies')}</div>
                   <div className="text-2xl font-bold text-yellow-300">{anomalies.length}</div>
                 </div>
               </div>
@@ -204,16 +209,16 @@ export default function AnalyticsPage() {
           {/* Project Leaderboard */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">🏆 Project Performance Leaderboard</h2>
+              <h2 className="text-2xl font-bold text-gray-900">🏆 {t('leaderboard.title')}</h2>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
-                <option value="overall_score">Overall Score</option>
-                <option value="completion_rate">Completion Rate</option>
-                <option value="budget_accuracy">Budget Accuracy</option>
-                <option value="avg_trust_score">Trust Score</option>
+                <option value="overall_score">{t('leaderboard.sortOptions.overall_score')}</option>
+                <option value="completion_rate">{t('leaderboard.sortOptions.completion_rate')}</option>
+                <option value="budget_accuracy">{t('leaderboard.sortOptions.budget_accuracy')}</option>
+                <option value="avg_trust_score">{t('leaderboard.sortOptions.avg_trust_score')}</option>
               </select>
             </div>
 
@@ -221,13 +226,13 @@ export default function AnalyticsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left p-4 font-semibold text-gray-700">Rank</th>
-                    <th className="text-left p-4 font-semibold text-gray-700">Project</th>
-                    <th className="text-left p-4 font-semibold text-gray-700">Ministry</th>
-                    <th className="text-center p-4 font-semibold text-gray-700">Completion</th>
-                    <th className="text-center p-4 font-semibold text-gray-700">Budget Accuracy</th>
-                    <th className="text-center p-4 font-semibold text-gray-700">Trust Score</th>
-                    <th className="text-center p-4 font-semibold text-gray-700">Overall Score</th>
+                    <th className="text-left p-4 font-semibold text-gray-700">{t('leaderboard.columns.rank')}</th>
+                    <th className="text-left p-4 font-semibold text-gray-700">{t('leaderboard.columns.project')}</th>
+                    <th className="text-left p-4 font-semibold text-gray-700">{t('leaderboard.columns.ministry')}</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">{t('leaderboard.columns.completion')}</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">{t('leaderboard.columns.budgetAccuracy')}</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">{t('leaderboard.columns.trustScore')}</th>
+                    <th className="text-center p-4 font-semibold text-gray-700">{t('leaderboard.columns.overallScore')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -279,26 +284,26 @@ export default function AnalyticsPage() {
           {selectedProject && trends.length > 0 && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                📈 Spending Trends - {leaderboard.find(p => p.id === selectedProject)?.title || 'Project'}
+                📈 {t('trends.title')} - {leaderboard.find(p => p.id === selectedProject)?.title || 'Project'}
               </h2>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={trends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="period"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString(dateLocale, { month: 'short', year: 'numeric' })}
                   />
                   <YAxis tickFormatter={(value) => abbreviateNumber(value)} />
                   <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString('id-ID')}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString(dateLocale)}
                     formatter={(value) => {
                       const n = Number(value);
                       return isNaN(n) ? '' : formatRupiah(BigInt(Math.round(n)));
                     }}
                   />
                   <Legend />
-                  <Line type="monotone" dataKey="total_budget" stroke="#3B82F6" name="Total Budget" strokeWidth={2} />
-                  <Line type="monotone" dataKey="total_released" stroke="#10B981" name="Total Released" strokeWidth={2} />
+                  <Line type="monotone" dataKey="total_budget" stroke="#3B82F6" name={t('trends.chartBudget')} strokeWidth={2} />
+                  <Line type="monotone" dataKey="total_released" stroke="#10B981" name={t('trends.chartReleased')} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -307,10 +312,10 @@ export default function AnalyticsPage() {
           {/* Anomaly Detection */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              🚨 Anomaly Detection ({anomalies.length} terdeteksi)
+              🚨 {t('anomalies.title')} ({t('anomalies.countLabel', { count: anomalies.length })})
             </h2>
             <p className="text-gray-600 mb-6">
-              Pola pengeluaran yang mencurigakan terdeteksi otomatis oleh sistem
+              {t('anomalies.subtitle')}
             </p>
 
             {anomalies.length === 0 ? (
@@ -318,7 +323,7 @@ export default function AnalyticsPage() {
                 <svg className="w-12 h-12 mx-auto mb-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="font-semibold">Tidak ada anomali terdeteksi</p>
+                <p className="font-semibold">{t('anomalies.empty')}</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
@@ -337,12 +342,12 @@ export default function AnalyticsPage() {
                     <p className="text-sm mb-3">{anomaly.anomaly_description}</p>
                     {anomaly.total_budget && (
                       <div className="text-sm font-semibold">
-                        Budget: {formatRupiah(BigInt(anomaly.total_budget))}
+                        {t('anomalies.budgetLabel')}: {formatRupiah(BigInt(anomaly.total_budget))}
                       </div>
                     )}
                     {anomaly.release_percentage !== undefined && (
                       <div className="text-sm font-semibold">
-                        Release Rate: {anomaly.release_percentage.toFixed(1)}%
+                        {t('anomalies.releaseRateLabel')}: {anomaly.release_percentage.toFixed(1)}%
                       </div>
                     )}
                   </div>
