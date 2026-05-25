@@ -10,6 +10,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const isBypassedRoute = /^\/(international|auth)(\/|$)/.test(pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,7 +109,7 @@ export default function Header() {
 
           {/* Ministry Login Button */}
           <div className="hidden lg:flex items-center space-x-4">
-            <LanguageToggle scrolled={scrolled} />
+            {!isBypassedRoute && <LanguageToggle scrolled={scrolled} />}
             <Link
               href="/admin"
               className={`group relative px-6 py-2.5 rounded-lg font-semibold transition-all duration-300 overflow-hidden cursor-pointer ${
@@ -197,9 +198,11 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-            <div className="px-4 py-2">
-              <LanguageToggle scrolled={scrolled} />
-            </div>
+            {!isBypassedRoute && (
+              <div className="px-4 py-2">
+                <LanguageToggle scrolled={scrolled} />
+              </div>
+            )}
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}
