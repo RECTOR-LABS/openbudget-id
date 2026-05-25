@@ -26,14 +26,26 @@ const authMiddleware = withAuth(
 
 const adminRoutePattern = new RegExp(`^(/(${locales.join('|')}))?/admin(/|$)`);
 
+// Routes that are intentionally outside the bilingual [locale] system.
+// These are served directly by Next.js with no locale prefix.
+const bypassI18nPattern = /^\/international(\/|$)/;
+
 export default function middleware(req: NextRequest): Response | NextResponse {
-  if (adminRoutePattern.test(req.nextUrl.pathname)) {
+  const { pathname } = req.nextUrl;
+
+  // Let dedicated English-only surfaces pass through without locale processing.
+  if (bypassI18nPattern.test(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (adminRoutePattern.test(pathname)) {
     // next-auth's withAuth returns NextMiddlewareWithAuth which expects
     // (NextRequestWithAuth, NextFetchEvent). NextRequestWithAuth extends NextRequest,
     // so passing a plain NextRequest is structurally safe — next-auth attaches the
     // token before our onSuccess callback runs.
     return (authMiddleware as unknown as (r: NextRequest) => Response | NextResponse)(req);
   }
+
   return handleI18nRouting(req);
 }
 
