@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProjectCard from '@/components/ProjectCard';
@@ -22,6 +23,7 @@ interface Project {
 }
 
 export default function ProjectsPage() {
+  const t = useTranslations('projects.list');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -90,10 +92,10 @@ export default function ProjectsPage() {
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-blue-100 mb-6 text-sm">
                 <a href="/" className="hover:text-white transition">
-                  🏠 Beranda
+                  🏠 {t('breadcrumbHome')}
                 </a>
                 <span>/</span>
-                <span className="text-white font-medium">Proyek</span>
+                <span className="text-white font-medium">{t('breadcrumbProjects')}</span>
               </div>
 
               {/* Main Header */}
@@ -105,18 +107,17 @@ export default function ProjectsPage() {
                     </div>
                     <div>
                       <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">
-                        Semua Proyek Anggaran
+                        {t('title')}
                       </h1>
                       <div className="flex items-center gap-2">
                         <span className="px-3 py-1 bg-green-500/20 border border-green-400/30 rounded-full text-sm font-medium text-green-100">
-                          ✅ Verified on Blockchain
+                          ✅ {t('verifiedBadge')}
                         </span>
                       </div>
                     </div>
                   </div>
                   <p className="text-lg md:text-xl text-blue-100 max-w-2xl leading-relaxed">
-                    Jelajahi transparansi anggaran negara yang tercatat secara permanen di blockchain Solana.
-                    Setiap proyek dapat diverifikasi dan tidak dapat dimanipulasi.
+                    {t('subtitle')}
                   </p>
                 </div>
 
@@ -129,7 +130,7 @@ export default function ProjectsPage() {
                     className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 min-w-[120px]"
                   >
                     <div className="text-3xl font-bold mb-1">{projects.length}</div>
-                    <div className="text-sm text-blue-100">Total Proyek</div>
+                    <div className="text-sm text-blue-100">{t('statsProjects')}</div>
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
@@ -138,7 +139,7 @@ export default function ProjectsPage() {
                     className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 min-w-[120px]"
                   >
                     <div className="text-3xl font-bold mb-1">{ministries.length}</div>
-                    <div className="text-sm text-blue-100">Kementerian</div>
+                    <div className="text-sm text-blue-100">{t('statsMinistries')}</div>
                   </motion.div>
                 </div>
               </div>
@@ -147,8 +148,6 @@ export default function ProjectsPage() {
         </section>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Removed old header - now using hero section above */}
-
           {/* Search and Filter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -160,11 +159,11 @@ export default function ProjectsPage() {
               {/* Search */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  🔍 Cari Proyek
+                  🔍 {t('searchLabel')}
                 </label>
                 <input
                   type="text"
-                  placeholder="Cari berdasarkan nama proyek atau kementerian..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -174,14 +173,14 @@ export default function ProjectsPage() {
               {/* Ministry Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  🏛️ Filter Kementerian
+                  🏛️ {t('ministryFilterLabel')}
                 </label>
                 <select
                   value={selectedMinistry}
                   onChange={(e) => setSelectedMinistry(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Semua Kementerian</option>
+                  <option value="">{t('allMinistries')}</option>
                   {ministries.map((ministry) => (
                     <option key={ministry} value={ministry}>
                       {ministry}
@@ -194,8 +193,9 @@ export default function ProjectsPage() {
             {/* Results Count */}
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Menampilkan <span className="font-semibold">{filteredProjects.length}</span> proyek
-                {searchTerm || selectedMinistry ? ' (terfilter)' : ''}
+                {searchTerm || selectedMinistry
+                  ? t('showingFiltered', { count: filteredProjects.length })
+                  : t('showing', { count: filteredProjects.length })}
               </p>
               {(searchTerm || selectedMinistry) ? (
                 <button
@@ -205,7 +205,7 @@ export default function ProjectsPage() {
                   }}
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  Reset Filter
+                  {t('resetFilter')}
                 </button>
               ) : null}
             </div>
@@ -252,10 +252,10 @@ export default function ProjectsPage() {
             >
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Tidak ada proyek ditemukan
+                {t('emptyTitle')}
               </h3>
               <p className="text-gray-600 mb-6">
-                Coba ubah kata kunci pencarian atau filter yang Anda gunakan
+                {t('emptySubtext')}
               </p>
               <button
                 onClick={() => {
@@ -264,7 +264,7 @@ export default function ProjectsPage() {
                 }}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
-                Reset Pencarian
+                {t('emptyResetButton')}
               </button>
             </motion.div>
           )}

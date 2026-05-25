@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { formatRupiah } from '@/lib/utils';
 
 interface Project {
@@ -16,6 +19,7 @@ interface Project {
 }
 
 export default function ProjectCard({ project }: { project: Project }) {
+  const t = useTranslations('projects.card');
   const totalBudget = BigInt(project.total_amount);
   const totalReleased = BigInt(project.total_released);
 
@@ -34,7 +38,7 @@ export default function ProjectCard({ project }: { project: Project }) {
             </h3>
             {project.creation_tx && (
               <span className="ml-2 flex-shrink-0 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                ✓ Verified
+                ✓ {t('verified')}
               </span>
             )}
           </div>
@@ -58,14 +62,14 @@ export default function ProjectCard({ project }: { project: Project }) {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">Total Anggaran:</span>
+              <span className="text-gray-600">{t('totalBudget')}</span>
               <span className="font-bold text-gray-900">
                 {formatRupiah(totalBudget)}
               </span>
             </div>
 
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600">Telah Direalisasikan:</span>
+              <span className="text-gray-600">{t('released')}</span>
               <span className="font-bold text-green-600">
                 {formatRupiah(totalReleased)}
               </span>
@@ -74,7 +78,7 @@ export default function ProjectCard({ project }: { project: Project }) {
             {/* Progress Bar */}
             <div className="pt-2">
               <div className="flex justify-between text-xs text-gray-600 mb-1">
-                <span>Progress</span>
+                <span>{t('progress')}</span>
                 <span className="font-semibold">{progress.toFixed(0)}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
@@ -89,7 +93,7 @@ export default function ProjectCard({ project }: { project: Project }) {
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
           <span className="text-blue-600 text-sm font-medium">
-            Lihat Detail
+            {t('viewDetails')}
           </span>
           <svg
             className="w-5 h-5 text-blue-600"
