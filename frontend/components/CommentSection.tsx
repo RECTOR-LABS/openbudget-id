@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { formatRelativeTime } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 
 interface Comment {
   id: string;
@@ -29,6 +30,7 @@ export default function CommentSection({
   milestoneTitle,
 }: CommentSectionProps) {
   const t = useTranslations('engagement.comments');
+  const locale = useLocale() as Locale;
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -233,7 +235,7 @@ export default function CommentSection({
                       )}
                     </div>
                     <span className="text-sm text-gray-500">
-                      {formatRelativeTime(comment.created_at)}
+                      {formatRelativeTime(comment.created_at, locale)}
                     </span>
                   </div>
                 </div>

@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { formatRupiah } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 
 interface Project {
   id: string;
@@ -20,6 +21,7 @@ interface Project {
 
 export default function ProjectCard({ project }: { project: Project }) {
   const t = useTranslations('projects.card');
+  const locale = useLocale() as Locale;
   const totalBudget = BigInt(project.total_amount);
   const totalReleased = BigInt(project.total_released);
 
@@ -64,14 +66,14 @@ export default function ProjectCard({ project }: { project: Project }) {
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">{t('totalBudget')}</span>
               <span className="font-bold text-gray-900">
-                {formatRupiah(totalBudget)}
+                {formatRupiah(totalBudget, locale)}
               </span>
             </div>
 
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600">{t('released')}</span>
               <span className="font-bold text-green-600">
-                {formatRupiah(totalReleased)}
+                {formatRupiah(totalReleased, locale)}
               </span>
             </div>
 

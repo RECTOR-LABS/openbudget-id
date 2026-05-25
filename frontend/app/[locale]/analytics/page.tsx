@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { formatRupiah, abbreviateNumber } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -38,7 +39,7 @@ interface Anomaly {
 
 export default function AnalyticsPage() {
   const t = useTranslations('analytics');
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
   const [leaderboard, setLeaderboard] = useState<Project[]>([]);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [loading, setLoading] = useState(true);
@@ -293,12 +294,12 @@ export default function AnalyticsPage() {
                     dataKey="period"
                     tickFormatter={(value) => new Date(value).toLocaleDateString(dateLocale, { month: 'short', year: 'numeric' })}
                   />
-                  <YAxis tickFormatter={(value) => abbreviateNumber(value)} />
+                  <YAxis tickFormatter={(value) => abbreviateNumber(value, locale)} />
                   <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleDateString(dateLocale)}
                     formatter={(value) => {
                       const n = Number(value);
-                      return isNaN(n) ? '' : formatRupiah(BigInt(Math.round(n)));
+                      return isNaN(n) ? '' : formatRupiah(BigInt(Math.round(n)), locale);
                     }}
                   />
                   <Legend />
@@ -342,7 +343,7 @@ export default function AnalyticsPage() {
                     <p className="text-sm mb-3">{anomaly.anomaly_description}</p>
                     {anomaly.total_budget && (
                       <div className="text-sm font-semibold">
-                        {t('anomalies.budgetLabel')}: {formatRupiah(BigInt(anomaly.total_budget))}
+                        {t('anomalies.budgetLabel')}: {formatRupiah(BigInt(anomaly.total_budget), locale)}
                       </div>
                     )}
                     {anomaly.release_percentage !== undefined && (

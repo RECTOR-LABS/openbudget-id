@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
+import { formatRupiah } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 
 interface SystemStats {
   database: {
@@ -51,6 +53,7 @@ interface SystemStats {
 
 export default function SystemInsightsPage() {
   const t = useTranslations('admin.systemInsights');
+  const locale = useLocale() as Locale;
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,20 +78,6 @@ export default function SystemInsightsPage() {
 
     fetchStats();
   }, []);
-
-  const formatRupiah = (amount: string) => {
-    const num = BigInt(amount);
-    if (num >= BigInt(1_000_000_000_000)) {
-      return `Rp ${(Number(num) / 1_000_000_000_000).toFixed(1)}T`;
-    }
-    if (num >= BigInt(1_000_000_000)) {
-      return `Rp ${(Number(num) / 1_000_000_000).toFixed(1)}B`;
-    }
-    if (num >= BigInt(1_000_000)) {
-      return `Rp ${(Number(num) / 1_000_000).toFixed(1)}M`;
-    }
-    return `Rp ${num.toLocaleString('id-ID')}`;
-  };
 
   if (loading) {
     return (
@@ -198,14 +187,14 @@ export default function SystemInsightsPage() {
               <div className="border-b border-gray-200 pb-3">
                 <p className="text-sm text-gray-600">{t('totalBudgetLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {formatRupiah(database.projects.total_budget)}
+                  {formatRupiah(database.projects.total_budget, locale)}
                 </p>
               </div>
 
               <div className="border-b border-gray-200 pb-3">
                 <p className="text-sm text-gray-600">{t('totalReleasedLabel')}</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {formatRupiah(database.projects.total_released)}
+                  {formatRupiah(database.projects.total_released, locale)}
                 </p>
               </div>
 
@@ -251,14 +240,14 @@ export default function SystemInsightsPage() {
               <div className="border-b border-purple-200 pb-3">
                 <p className="text-sm text-gray-600">{t('onChainBudgetLabel')}</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {formatRupiah(database.projects.total_budget)}
+                  {formatRupiah(database.projects.total_budget, locale)}
                 </p>
               </div>
 
               <div className="border-b border-purple-200 pb-3">
                 <p className="text-sm text-gray-600">{t('releasedAmountLabel')}</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {formatRupiah(database.milestones.released_amount || '0')}
+                  {formatRupiah(database.milestones.released_amount || '0', locale)}
                 </p>
               </div>
 
@@ -330,7 +319,7 @@ export default function SystemInsightsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {formatRupiah(project.total_amount)}
+                      {formatRupiah(project.total_amount, locale)}
                     </td>
                   </tr>
                 ))}
@@ -375,7 +364,7 @@ export default function SystemInsightsPage() {
                       {milestone.description}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {formatRupiah(milestone.amount)}
+                      {formatRupiah(milestone.amount, locale)}
                     </td>
                     <td className="px-4 py-3">
                       {milestone.is_released ? (

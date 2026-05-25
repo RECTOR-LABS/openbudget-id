@@ -2,9 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getExplorerUrl } from '@/lib/solana';
+import { formatRupiah, formatDate } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 
 interface Project {
   id: string;
@@ -22,6 +24,7 @@ interface Project {
 
 export default function ProjectsPage() {
   const t = useTranslations('admin.projects.list');
+  const locale = useLocale() as Locale;
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published'>('all');
@@ -53,20 +56,6 @@ export default function ProjectsPage() {
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
-
-  const formatAmount = (amount: string) => {
-    const num = BigInt(amount);
-    // Always show full number with thousand separators (Indonesian format)
-    return `Rp ${Number(num).toLocaleString('id-ID')}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   return (
     <AdminLayout>
@@ -205,19 +194,19 @@ export default function ProjectsPage() {
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>{t('recipient', { name: project.recipient_name })}</span>
                       <span>•</span>
-                      <span>{t('created', { date: formatDate(project.created_at) })}</span>
+                      <span>{t('created', { date: formatDate(project.created_at, locale) })}</span>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-gray-900 mb-1">
-                      {formatAmount(project.total_amount)}
+                      {formatRupiah(project.total_amount, locale)}
                     </div>
                     <div className="text-xs text-gray-500 space-y-1">
                       <div>
-                        {t('allocated', { amount: formatAmount(project.total_allocated || '0') })}
+                        {t('allocated', { amount: formatRupiah(project.total_allocated || '0', locale) })}
                       </div>
                       <div>
-                        {t('released', { amount: formatAmount(project.total_released || '0') })}
+                        {t('released', { amount: formatRupiah(project.total_released || '0', locale) })}
                       </div>
                     </div>
                   </div>

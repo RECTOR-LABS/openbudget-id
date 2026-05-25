@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatRupiah } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
@@ -43,7 +45,7 @@ const FLOATING_ICONS = [
 
 export default function MarketingHomePage() {
   const t = useTranslations('home');
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
   const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,15 +65,6 @@ export default function MarketingHomePage() {
     };
     fetchFeaturedProjects();
   }, []);
-
-  const formatRupiah = (amount: string) => {
-    const num = BigInt(amount);
-    const billions = Number(num / BigInt(1_000_000_000));
-    if (billions >= 1000) {
-      return `Rp ${(billions / 1000).toFixed(1)} T`;
-    }
-    return `Rp ${billions.toFixed(1)} M`;
-  };
 
   const calculateProgress = (released: string, total: string) => {
     const releasedNum = Number(BigInt(released));
@@ -455,13 +448,13 @@ export default function MarketingHomePage() {
                         <div className="text-sm text-gray-600">
                           <span className="font-semibold">{t('featured.totalLabel')}</span>{' '}
                           <span className="text-blue-600 font-bold">
-                            {formatRupiah(project.total_amount)}
+                            {formatRupiah(project.total_amount, locale)}
                           </span>
                         </div>
                         <div className="text-sm text-gray-600">
                           <span className="font-semibold">{t('featured.releasedLabel')}</span>{' '}
                           <span className="text-green-600 font-bold">
-                            {formatRupiah(project.total_released)}
+                            {formatRupiah(project.total_released, locale)}
                           </span>
                         </div>
                       </div>

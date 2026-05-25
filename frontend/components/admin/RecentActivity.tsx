@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface Activity {
   type: string;
@@ -75,26 +76,6 @@ export default function RecentActivity({ limit = 10 }: { limit?: number }) {
       rating_received: 'yellow',
     };
     return colors[type] || 'gray';
-  };
-
-  const formatRelativeTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Baru saja';
-    if (diffMins < 60) return `${diffMins} menit yang lalu`;
-    if (diffHours < 24) return `${diffHours} jam yang lalu`;
-    if (diffDays < 7) return `${diffDays} hari yang lalu`;
-
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
   };
 
   if (loading) {
@@ -182,7 +163,7 @@ export default function RecentActivity({ limit = 10 }: { limit?: number }) {
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-semibold text-gray-900">{activity.title}</h4>
                     <span className="text-xs text-gray-500 whitespace-nowrap ml-4">
-                      {formatRelativeTime(activity.timestamp)}
+                      {formatRelativeTime(activity.timestamp, 'id')}
                     </span>
                   </div>
 

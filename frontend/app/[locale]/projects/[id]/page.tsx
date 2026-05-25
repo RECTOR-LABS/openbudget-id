@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { getExplorerUrl } from '@/lib/solana';
 import { formatRupiah } from '@/lib/utils';
+import type { Locale } from '@/lib/utils';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CommentSection from '@/components/CommentSection';
@@ -45,7 +46,7 @@ interface Project {
 
 export default function ProjectDetailPage() {
   const t = useTranslations('projects.detail');
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
   const params = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -206,11 +207,11 @@ export default function ProjectDetailPage() {
               <div className="flex flex-col gap-3 lg:min-w-[280px]">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
                   <div className="text-sm text-blue-100 mb-1">{t('totalBudget')}</div>
-                  <div className="text-2xl font-bold">{formatRupiah(totalBudget)}</div>
+                  <div className="text-2xl font-bold">{formatRupiah(totalBudget, locale)}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
                   <div className="text-sm text-blue-100 mb-1">{t('realized')}</div>
-                  <div className="text-2xl font-bold text-green-300">{formatRupiah(totalReleased)}</div>
+                  <div className="text-2xl font-bold text-green-300">{formatRupiah(totalReleased, locale)}</div>
                   <div className="mt-2 bg-white/20 rounded-full h-2 overflow-hidden">
                     <div className="bg-green-400 h-full transition-all" style={{ width: `${Math.min(progress, 100)}%` }}></div>
                   </div>
@@ -229,13 +230,13 @@ export default function ProjectDetailPage() {
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-600 mb-1">{t('totalBudgetCard')}</h3>
               <p className="text-2xl font-bold text-blue-900">
-                {formatRupiah(totalBudget)}
+                {formatRupiah(totalBudget, locale)}
               </p>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
               <h3 className="text-sm font-medium text-green-600 mb-1">{t('totalReleasedCard')}</h3>
               <p className="text-2xl font-bold text-green-900">
-                {formatRupiah(totalReleased)}
+                {formatRupiah(totalReleased, locale)}
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
@@ -337,7 +338,7 @@ export default function ProjectDetailPage() {
                           {milestone.description}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {t('amountLabel')}: <span className="font-semibold">{formatRupiah(milestoneAmount)}</span>
+                          {t('amountLabel')}: <span className="font-semibold">{formatRupiah(milestoneAmount, locale)}</span>
                         </p>
                         {milestone.is_released && milestone.released_at && (
                           <p className="text-sm text-green-600 mt-1">

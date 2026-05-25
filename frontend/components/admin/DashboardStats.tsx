@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
+import { formatRupiah } from '@/lib/utils';
 
 interface DashboardStatsData {
   ministry_name: string;
@@ -76,20 +77,6 @@ export default function DashboardStats() {
     fetchStats();
   }, [status]);
 
-  const formatRupiah = (amount: string) => {
-    const num = BigInt(amount);
-    const trillions = Number(num / BigInt(1_000_000_000_000));
-    const billions = Number(num / BigInt(1_000_000_000));
-
-    if (trillions >= 1) {
-      return `Rp ${trillions.toFixed(2)} T`;
-    }
-    if (billions >= 1) {
-      return `Rp ${billions.toFixed(2)} M`;
-    }
-    return `Rp ${Number(num).toLocaleString('id-ID')}`;
-  };
-
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -126,12 +113,12 @@ export default function DashboardStats() {
     },
     {
       title: 'Anggaran',
-      value: formatRupiah(stats.budget_insights.total_allocated),
+      value: formatRupiah(stats.budget_insights.total_allocated, 'id'),
       icon: '💰',
       color: 'green',
       details: [
-        { label: 'Dialokasikan', value: formatRupiah(stats.budget_insights.total_allocated) },
-        { label: 'Dicairkan', value: formatRupiah(stats.budget_insights.total_released) },
+        { label: 'Dialokasikan', value: formatRupiah(stats.budget_insights.total_allocated, 'id') },
+        { label: 'Dicairkan', value: formatRupiah(stats.budget_insights.total_released, 'id') },
       ],
       footer: `${stats.budget_insights.budget_utilization}% digunakan`,
       progress: stats.budget_insights.budget_utilization,
