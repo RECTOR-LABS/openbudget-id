@@ -291,7 +291,10 @@ export default function AnalyticsPage() {
                   <YAxis tickFormatter={(value) => abbreviateNumber(value)} />
                   <Tooltip
                     labelFormatter={(value) => new Date(value).toLocaleDateString('id-ID')}
-                    formatter={(value: number | string) => formatRupiah(BigInt(value))}
+                    formatter={(value) => {
+                      const n = Number(value);
+                      return isNaN(n) ? '' : formatRupiah(BigInt(Math.round(n)));
+                    }}
                   />
                   <Legend />
                   <Line type="monotone" dataKey="total_budget" stroke="#3B82F6" name="Total Budget" strokeWidth={2} />
