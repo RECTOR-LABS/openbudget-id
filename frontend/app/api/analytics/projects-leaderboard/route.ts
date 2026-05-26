@@ -1,15 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+// GET /api/analytics/projects-leaderboard - Per-project performance rankings
+// Locale-aware: `title` and `ministry` fields use English translations when locale=en.
+export async function GET(request: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(request);
+
     const result = await query(`
       SELECT
         p.id,
         p.title,
+        p.title_en,
         p.recipient_name as ministry,
+        p.recipient_name_en as ministry_en,
         p.total_amount as total_budget,
         p.total_released,
 
@@ -94,8 +101,21 @@ export async function GET() {
       LIMIT 30
     `);
 
+    // Apply locale selection and strip raw _en columns
+    const projects = result.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      title: locale === 'en'
+        ? ((row.title_en as string | null) ?? (row.title as string))
+        : (row.title as string),
+      ministry: locale === 'en'
+        ? ((row.ministry_en as string | null) ?? (row.ministry as string))
+        : (row.ministry as string),
+      title_en: undefined,
+      ministry_en: undefined,
+    }));
+
     return NextResponse.json({
-      projects: result.rows,
+      projects,
     });
   } catch (error) {
     console.error('Error fetching projects leaderboard:', error);

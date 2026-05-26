@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 interface MilestoneRow {
   id: string;
   project_id: string;
   index: number;
   description: string;
+  description_en: string | null;
   amount: string;
   is_released: boolean;
   release_tx: string | null;
@@ -13,16 +15,20 @@ interface MilestoneRow {
   released_at: Date | null;
   created_at: Date;
   updated_at: Date;
+  description_localized: string;
 }
 
 /**
  * GET /api/projects/[id] - Get project details with nested milestones
+ * Locale-aware: reads locale from ?locale= param, NEXT_LOCALE cookie, or Accept-Language header.
+ * _en column values fall back to original via COALESCE — safe when _en is NULL.
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const locale = getLocaleFromRequest(request);
     const { id } = params;
 
     // Validate UUID format
@@ -34,9 +40,14 @@ export async function GET(
       );
     }
 
-    // Fetch project
+    // Fetch project with localised column projections
     const projectResult = await query(
-      `SELECT * FROM projects WHERE id = $1`,
+      `SELECT *,
+         COALESCE(title_en, title) AS title_localized,
+         COALESCE(description_en, description) AS description_localized,
+         COALESCE(recipient_name_en, recipient_name) AS recipient_name_localized
+       FROM projects
+       WHERE id = $1`,
       [id]
     );
 
@@ -49,17 +60,21 @@ export async function GET(
 
     const project = projectResult.rows[0];
 
-    // Fetch associated milestones
+    // Fetch associated milestones with localised description
     const milestonesResult = await query<MilestoneRow>(
-      `SELECT * FROM milestones WHERE project_id = $1 ORDER BY index ASC`,
+      `SELECT *,
+         COALESCE(description_en, description) AS description_localized
+       FROM milestones
+       WHERE project_id = $1
+       ORDER BY index ASC`,
       [id]
     );
 
     const milestones = milestonesResult.rows.map((row) => ({
       id: row.id,
       project_id: row.project_id,
-      index: row.index, // Changed from milestone_index to index for consistency
-      description: row.description,
+      index: row.index,
+      description: locale === 'en' ? row.description_localized : row.description,
       amount: row.amount,
       is_released: row.is_released,
       release_tx: row.release_tx,
@@ -74,9 +89,9 @@ export async function GET(
         id: project.id,
         ministry_id: project.ministry_id,
         blockchain_id: project.blockchain_id,
-        title: project.title,
-        description: project.description,
-        recipient_name: project.recipient_name,
+        title: locale === 'en' ? project.title_localized : project.title,
+        description: locale === 'en' ? project.description_localized : project.description,
+        recipient_name: locale === 'en' ? project.recipient_name_localized : project.recipient_name,
         recipient_type: project.recipient_type,
         total_amount: project.total_amount,
         total_allocated: project.total_allocated || 0,

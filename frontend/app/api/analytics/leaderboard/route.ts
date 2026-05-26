@@ -1,11 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
-export async function GET() {
+// GET /api/analytics/leaderboard - Ministry performance rankings
+// Locale-aware: `ministry` field returns the English ministry name when locale=en.
+// The materialized view already has both `ministry` (Indonesian) and `ministry_en` columns.
+export async function GET(request: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(request);
+
     const result = await query(`
       SELECT
         ministry,
+        ministry_en,
         total_projects,
         completed_projects,
         completion_rate,
@@ -30,6 +37,12 @@ export async function GET() {
     // Parse numeric strings to numbers for proper frontend handling
     const leaderboard = result.rows.map((row: Record<string, unknown>) => ({
       ...row,
+      // Return ministry under the original field name; pick locale-appropriate value
+      ministry: locale === 'en'
+        ? ((row.ministry_en as string | null) ?? (row.ministry as string))
+        : (row.ministry as string),
+      // Strip the raw _en column — consumers only need `ministry`
+      ministry_en: undefined,
       completion_rate: parseFloat(row.completion_rate as string) || 0,
       budget_accuracy: parseFloat(row.budget_accuracy as string) || 0,
       release_rate: parseFloat(row.release_rate as string) || 0,

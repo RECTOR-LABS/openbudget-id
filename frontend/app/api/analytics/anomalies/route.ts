@@ -1,16 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
-export async function GET() {
+// GET /api/analytics/anomalies - Detect suspicious patterns in project spending
+// Locale-aware: `title` and `ministry` fields use English translations when locale=en.
+// All four sub-queries select both the original (Indonesian) and _en columns;
+// locale selection is done in the final JS map so the SQL stays simple.
+export async function GET(request: NextRequest) {
   try {
-    const anomalies = [];
+    const locale = getLocaleFromRequest(request);
+
+    const anomalies: Record<string, unknown>[] = [];
 
     // Anomaly 1: Projects with large budget but low release rate
     const lowReleaseResult = await query(`
       SELECT
         p.id,
         p.title,
+        p.title_en,
         p.recipient_name as ministry,
+        p.recipient_name_en as ministry_en,
         p.total_amount as total_budget,
         p.total_released,
         ROUND(
@@ -34,7 +43,9 @@ export async function GET() {
       SELECT
         p.id,
         p.title,
+        p.title_en,
         p.recipient_name as ministry,
+        p.recipient_name_en as ministry_en,
         p.total_amount as total_budget,
         COUNT(m.id) as total_milestones,
         COUNT(m.id) FILTER (WHERE m.is_released = TRUE AND (m.proof_url IS NULL OR m.proof_url = '')) as missing_proof_count,
@@ -43,7 +54,7 @@ export async function GET() {
       FROM projects p
       JOIN milestones m ON m.project_id = p.id
       WHERE p.status = 'published'
-      GROUP BY p.id, p.title, p.recipient_name, p.total_amount
+      GROUP BY p.id, p.title, p.title_en, p.recipient_name, p.recipient_name_en, p.total_amount
       HAVING COUNT(m.id) FILTER (WHERE m.is_released = TRUE AND (m.proof_url IS NULL OR m.proof_url = '')) > 0
       ORDER BY missing_proof_count DESC
       LIMIT 10
@@ -56,7 +67,9 @@ export async function GET() {
       SELECT
         p.id,
         p.title,
+        p.title_en,
         p.recipient_name as ministry,
+        p.recipient_name_en as ministry_en,
         p.total_amount as total_budget,
         p.total_allocated,
         ROUND(
@@ -79,7 +92,9 @@ export async function GET() {
       SELECT
         p.id,
         p.title,
+        p.title_en,
         p.recipient_name as ministry,
+        p.recipient_name_en as ministry_en,
         p.total_amount as total_budget,
         ROUND(AVG(r.rating), 2) as avg_rating,
         COUNT(r.id) as rating_count,
@@ -88,7 +103,7 @@ export async function GET() {
       FROM projects p
       JOIN project_ratings r ON r.project_id = p.id
       WHERE p.status = 'published'
-      GROUP BY p.id, p.title, p.recipient_name, p.total_amount
+      GROUP BY p.id, p.title, p.title_en, p.recipient_name, p.recipient_name_en, p.total_amount
       HAVING COUNT(r.id) >= 3 AND AVG(r.rating) < 2.5
       ORDER BY avg_rating ASC
       LIMIT 10
@@ -96,12 +111,28 @@ export async function GET() {
 
     anomalies.push(...lowTrustResult.rows);
 
-    // Parse numeric strings to numbers for proper frontend handling
-    const parsedAnomalies = anomalies.map((anomaly: Record<string, unknown>) => ({
+    // Parse numeric strings to numbers; apply locale selection for text fields.
+    // Strip _en columns from the response — consumers only need `title` and `ministry`.
+    const parsedAnomalies = anomalies.map((anomaly) => ({
       ...anomaly,
-      release_percentage: anomaly.release_percentage ? parseFloat(anomaly.release_percentage as string) : undefined,
-      avg_rating: anomaly.avg_rating ? parseFloat(anomaly.avg_rating as string) : undefined,
-      over_allocation_percentage: anomaly.over_allocation_percentage ? parseFloat(anomaly.over_allocation_percentage as string) : undefined,
+      title: locale === 'en'
+        ? ((anomaly.title_en as string | null) ?? (anomaly.title as string))
+        : (anomaly.title as string),
+      ministry: locale === 'en'
+        ? ((anomaly.ministry_en as string | null) ?? (anomaly.ministry as string))
+        : (anomaly.ministry as string),
+      // Strip raw _en columns
+      title_en: undefined,
+      ministry_en: undefined,
+      release_percentage: anomaly.release_percentage
+        ? parseFloat(anomaly.release_percentage as string)
+        : undefined,
+      avg_rating: anomaly.avg_rating
+        ? parseFloat(anomaly.avg_rating as string)
+        : undefined,
+      over_allocation_percentage: anomaly.over_allocation_percentage
+        ? parseFloat(anomaly.over_allocation_percentage as string)
+        : undefined,
     }));
 
     return NextResponse.json({

@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 // GET /api/ratings?project_id=xxx - Get ratings for a project
+// Locale-aware: `comment` field returns English translation when locale=en
+// (COALESCE falls back to Indonesian if comment_en is NULL).
 export async function GET(req: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(req);
+
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('project_id');
 
@@ -11,9 +16,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Missing project_id' }, { status: 400 });
     }
 
-    // Get individual ratings
+    // Get individual ratings with localised comment
     const ratingsResult = await query(
-      `SELECT *
+      `SELECT *,
+              COALESCE(comment_en, comment) AS comment_localized
        FROM project_ratings
        WHERE project_id = $1
        ORDER BY created_at DESC`,
@@ -47,8 +53,18 @@ export async function GET(req: NextRequest) {
       one_star: parseInt(rawStats.one_star) || 0,
     } : null;
 
+    // Return comment under the original field name so the frontend needs no changes
+    const ratings = ratingsResult.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      comment: locale === 'en'
+        ? (row.comment_localized as string | null)
+        : (row.comment as string | null),
+      // Strip helper column
+      comment_localized: undefined,
+    }));
+
     return NextResponse.json({
-      ratings: ratingsResult.rows,
+      ratings,
       stats,
     });
   } catch (error) {

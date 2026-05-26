@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { requireAuth, requireMinistry } from '@/lib/api-auth';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 interface ProjectRow {
   id: string;
@@ -20,6 +21,11 @@ interface ProjectRow {
   created_at: Date;
   updated_at: Date;
   milestone_count_actual: string;
+  // Localised fallback columns (COALESCE result, nullable)
+  title_localized: string;
+  description_localized: string | null;
+  recipient_name_localized: string;
+  ministry_name_localized: string;
 }
 
 /**
@@ -115,10 +121,16 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/projects - List all projects with optional filters
- * Supports: status, ministry_id, ministry (name), search (title/ministry)
+ * Supports: status, ministry_id, ministry (name), search (title/ministry), locale (en|id)
+ *
+ * Locale detection order: ?locale= param > NEXT_LOCALE cookie > Accept-Language header > 'en'
+ * Search matches against both original (Indonesian) AND English columns so EN users can search
+ * in English and still find relevant projects.
  */
 export async function GET(request: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(request);
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const ministry_id = searchParams.get('ministry_id');
@@ -132,6 +144,11 @@ export async function GET(request: NextRequest) {
       SELECT
         p.*,
         ma.ministry_name,
+        ma.ministry_name_en,
+        COALESCE(p.title_en, p.title) AS title_localized,
+        COALESCE(p.description_en, p.description) AS description_localized,
+        COALESCE(p.recipient_name_en, p.recipient_name) AS recipient_name_localized,
+        COALESCE(ma.ministry_name_en, ma.ministry_name) AS ministry_name_localized,
         COUNT(m.id) as milestone_count_actual
       FROM projects p
       LEFT JOIN ministry_accounts ma ON p.ministry_id = ma.id
@@ -152,12 +169,21 @@ export async function GET(request: NextRequest) {
     }
 
     if (ministry) {
-      conditions.push(`ma.ministry_name ILIKE $${params.length + 1}`);
+      // Match ministry filter against both ID and EN columns so either locale works
+      conditions.push(
+        `(ma.ministry_name ILIKE $${params.length + 1} OR COALESCE(ma.ministry_name_en, '') ILIKE $${params.length + 1})`
+      );
       params.push(`%${ministry}%`);
     }
 
     if (search) {
-      conditions.push(`(p.title ILIKE $${params.length + 1} OR ma.ministry_name ILIKE $${params.length + 1})`);
+      // Match search against both ID and EN columns so users can search in either language
+      conditions.push(
+        `(p.title ILIKE $${params.length + 1}` +
+        ` OR COALESCE(p.title_en, '') ILIKE $${params.length + 1}` +
+        ` OR ma.ministry_name ILIKE $${params.length + 1}` +
+        ` OR COALESCE(ma.ministry_name_en, '') ILIKE $${params.length + 1})`
+      );
       params.push(`%${search}%`);
     }
 
@@ -166,7 +192,7 @@ export async function GET(request: NextRequest) {
     }
 
     queryText += `
-      GROUP BY p.id, ma.ministry_name
+      GROUP BY p.id, ma.ministry_name, ma.ministry_name_en, p.title_en, p.description_en, p.recipient_name_en
       ORDER BY p.created_at DESC
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `;
@@ -176,13 +202,15 @@ export async function GET(request: NextRequest) {
     const result = await query<ProjectRow>(queryText, params);
 
     // Return flat array for public API (simpler for public homepage)
+    // Localized fields are returned under the original field names so the
+    // frontend doesn't need separate handling — the API owns the locale selection.
     const projects = result.rows.map((row) => ({
       id: row.id,
       ministry_id: row.ministry_id,
-      ministry: row.ministry_name,
-      title: row.title,
-      description: row.description,
-      recipient_name: row.recipient_name,
+      ministry: locale === 'en' ? row.ministry_name_localized : row.ministry_name,
+      title: locale === 'en' ? row.title_localized : row.title,
+      description: locale === 'en' ? row.description_localized : row.description,
+      recipient_name: locale === 'en' ? row.recipient_name_localized : row.recipient_name,
       recipient_type: row.recipient_type,
       total_amount: row.total_amount,
       total_allocated: row.total_allocated || '0',

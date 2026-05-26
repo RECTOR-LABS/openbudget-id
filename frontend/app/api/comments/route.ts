@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 // GET /api/comments?project_id=xxx or milestone_id=xxx
+// Locale-aware: `content` field returns the English translation when locale=en
+// (COALESCE falls back to Indonesian if content_en is NULL).
 export async function GET(req: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(req);
+
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('project_id');
     const milestoneId = searchParams.get('milestone_id');
@@ -20,6 +25,7 @@ export async function GET(req: NextRequest) {
 
     const result = await query(
       `SELECT c.*,
+              COALESCE(c.content_en, c.content) AS content_localized,
               (SELECT COUNT(*) FROM comments r WHERE r.parent_comment_id = c.id) as reply_count
        FROM comments c
        WHERE c.${filterField} = $1
@@ -29,7 +35,17 @@ export async function GET(req: NextRequest) {
       [filterId]
     );
 
-    return NextResponse.json({ comments: result.rows });
+    // Return content under the original field name so the frontend needs no changes
+    const comments = result.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      content: locale === 'en'
+        ? (row.content_localized as string)
+        : (row.content as string),
+      // Strip the helper column from the response
+      content_localized: undefined,
+    }));
+
+    return NextResponse.json({ comments });
   } catch (error) {
     console.error('GET /api/comments error:', error);
     return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });

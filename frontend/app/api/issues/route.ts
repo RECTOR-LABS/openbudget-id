@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 // GET /api/issues?project_id=xxx or status=xxx
+// Locale-aware: `description` field returns English translation when locale=en
+// (COALESCE falls back to Indonesian if description_en is NULL).
 export async function GET(req: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(req);
+
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get('project_id');
     const milestoneId = searchParams.get('milestone_id');
@@ -11,7 +16,10 @@ export async function GET(req: NextRequest) {
     const severity = searchParams.get('severity');
 
     let sql = `
-      SELECT i.*, p.title as project_title, p.recipient_name
+      SELECT i.*,
+             COALESCE(i.description_en, i.description) AS description_localized,
+             COALESCE(p.title_en, p.title) AS project_title,
+             COALESCE(p.recipient_name_en, p.recipient_name) AS recipient_name
       FROM issues i
       JOIN projects p ON i.project_id = p.id
       WHERE 1=1
@@ -47,7 +55,17 @@ export async function GET(req: NextRequest) {
 
     const result = await query(sql, params);
 
-    return NextResponse.json({ issues: result.rows });
+    // Return fields under original names so the frontend needs no changes
+    const issues = result.rows.map((row: Record<string, unknown>) => ({
+      ...row,
+      description: locale === 'en'
+        ? (row.description_localized as string)
+        : (row.description as string),
+      // Strip helper column
+      description_localized: undefined,
+    }));
+
+    return NextResponse.json({ issues });
   } catch (error) {
     console.error('GET /api/issues error:', error);
     return NextResponse.json({ error: 'Failed to fetch issues' }, { status: 500 });

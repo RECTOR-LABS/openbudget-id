@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, transaction } from '@/lib/db';
 import { requireAuth } from '@/lib/api-auth';
+import { getLocaleFromRequest } from '@/lib/locale';
 
 interface MilestoneRow {
   id: string;
   project_id: string;
   index: number;
   description: string;
+  description_en: string | null;
   amount: string;
   is_released: boolean;
   release_tx: string | null;
@@ -14,6 +16,7 @@ interface MilestoneRow {
   released_at: Date | null;
   created_at: Date;
   updated_at: Date;
+  description_localized: string;
 }
 
 /**
@@ -175,14 +178,22 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/milestones - List milestones with optional filters
+ * Locale-aware: description field returns the English translation when locale=en
+ * (COALESCE falls back to Indonesian if _en is NULL).
  */
 export async function GET(request: NextRequest) {
   try {
+    const locale = getLocaleFromRequest(request);
+
     const { searchParams } = new URL(request.url);
     const project_id = searchParams.get('project_id');
     const is_released = searchParams.get('is_released');
 
-    let queryText = `SELECT * FROM milestones`;
+    let queryText = `
+      SELECT *,
+        COALESCE(description_en, description) AS description_localized
+      FROM milestones
+    `;
     const params: (string | boolean)[] = [];
     const conditions: string[] = [];
 
@@ -208,7 +219,7 @@ export async function GET(request: NextRequest) {
       id: row.id,
       project_id: row.project_id,
       index: row.index,
-      description: row.description,
+      description: locale === 'en' ? row.description_localized : row.description,
       amount: row.amount,
       is_released: row.is_released,
       release_tx: row.release_tx,
