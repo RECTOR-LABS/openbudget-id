@@ -55,7 +55,7 @@ export default function SettingsPage() {
     };
 
     fetchAccount();
-  }, [session]);
+  }, [session, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

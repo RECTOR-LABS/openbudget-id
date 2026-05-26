@@ -77,7 +77,7 @@ export default function SystemInsightsPage() {
     };
 
     fetchStats();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (
